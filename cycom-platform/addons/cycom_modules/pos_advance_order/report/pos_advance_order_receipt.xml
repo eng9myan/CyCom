@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <template id="report_pos_advance_order_receipt">
         <t t-call="web.basic_layout">
             <t t-foreach="docs" t-as="o">
@@ -80,6 +80,6 @@
             </t>
         </t>
     </template>
-</odoo>
+</cycom>
 
 

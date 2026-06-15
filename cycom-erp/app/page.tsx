@@ -11,7 +11,7 @@ import {
   Sparkles
 } from 'lucide-react';
 
-// Modules mapping representing Odoo's SaaS landing page
+// Cycom modules launcher
 const CYCOM_MODULES = [
   { id: 'setup', label: 'Setup', href: '/setup', icon: Sparkles, color: 'from-fuchsia-500 to-purple-600', group: 'Administration' },
   { id: 'discuss', label: 'Discuss', href: '/discuss', icon: MessageSquare, color: 'from-purple-500 to-indigo-500', group: 'Communication' },

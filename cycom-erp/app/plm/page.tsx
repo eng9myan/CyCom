@@ -152,7 +152,7 @@ export default function PLMPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title text-white">PLM & Manufacturing</h1>
-          <p className="page-subtitle">Standard Odoo Product Lifecycle Management (PLM) and Manufacturing Bill of Materials (BOM) cost rollups.</p>
+          <p className="page-subtitle">Cycom Product Lifecycle Management (PLM) and Manufacturing Bill of Materials (BOM) cost rollups.</p>
         </div>
       </div>
 
@@ -291,7 +291,7 @@ export default function PLMPage() {
           <div className="glass-card p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400">Engineering Change Orders (ECO)</h2>
-              <span className="badge badge-cyan text-[8px]">Odoo PLM workflow</span>
+              <span className="badge badge-cyan text-[8px]">Cycom PLM workflow</span>
             </div>
 
             <div className="space-y-3">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
 
     <record id="print_engine_client_tree_view" model="ir.ui.view">
         <field name="name">print.engine.client.list.view</field>
@@ -103,7 +103,7 @@
         </p>
         <p>
             Print Engine Clients are computers or systems where the print engine software is installed.
-            Each client can manage multiple printers and handle print jobs from Odoo.
+            Each client can manage multiple printers and handle print jobs from Cycom.
         </p>
         <p>
             <strong>To get started:</strong>
@@ -142,4 +142,4 @@
               name="Print Engine Clients"
               action="action_print_engine_client"
               sequence="1"/>
-</odoo>
+</cycom>

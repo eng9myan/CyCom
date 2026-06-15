@@ -6,19 +6,19 @@ import {
   Users, Search, Filter, Plus, Shield, ShieldAlert,
   MapPin, Phone, Mail, Award, CheckCircle, CreditCard, X
 } from 'lucide-react';
-import { searchRead } from '@/lib/odoo';
+import { searchRead } from '@/lib/cycom';
 
 /**
  * Employee Directory
  * --------------------
  * Visual design is unchanged from the original Cycom mockup. The ONLY substantive change
- * is that data is now sourced from Odoo's `hr.employee` model (via /api/odoo/call) instead
+ * is that data is now sourced from Cycom's `hr.employee` model (via /api/cycom/call) instead
  * of a hardcoded INITIAL list.
  */
 
 type Employee = {
   id: string;       // formatted code, e.g. EMP-00249
-  rawId: number;    // Odoo numeric id
+  rawId: number;    // Cycom numeric id
   name: string;
   role: string;
   department: string;
@@ -34,7 +34,7 @@ type Employee = {
   grade: string;
 };
 
-type OdooEmployeeRecord = {
+type CycomEmployeeRecord = {
   id: number;
   name?: string;
   work_email?: string | false;
@@ -48,13 +48,13 @@ type OdooEmployeeRecord = {
 
 function formatJoined(create_date?: string): string {
   if (!create_date) return '—';
-  // Odoo returns "YYYY-MM-DD HH:mm:ss"
+  // Cycom returns "YYYY-MM-DD HH:mm:ss"
   const d = new Date(create_date.replace(' ', 'T') + 'Z');
   if (isNaN(d.getTime())) return create_date;
   return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
 }
 
-function odooToEmployee(r: OdooEmployeeRecord): Employee {
+function cycomToEmployee(r: CycomEmployeeRecord): Employee {
   return {
     rawId: r.id,
     id: `EMP-${String(r.id).padStart(5, '0')}`,
@@ -85,7 +85,7 @@ export default function EmployeeDirectory() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    searchRead<OdooEmployeeRecord>(
+    searchRead<CycomEmployeeRecord>(
       'hr.employee',
       [['active', '=', true]],
       ['name', 'work_email', 'work_phone', 'work_location_id', 'department_id', 'job_title', 'create_date', 'parent_id'],
@@ -93,11 +93,11 @@ export default function EmployeeDirectory() {
     )
       .then((rows) => {
         if (cancelled) return;
-        setEmployees(rows.map(odooToEmployee));
+        setEmployees(rows.map(cycomToEmployee));
       })
       .catch((err) => {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : 'Failed to load employees from Odoo');
+        setError(err instanceof Error ? err.message : 'Failed to load employees from Cycom');
       })
       .finally(() => {
         if (cancelled) return;
@@ -121,7 +121,7 @@ export default function EmployeeDirectory() {
       <div className="page-header">
         <div>
           <h1 className="page-title text-white">Employee Directory</h1>
-          <p className="page-subtitle">Search, view, and manage complete employee profiles, including Odoo bank fields, portal setup, and spouse details.</p>
+          <p className="page-subtitle">Search, view, and manage complete employee profiles, including Cycom bank fields, portal setup, and spouse details.</p>
         </div>
         <button className="btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" /> Add Employee
@@ -147,7 +147,7 @@ export default function EmployeeDirectory() {
 
       {loading && (
         <div className="glass-card p-8 text-center text-slate-400 text-sm">
-          Loading employees from Odoo…
+          Loading employees from Cycom…
         </div>
       )}
 
@@ -314,7 +314,7 @@ export default function EmployeeDirectory() {
                 </div>
 
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Bank Details (Odoo Integration)</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Bank Details (Cycom Integration)</h3>
                   <div className="bg-white/5 p-4 rounded-xl border border-white/5 text-sm space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded bg-cyan-950/40 text-cyan-400 border border-cyan-800/30">

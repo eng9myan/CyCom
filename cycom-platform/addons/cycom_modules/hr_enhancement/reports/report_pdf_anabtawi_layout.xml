@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <!-- Reusable Cycom PDF chrome: call from any qweb-pdf report in this module. -->
     <template id="ae_pdf_header">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
@@ -61,4 +61,4 @@
             </div>
         </div>
     </template>
-</odoo>
+</cycom>

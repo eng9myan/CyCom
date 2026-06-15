@@ -1,4 +1,4 @@
-odoo-data/
+cycom-data/
 postgres-data/
 .env
-odoo-source/
+cycom-source/

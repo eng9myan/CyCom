@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="extra_hours_enhancement_overtime_rule_form" model="ir.ui.view">
         <field name="name">extra.hours.enhancement.overtime.rule.form</field>
         <field name="model">hr.attendance.overtime.rule</field>
@@ -32,4 +32,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

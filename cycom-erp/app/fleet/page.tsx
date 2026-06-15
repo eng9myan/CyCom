@@ -145,7 +145,7 @@ export default function FleetPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title text-white">Fleet Management</h1>
-          <p className="page-subtitle">Standard Odoo Fleet operations. Register commercial trucks, track fuel odometer values, and log repair events.</p>
+          <p className="page-subtitle">Standard Cycom Fleet operations. Register commercial trucks, track fuel odometer values, and log repair events.</p>
         </div>
       </div>
 

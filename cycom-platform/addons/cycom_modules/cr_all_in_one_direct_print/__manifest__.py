@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 # Part of Creyox Technologies
 {
-    "name": "All In One Direct Print | Advanced Direct Print Pro | Odoo Print Engine Seamless Odoo Printer Integration & Auto-Print",
+    "name": "All In One Direct Print | Advanced Direct Print Pro | Cycom Print Engine Seamless Cycom Printer Integration & Auto-Print",
     "author": "Creyox Technologies",
     "website": "https://www.creyox.com",
     "support": "support@creyox.com",
     "category": "Extra Tools",
     "summary": """
-        Seamless capability to print Any Reports directly from Odoo to local or network printers. 
+        Seamless capability to print Any Reports directly from Cycom to local or network printers. 
         Includes a robust Print Job Manager, automatic printer discovery & secure local print engine.
     """,
     "license": "OPL-1",
     "version": "19.0.0.2",
     "description": """
-        <h1>Advanced Direct Print Pro for Odoo</h1>
+        <h1>Advanced Direct Print Pro for Cycom</h1>
         
         <p>
-        The <b>#1 Direct Printing Solution for Odoo</b>. Instantly print Reports directly from Odoo to any local or network printer—no PDF downloads, no browser dialogs, no friction.
+        The <b>#1 Direct Printing Solution for Cycom</b>. Instantly print Reports directly from Cycom to any local or network printer—no PDF downloads, no browser dialogs, no friction.
         </p>
         
         <p>
@@ -25,7 +25,7 @@
         
         <h2>Overview</h2>
         <p>
-        <b>Advanced Direct Print Pro</b> is a powerful Odoo printer integration module that connects your Odoo system to local and network printers via a secure Print Engine Client.  
+        <b>Advanced Direct Print Pro</b> is a powerful Cycom printer integration module that connects your Cycom system to local and network printers via a secure Print Engine Client.  
         It completely bypasses the browser print dialog and sends print jobs straight to the OS printer spooler.
         </p>
         
@@ -34,7 +34,7 @@
           <li><i class="fa fa-check"></i> <b>Seamless Direct Printing</b> – Print instantly without downloading or opening PDFs</li>
           <li><i class="fa fa-check"></i> <b>Universal Printer Support</b> – USB, Network (LAN/WiFi), and Bluetooth printers</li>
           <li><i class="fa fa-check"></i> <b>Auto-Print Rules</b> – Automatically print specific reports to predefined printers</li>
-          <li><i class="fa fa-check"></i> <b>Smart Printer Discovery</b> – Sync all local printers into Odoo with one click</li>
+          <li><i class="fa fa-check"></i> <b>Smart Printer Discovery</b> – Sync all local printers into Cycom with one click</li>
           <li><i class="fa fa-check"></i> <b>Advanced Print Job Queue</b> – Track, retry, and manage every print job</li> 
           <li><i class="fa fa-check"></i> <b>Secure Local Communication</b> – Token-based authentication using <code>Print Key</code></li>
         </ul>
@@ -46,7 +46,7 @@
         </p>
         
         <p><b>Printer Sync & Discovery</b><br/>
-        Use the built-in “Discover Printers” button to automatically fetch all printers available on the local machine and sync them with Odoo.
+        Use the built-in “Discover Printers” button to automatically fetch all printers available on the local machine and sync them with Cycom.
         </p>
         
         <p><b>Print Job Monitoring</b><br/>
@@ -60,8 +60,8 @@
         
         <h3>FAQs</h3>
         
-        <p><b>Q1: Does this work on Odoo.sh or Cloud hosting?</b><br/>
-        Yes. The module is specifically designed to work with cloud-hosted Odoo instances by securely connecting to a local Print Engine Client.
+        <p><b>Q1: Does this work on Cycom.sh or Cloud hosting?</b><br/>
+        Yes. The module is specifically designed to work with cloud-hosted Cycom instances by securely connecting to a local Print Engine Client.
         </p>
         
         <p><b>Q2: Can I auto-print without user interaction?</b><br/>
@@ -73,22 +73,22 @@
         </p>
         
         <p><b>Q4: Is the connection secure?</b><br/>
-        Yes. Communication between Odoo and the Print Engine is protected using token-based authentication.
+        Yes. Communication between Cycom and the Print Engine is protected using token-based authentication.
         </p>
         
         <h2>Why Choose Us?</h2>
         <ul>
           <li><i class="fa fa-check"></i> Built for high-volume, mission-critical printing</li>
           <li><i class="fa fa-check"></i> Enterprise-grade architecture with real job tracking</li>
-          <li><i class="fa fa-check"></i> Clean, well-structured code following Odoo standards</li>
+          <li><i class="fa fa-check"></i> Clean, well-structured code following Cycom standards</li>
           <li><i class="fa fa-check"></i> Actively maintained with long-term support</li>
-          <li><i class="fa fa-check"></i> Trusted by production Odoo environments</li>
+          <li><i class="fa fa-check"></i> Trusted by production Cycom environments</li>
         </ul>
         
         <hr/>
-        <p>For custom Odoo integrations and CRM enhancements, visit <a href="https://creyox.com">creyox.com</a></p>
+        <p>For custom Cycom integrations and CRM enhancements, visit <a href="https://creyox.com">creyox.com</a></p>
         <p>Watch the youtube video, visit <a href="https://youtu.be/nrx0jOLKkdI">https://www.youtube.com/@CreyoxTechnologies</a></p>
-        <p>Read our blog post, visit <a href="https://creyox.com/blog/boost-sales-with-odoo-3cx-crm-integration-19/boost-sales-with-odoo-3cx-crm-integration-17">https://creyox.com/blog</a></p>
+        <p>Read our blog post, visit <a href="https://creyox.com/blog/boost-sales-with-cycom-3cx-crm-integration-19/boost-sales-with-cycom-3cx-crm-integration-17">https://creyox.com/blog</a></p>
         <p>Visit Our Linkedin Page <a href="https://www.linkedin.com/company/creyox-technologies/">Creyox Technologies Linkedin Page</a></p>
 
  """,

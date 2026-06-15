@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!-- Replace the Odoo brand on the login screen with the Cycom mark.
+<cycom>
+    <!-- Replace the Cycom brand on the login screen with the Cycom mark.
          Inherits web.login to swap brand text + add a Cycom badge above the form. -->
     <template id="cycom_login_branding" inherit_id="web.login" name="Cycom Login Branding">
         <xpath expr="//div[hasclass('o_login_textbox_wrapper')]" position="before">
@@ -18,4 +18,4 @@
             <title>Cycom ERP</title>
         </xpath>
     </template>
-</odoo>
+</cycom>

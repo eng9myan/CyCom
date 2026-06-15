@@ -19,7 +19,7 @@ export type HrSetupResult =
   | { ok: false; error: string; warnings?: string[] };
 
 export async function applyHrSetup(p: HrSetupPayload): Promise<HrSetupResult> {
-  const res = await fetch('/api/odoo/setup/hr', {
+  const res = await fetch('/api/cycom/setup/hr', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(p),

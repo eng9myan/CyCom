@@ -1,7 +1,7 @@
 /**
  * Country-aware Chart-of-Accounts recommendations.
  *
- * Odoo ships per-country localization modules (`l10n_<cc>`) that pre-load a complete chart of
+ * Cycom ships per-country localization modules (`l10n_<cc>`) that pre-load a complete chart of
  * accounts plus the standard tax structure for that jurisdiction. Installing the right one is
  * almost always the right answer — the wizard just picks it for the user.
  *
@@ -79,7 +79,7 @@ export const COA_COUNTRY_TEMPLATES: Record<string, CoaCountryTemplate> = {
     l10nModule: 'l10n_generic_coa',
     defaultSalesTaxPct: 11,
     defaultPurchaseTaxPct: 11,
-    advisor: 'Lebanon uses an 11% VAT. No dedicated Odoo localization yet — generic chart with manual tax.',
+    advisor: 'Lebanon uses an 11% VAT. No dedicated Cycom localization yet — generic chart with manual tax.',
   },
   PS: {
     countryCode: 'PS',
@@ -125,7 +125,7 @@ export function getCoaTemplate(countryCode: string): CoaCountryTemplate {
       l10nModule: 'l10n_generic_coa',
       defaultSalesTaxPct: 0,
       defaultPurchaseTaxPct: 0,
-      advisor: 'No country-specific localization mapped — Cycom will install the generic chart of accounts. You can swap modules later if Odoo ships a localization for this country.',
+      advisor: 'No country-specific localization mapped — Cycom will install the generic chart of accounts. You can swap modules later if Cycom ships a localization for this country.',
     }
   );
 }

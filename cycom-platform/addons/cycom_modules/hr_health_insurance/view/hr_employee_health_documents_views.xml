@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="hr_employee_view_form_health_documents" model="ir.ui.view">
         <field name="name">hr.employee.form.health.documents</field>
         <field name="model">hr.employee</field>
@@ -20,4 +20,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     
     
     <record id="view_ir_actions_report_form_inherit_print_config" model="ir.ui.view">
@@ -42,4 +42,4 @@
         </field>
     </record>
 
-</odoo>
+</cycom>

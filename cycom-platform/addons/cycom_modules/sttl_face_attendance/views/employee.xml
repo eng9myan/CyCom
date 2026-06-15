@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
     <record id="hr_employee_face_capture" model="ir.ui.view">
         <field name="name">hr.employee.face.capture</field>
         <field name="model">hr.employee</field>
@@ -9,4 +9,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

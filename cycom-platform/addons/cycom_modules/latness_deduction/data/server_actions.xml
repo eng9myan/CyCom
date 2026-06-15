@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
     <!-- Server action on Pay Run -->
     <record id="action_mass_reconcile_lateness_payrun" model="ir.actions.server">
         <field name="name">Mass Reconciliation</field>
@@ -24,4 +24,4 @@ action = {'type': 'ir.actions.client', 'tag': 'reload'}
         </field>
     </record>
 
-</odoo>
+</cycom>

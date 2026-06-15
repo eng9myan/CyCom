@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="view_user_record_activity_wizard_form" model="ir.ui.view">
         <field name="name">user.record.activity.wizard.form</field>
         <field name="model">user.record.activity.wizard</field>
@@ -48,4 +48,4 @@
               action="action_user_record_activity_wizard"
               groups="base.group_system"
               sequence="10"/>
-</odoo>
+</cycom>

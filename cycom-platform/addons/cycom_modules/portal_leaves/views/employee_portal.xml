@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <!-- TIME-OFF -->
     <template id="portal_my_home_leave" name="Show Time Off Requests" customize_show="True"
               inherit_id="portal.portal_my_home" priority="70">
@@ -490,4 +490,4 @@
         </li>
     </template>
 
-</odoo>
+</cycom>

@@ -3,7 +3,7 @@
 
     'summary': "Restrict and control user access to Point of Sale sessions.",
 
-    'description': """POS Session User Restrict is a functional enhancement for Odoo Point of Sale that allows administrators
+    'description': """POS Session User Restrict is a functional enhancement for Cycom Point of Sale that allows administrators
                       to explicitly control which users are permitted to access and operate specific POS sessions.
                  """,
 

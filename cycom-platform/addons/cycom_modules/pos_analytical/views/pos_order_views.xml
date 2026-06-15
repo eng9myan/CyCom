@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
+<cycom>
     <record id='sh_analytic_account_pos_order_inherit_for_analytic_account' model="ir.ui.view">
         <field name="name">sh.analytic.account.pos.order.view.inherit</field>
         <field name='model'>pos.order</field>
@@ -38,4 +38,4 @@
         </field>
     </record>
    
-</odoo>
+</cycom>

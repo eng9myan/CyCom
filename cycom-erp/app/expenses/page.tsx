@@ -240,7 +240,7 @@ export default function ExpensesPage() {
             <div className="glass-card p-5 space-y-4">
               <div className="flex items-center justify-between border-b border-white/5 pb-3">
                 <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400">Finance Approvals Queue</h2>
-                <span className="badge badge-cyan text-[8px]">Odoo hr_expense workflow</span>
+                <span className="badge badge-cyan text-[8px]">Cycom hr_expense workflow</span>
               </div>
 
               <div className="space-y-3">

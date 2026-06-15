@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
   <record id="action_packing_package_type" model="ir.actions.act_window">
     <field name="name">Package Types</field>
     <field name="res_model">packing.package.type</field>
@@ -10,4 +10,4 @@
 
   <menuitem id="menu_packing_package_type" name="Package Types"
             parent="menu_packing_root" action="action_packing_package_type" sequence="10"/>
-</odoo>
+</cycom>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
+<cycom>
     <record id="sh_pos_analytic_tags_res_config_settings_view_form" model="ir.ui.view">
         <field name="name">sh.pos.analytic.tags.res.config.settings.view.form</field>
         <field name="model">res.config.settings</field>
@@ -14,4 +14,4 @@
             </block>
         </field>
     </record>
-</odoo>
+</cycom>

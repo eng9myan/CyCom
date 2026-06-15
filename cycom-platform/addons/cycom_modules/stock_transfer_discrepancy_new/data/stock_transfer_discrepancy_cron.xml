@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <data noupdate="1">
         <record id="ir_cron_stock_transfer_discrepancy_expire_investigations" model="ir.cron">
             <field name="name">Stock Transfer Discrepancy: Expire Investigations</field>
@@ -11,4 +11,4 @@
             <field name="active">True</field>
         </record>
     </data>
-</odoo>
+</cycom>

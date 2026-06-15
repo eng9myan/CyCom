@@ -9,8 +9,8 @@ Run this script on a machine inside the same network as the biometric device.
 
 ## Environment Variables
 
-- `ODOO_URL`: Your Odoo base URL, for example `https://my-db.odoo.com`
-- `BRIDGE_TOKEN`: Token copied from the `Bridge Devices` form in Odoo
+- `CYCOM_URL`: Your Cycom base URL, for example `https://my-db.cycom.com`
+- `BRIDGE_TOKEN`: Token copied from the `Bridge Devices` form in Cycom
 - `DEVICE_IP`: Device IP on the local network
 - `DEVICE_PORT`: Device SDK port, for example `4372`
 - `DEVICE_IDENTIFIER`: Optional external device code
@@ -21,7 +21,7 @@ Run this script on a machine inside the same network as the biometric device.
 ## Example
 
 ```bash
-export ODOO_URL="https://my-db.odoo.com"
+export CYCOM_URL="https://my-db.cycom.com"
 export BRIDGE_TOKEN="paste-token-here"
 export DEVICE_IP="192.168.100.64"
 export DEVICE_PORT="4372"

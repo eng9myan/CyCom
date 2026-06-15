@@ -97,7 +97,7 @@ export default function MaintenancePage() {
       <div className="page-header">
         <div>
           <h1 className="page-title text-white">Maintenance & Equipment</h1>
-          <p className="page-subtitle">Standard Odoo Maintenance workflows. Log hardware breakdowns, schedule audits, and assign technicians.</p>
+          <p className="page-subtitle">Standard Cycom Maintenance workflows. Log hardware breakdowns, schedule audits, and assign technicians.</p>
         </div>
       </div>
 

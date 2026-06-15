@@ -64,7 +64,7 @@ const INITIAL_MESSAGES: Record<string, Message[]> = {
 };
 
 const BOT_REPLIES: string[] = [
-  "Noted. I am checking the current Odoo core bridge status on Cycom ERP.",
+  "Noted. I am checking the current Cycom core bridge status on Cycom ERP.",
   "Understood. The biometric logs are updating automatically.",
   "Let me coordinate with the Finance team regarding the JOD rounding calculations.",
   "Got it! I will check the inventory discrepancies dashboard.",

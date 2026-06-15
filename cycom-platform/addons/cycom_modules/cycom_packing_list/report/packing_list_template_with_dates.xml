@@ -1,5 +1,5 @@
-<odoo>
+<cycom>
   <template id="pl_date_tmpl">
     <t t-call="cycom_packing_list.packing_list_body"/>
   </template>
-</odoo>
+</cycom>

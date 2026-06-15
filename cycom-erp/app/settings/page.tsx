@@ -10,7 +10,7 @@ export default function SettingsAdminPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title text-white">System Settings & Administration</h1>
-          <p className="page-subtitle">Configure global parameters, developer whitelists, database triggers, and Odoo connector bridges.</p>
+          <p className="page-subtitle">Configure global parameters, developer whitelists, database triggers, and Cycom connector bridges.</p>
         </div>
       </div>
 
@@ -36,7 +36,7 @@ export default function SettingsAdminPage() {
 
         {/* Right Column - Dev bridges */}
         <div className="glass-card p-6 space-y-4">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">Odoo Core Bridges</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">Cycom Core Bridges</h2>
           <div className="space-y-3 text-xs">
             <div className="flex justify-between items-center pb-2 border-b border-white/5">
               <span className="text-slate-400">Active Biometric API Bridge</span>

@@ -1,10 +1,10 @@
-# Translation of Odoo Server.
+# Translation of Cycom Server.
 # This file contains the translation of the following modules:
 # 	* stock_transfer_discrepancy_new
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Cycom Server 19.0+e\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-02-11 04:58+0000\n"
 "PO-Revision-Date: 2026-02-11 04:58+0000\n"
@@ -53,7 +53,7 @@ msgid "Cancel"
 msgstr "إلغاء"
 
 #. module: stock_transfer_discrepancy
-#. odoo-python
+#. cycom-python
 #: code:addons/stock_transfer_discrepancy/models/stock_picking.py:0
 msgid ""
 "Cannot use truck location '%s' as destination location: it has open "
@@ -62,7 +62,7 @@ msgid ""
 msgstr "لا يمكن استخدام موقع الشاحنة '%s' كموقع وجهة: لديه تناقضات مفتوحة. يرجى تسوية التناقضات أولاً أو اختيار موقع آخر."
 
 #. module: stock_transfer_discrepancy
-#. odoo-python
+#. cycom-python
 #: code:addons/stock_transfer_discrepancy/models/stock_picking.py:0
 msgid ""
 "Cannot use truck location '%s' as source location: it has open "
@@ -132,7 +132,7 @@ msgid "Discrepancies"
 msgstr "التناقضات"
 
 #. module: stock_transfer_discrepancy
-#. odoo-python
+#. cycom-python
 #: code:addons/stock_transfer_discrepancy/models/stock_picking.py:0
 #: model_terms:ir.ui.view,arch_db:stock_transfer_discrepancy.stock_transfer_discrepancy_wizard_view_form
 msgid "Discrepancy Reason Required"
@@ -429,7 +429,7 @@ msgid "Truck Location"
 msgstr "موقع الشاحنة"
 
 #. module: stock_transfer_discrepancy
-#. odoo-python
+#. cycom-python
 #: code:addons/stock_transfer_discrepancy/models/stock_picking.py:0
 msgid "Truck Location with Open Discrepancy"
 msgstr "موقع الشاحنة مع تناقض مفتوح"
@@ -492,7 +492,7 @@ msgid "Under Investigation"
 msgstr "قيد التحقيق"
 
 #. module: stock_transfer_discrepancy_new
-#. odoo-python
+#. cycom-python
 #: code:addons/stock_transfer_discrepancy_new/models/stock_transfer_discrepancy.py:0
 msgid "Scrap Order"
 msgstr "أمر هالك"

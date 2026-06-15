@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
     <record id="view_approval_category_form_inherit_create_contact" model="ir.ui.view">
         <field name="name">approval.category.form.inherit.create.contact</field>
         <field name="model">approval.category</field>
@@ -9,4 +9,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

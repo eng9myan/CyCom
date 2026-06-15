@@ -16,7 +16,7 @@ export type SalesSetupResult =
   | { ok: false; error: string; warnings?: string[] };
 
 export async function applySalesSetup(p: SalesSetupPayload): Promise<SalesSetupResult> {
-  const res = await fetch('/api/odoo/setup/sales', {
+  const res = await fetch('/api/cycom/setup/sales', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(p),

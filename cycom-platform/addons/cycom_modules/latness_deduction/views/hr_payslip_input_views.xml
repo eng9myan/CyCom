@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
     <record id="hr_payslip_view_form_ot_payout_input_hours" model="ir.ui.view">
         <field name="name">hr.payslip.form.ot.payout.input.hours</field>
         <field name="model">hr.payslip</field>
@@ -40,4 +40,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

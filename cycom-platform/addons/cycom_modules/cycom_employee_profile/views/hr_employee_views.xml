@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="view_employee_form_employee_profile" model="ir.ui.view">
         <field name="name">hr.employee.form.inherit.cycom.employee.profile</field>
         <field name="model">hr.employee</field>
@@ -74,4 +74,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

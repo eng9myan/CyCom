@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <data noupdate="1">
         <record id="ir_cron_create_absent_work_entries" model="ir.cron">
             <field name="name">Create Absent Work Entries</field>
@@ -12,4 +12,4 @@
             <field name="interval_type">days</field>
         </record>
     </data>
-</odoo>
+</cycom>

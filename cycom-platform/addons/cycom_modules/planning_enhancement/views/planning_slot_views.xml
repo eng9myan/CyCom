@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="planning_slot_form_inherit_extra_hours" model="ir.ui.view">
         <field name="name">planning.slot.form.inherit.extra.hours</field>
         <field name="model">planning.slot</field>
@@ -21,4 +21,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

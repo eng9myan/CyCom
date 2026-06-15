@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <data>
         <!-- Report Action -->
         <record id="action_report_stock_transfer_discrepancy" model="ir.actions.report">
@@ -218,4 +218,4 @@
             </t>
         </template>
     </data>
-</odoo>
+</cycom>

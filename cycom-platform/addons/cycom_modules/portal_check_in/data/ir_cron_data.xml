@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <data noupdate="1">
         <record id="ir_cron_portal_auto_checkout_after_shift" model="ir.cron">
             <field name="name">Portal Attendance: Auto Check-Out After Shift</field>
@@ -13,9 +13,9 @@
             <field name="active">True</field>
         </record>
     </data>
-</odoo>
+</cycom>
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <data noupdate="1">
         <record id="ir_cron_portal_auto_checkout_after_shift" model="ir.cron">
             <field name="name">Portal Attendance: Auto Check-Out After Shift</field>
@@ -29,4 +29,4 @@
             <field name="active">True</field>
         </record>
     </data>
-</odoo>
+</cycom>

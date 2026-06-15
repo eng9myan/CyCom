@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<odoo>
+<cycom>
     <record id="zk_bridge_attendance_log_view_list" model="ir.ui.view">
         <field name="name">zk.bridge.attendance.log.view.list</field>
         <field name="model">zk.bridge.attendance.log</field>
@@ -71,4 +71,4 @@
         <field name="res_model">zk.bridge.attendance.log</field>
         <field name="view_mode">list,form</field>
     </record>
-</odoo>
+</cycom>

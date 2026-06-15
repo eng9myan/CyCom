@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
     <record id="action_hr_employee_ot_convert_wizard" model="ir.actions.act_window">
         <field name="name">Convert Overtime to Annual Leave</field>
         <field name="res_model">hr.employee.ot.convert.wizard</field>
@@ -30,4 +30,4 @@
             </form>
         </field>
     </record>
-</odoo>
+</cycom>

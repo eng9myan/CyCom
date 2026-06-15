@@ -1,5 +1,5 @@
 
-<odoo>
+<cycom>
 <record id="planning_slot_form_ot_convert" model="ir.ui.view">
     <field name="name">planning.slot.form.ot.convert</field>
     <field name="model">planning.slot</field>
@@ -14,4 +14,4 @@
     </field>
 </record>
 
-    </odoo>
+    </cycom>

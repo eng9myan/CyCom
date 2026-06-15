@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
 
     <!-- Wizard View -->
     <record id="view_internal_transfer_wizard" model="ir.ui.view">
@@ -44,4 +44,4 @@
 
 
 
-</odoo>
+</cycom>

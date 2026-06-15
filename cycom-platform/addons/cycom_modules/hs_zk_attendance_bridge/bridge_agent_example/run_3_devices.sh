@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # You can override this when running:
-# ODOO_URL="https://your-domain.odoo.com" bash run_3_devices.sh
-ODOO_URL="${ODOO_URL:-https://anabtawi-group.odoo.com}"
+# CYCOM_BACKEND_URL="https://your-domain.cycom.local" bash run_3_devices.sh
+CYCOM_BACKEND_URL="${CYCOM_BACKEND_URL:-https://backend.cycom.local}"
 DEVICE_TIMEZONE="${DEVICE_TIMEZONE:-Asia/Amman}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 AGENT_SCRIPT="${AGENT_SCRIPT:-zk_bridge_agent.py}"
@@ -18,7 +18,7 @@ run_device() {
   echo "Syncing ${identifier} (${ip}:${port})"
   echo "=================================================="
 
-  ODOO_URL="${ODOO_URL}" \
+  CYCOM_BACKEND_URL="${CYCOM_BACKEND_URL}" \
   BRIDGE_TOKEN="${token}" \
   DEVICE_IP="${ip}" \
   DEVICE_PORT="${port}" \

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <template id="document_tax_totals_open_amount" inherit_id="account.document_tax_totals">
         <xpath expr="//tr[@class='o_total']" position="before">
             <tr t-if="tax_totals.get('pos_open_amount_currency')">
@@ -29,4 +29,4 @@
             </tr>
         </xpath>
     </template>
-</odoo>
+</cycom>

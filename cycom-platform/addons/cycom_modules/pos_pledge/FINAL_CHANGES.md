@@ -28,7 +28,7 @@ Module loading errors due to incorrect imports and template issues.
 
 ### JavaScript (pos_pledge.js)
 ```javascript
-import { Component, useState } from "@odoo/owl";
+import { Component, useState } from "@cycom/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { ControlButtons } from "@point_of_sale/app/screens/product_screen/control_buttons/control_buttons";
 import { PaymentScreen } from "@point_of_sale/app/screens/payment_screen/payment_screen";
@@ -121,7 +121,7 @@ When you reload POS, you should see:
 ## All Imports are Now Valid
 
 ✅ All imports are available in POS bundle:
-- `Component, useState` from `@odoo/owl`
+- `Component, useState` from `@cycom/owl`
 - `Dialog` from `@web/core/dialog/dialog`
 - `ControlButtons` from `@point_of_sale/app/screens/product_screen/control_buttons/control_buttons`
 - `PaymentScreen` from `@point_of_sale/app/screens/payment_screen/payment_screen`

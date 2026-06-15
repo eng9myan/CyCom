@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <!-- Inherit list view -->
     <record id="pos_printer_tree_view_inherit" model="ir.ui.view">
         <field name="name">pos.printer.tree.view.inherit</field>
@@ -25,4 +25,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

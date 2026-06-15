@@ -77,7 +77,7 @@ export default function PlanningPage() {
     const conflict = checkConflict(newShift);
     if (conflict) {
       setWarningMsg(conflict);
-      // We still record it in Odoo warning mode, but flag it
+      // We still record it in Cycom warning mode, but flag it
     } else {
       setWarningMsg(null);
     }

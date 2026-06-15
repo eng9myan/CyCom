@@ -58,7 +58,7 @@ export default function WarehouseWizard() {
           </h1>
           <p className="page-subtitle">Stock policy, costing, and inventory guards. Cycom creates a warehouse per company automatically.</p>
         </div>
-        <a href="/odoo/odoo/action-stock.action_warehouse_form" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
+        <a href="/cycom/cycom/action-stock.action_warehouse_form" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
           <Wrench className="w-3.5 h-3.5" /> Configure manually
         </a>
       </div>

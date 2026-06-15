@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="stock_location_view_form_inherit_truck_discrepancy" model="ir.ui.view">
         <field name="name">stock.location.form.inherit.truck.discrepancy</field>
         <field name="model">stock.location</field>
@@ -11,5 +11,5 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>
 

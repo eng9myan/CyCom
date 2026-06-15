@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
   <!-- Lateness & OT settings on General Settings (Payroll app). -->
   <record id="view_res_config_settings_lateness_coverage" model="ir.ui.view">
     <field name="name">res.config.settings.form.lateness.coverage</field>
@@ -22,4 +22,4 @@
       </xpath>
     </field>
   </record>
-</odoo>
+</cycom>

@@ -13,7 +13,7 @@ export type WarehouseSetupResult =
   | { ok: false; error: string; warnings?: string[] };
 
 export async function applyWarehouseSetup(p: WarehouseSetupPayload): Promise<WarehouseSetupResult> {
-  const res = await fetch('/api/odoo/setup/warehouse', {
+  const res = await fetch('/api/cycom/setup/warehouse', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(p),

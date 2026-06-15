@@ -66,7 +66,7 @@ export default function AccountingDashboard() {
     }
   };
 
-  // Bulk Draft Action (Odoo: account_move_bulk_set_draft)
+  // Bulk Draft Action (Cycom: account_move_bulk_set_draft)
   const handleBulkDraft = () => {
     if (selectedIds.length === 0) return;
     setEntries(entries.map(ent => 
@@ -78,7 +78,7 @@ export default function AccountingDashboard() {
     setSelectedIds([]);
   };
 
-  // Auto Match engine (Odoo: mass_reconciliation)
+  // Auto Match engine (Cycom: mass_reconciliation)
   const handleAutoReconcile = () => {
     let updatedEntries = [...entries];
     let updatedLines = bankLines.map(line => {
@@ -126,7 +126,7 @@ export default function AccountingDashboard() {
     setReconcileSelectEntryId(null);
   };
 
-  // Payment post with validation check (Odoo: payment_non_zero_confirm)
+  // Payment post with validation check (Cycom: payment_non_zero_confirm)
   const handlePostPayment = (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(payAmount) || 0;
@@ -282,7 +282,7 @@ export default function AccountingDashboard() {
                   </div>
                 </div>
                 <p className="text-[9px] text-slate-500">
-                  Validation Check: Odoo rules prevent recording entries with negative or zero payments. Submit zero to test block.
+                  Validation Check: Cycom rules prevent recording entries with negative or zero payments. Submit zero to test block.
                 </p>
                 <button type="submit" className="btn-primary w-full py-2">
                   Post Payment Journal

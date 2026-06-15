@@ -10,7 +10,7 @@ export type CoaSetupResult =
   | { ok: false; error: string; warnings?: string[] };
 
 export async function applyCoaSetup(payload: CoaSetupPayload): Promise<CoaSetupResult> {
-  const res = await fetch('/api/odoo/setup/coa', {
+  const res = await fetch('/api/cycom/setup/coa', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -25,9 +25,9 @@ export type TenantPrefs = {
   pricingMode?: 'tax_inclusive' | 'tax_exclusive';
 };
 
-/** Read the cycom.tenant.* hints that Company Setup persisted in Odoo. */
+/** Read the cycom.tenant.* hints that Company Setup persisted in Cycom. */
 export async function fetchTenantPrefs(): Promise<TenantPrefs> {
-  const res = await fetch('/api/odoo/setup/tenant-prefs', {
+  const res = await fetch('/api/cycom/setup/tenant-prefs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',

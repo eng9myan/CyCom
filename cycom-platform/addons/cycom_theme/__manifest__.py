@@ -1,6 +1,6 @@
 {
     "name": "Cycom Theme",
-    "summary": "Brand the Odoo backend as Cycom ERP — logos, colors, login screen, titles.",
+    "summary": "Brand the Cycom backend as Cycom ERP — logos, colors, login screen, titles.",
     "version": "19.0.1.0.0",
     "category": "Theme/Backend",
     "author": "Cycom",

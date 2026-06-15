@@ -58,9 +58,9 @@ export default function PermissionsWizard() {
           <h1 className="page-title text-white flex items-center gap-3">
             <Shield className="w-7 h-7 text-[#E67E22]" /> Permissions & Roles
           </h1>
-          <p className="page-subtitle">Role template + module sensitivity. Detailed per-user access stays available in Odoo.</p>
+          <p className="page-subtitle">Role template + module sensitivity. Detailed per-user access stays available in Cycom.</p>
         </div>
-        <a href="/odoo/odoo/action-base.action_res_groups" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
+        <a href="/cycom/cycom/action-base.action_res_groups" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
           <Wrench className="w-3.5 h-3.5" /> Configure manually
         </a>
       </div>

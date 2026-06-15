@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     
     <!-- Pledge List View -->
     <record id="view_pos_pledge_tree" model="ir.ui.view">
@@ -120,5 +120,5 @@
 <!--              action="action_pos_pledge"-->
 <!--              sequence="10"/>-->
 
-</odoo>
+</cycom>
 

@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
   <record id="server_action_packing_list_xlsx" model="ir.actions.server">
     <field name="name">Packing List XLSX</field>
     <field name="model_id" ref="account.model_account_move"/>
@@ -28,4 +28,4 @@ action = {
 }
     ]]></field>
   </record>
-</odoo>
+</cycom>

@@ -6,9 +6,9 @@
     'summary': "'Warehouse Restriction for all users  convenience  and inventory location mangaement'",
     'version': '19.0.1.0.1',
     'catagory': 'Stock',
-    "author": "One Stop Odoo",
-    "website": "https://onestopodoo.com",
-    "maintainer": "One Stop Odoo",
+    "author": "One Stop Cycom",
+    "website": "https://onestopcycom.com",
+    "maintainer": "One Stop Cycom",
     'license': 'LGPL-3',
     'depends': ['base', 'stock', 'sale'],
     'data': [

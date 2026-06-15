@@ -8,7 +8,7 @@
  * choice persisted on the company.
  *
  * Doctrine reminder: a user selecting an industry must be able to ship a working tenant in <20%
- * of the clicks a raw Odoo configurator would take. Anything more here than is strictly necessary
+ * of the clicks a raw Cycom configurator would take. Anything more here than is strictly necessary
  * to start is over-engineering.
  */
 

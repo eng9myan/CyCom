@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
     <!-- Payslip tree: add columns (no dashboard names) -->
     <record id="hr_payslip_view_tree_lateness_columns" model="ir.ui.view">
         <field name="name">hr.payslip.tree.lateness.columns</field>
@@ -12,4 +12,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

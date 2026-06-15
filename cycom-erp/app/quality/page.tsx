@@ -76,7 +76,7 @@ export default function QualityPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title text-white">Quality Control (QC)</h1>
-          <p className="page-subtitle">Standard Odoo Quality Control Points. Record batch audit checklists, inspect items, and monitor validation rates.</p>
+          <p className="page-subtitle">Standard Cycom Quality Control Points. Record batch audit checklists, inspect items, and monitor validation rates.</p>
         </div>
       </div>
 

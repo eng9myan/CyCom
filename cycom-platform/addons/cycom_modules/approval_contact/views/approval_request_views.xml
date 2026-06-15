@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
     <record id="view_approval_request_form_inherit_contact_creation" model="ir.ui.view">
         <field name="name">approval.request.form.inherit.contact.creation</field>
         <field name="model">approval.request</field>
@@ -31,4 +31,4 @@
 
         </field>
     </record>
-</odoo>
+</cycom>

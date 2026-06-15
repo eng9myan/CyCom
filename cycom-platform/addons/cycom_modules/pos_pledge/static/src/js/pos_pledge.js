@@ -622,7 +622,7 @@ patch(PaymentScreen.prototype, {
     /**
      * Prepare receipt data with pledge information
      * NOTE: This is used for custom customer receipt only
-     * The standard "Print Full Receipt" uses default Odoo receipt + QWeb inheritance
+     * The standard "Print Full Receipt" uses default Cycom receipt + QWeb inheritance
      */
     _prepareReceiptData(order) {
         // Get base receipt data
@@ -907,7 +907,7 @@ patch(PaymentScreen.prototype, {
                 pledge_amount: product?.pledge_amount,
             });
             
-            // Get price - try multiple methods for Odoo 19 compatibility
+            // Get price - try multiple methods for Cycom 19 compatibility
             let price = 0;
             
             if (typeof line.get_price_with_tax === 'function') {

@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
     <!-- Payslip form: show lateness fields under Other Info -->
     <record id="hr_payslip_view_form_lateness_action_button" model="ir.ui.view">
         <field name="name">hr.payslip.form.lateness.action.button</field>
@@ -66,4 +66,4 @@
         </xpath>
 
     </field>
-</record></odoo>
+</record></cycom>

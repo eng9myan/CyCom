@@ -26,8 +26,8 @@
     'category': 'Point of Sale',
     'live_test_url': 'https://www.youtube.com/watch?v=sHQUam5F5Qs',
     'summary': "POS Receipt, Receipt Design, POS Receipt Template, Design "
-               "Report, Custom Receipt, POS Report, Customise Receipt, Odoo18, "
-               "Odoo Apps",
+               "Report, Custom Receipt, POS Report, Customise Receipt, Cycom18, "
+               "Cycom Apps",
     'description': "Option to select the customised Receipts for each POS. So, "
                    "we can easily updated the Receipt Design for better styles",
     'author': 'Cybrosys Techno Solutions',

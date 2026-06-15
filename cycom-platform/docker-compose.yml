@@ -6,20 +6,20 @@ services:
     container_name: cycom-db
     environment:
       POSTGRES_DB: postgres
-      POSTGRES_USER: ${POSTGRES_USER:-odoo}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      POSTGRES_USER: ${POSTGRES_USER:-cycom}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cycom}
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-odoo}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cycom}"]
       interval: 5s
       timeout: 5s
       retries: 10
     restart: unless-stopped
 
-  odoo:
-    image: odoo:19
-    container_name: cycom-odoo
+  cycom:
+    image: cycom:19
+    container_name: cycom-cycom
     depends_on:
       db:
         condition: service_healthy
@@ -28,12 +28,12 @@ services:
       - "8072:8072"  # longpolling / chat
     environment:
       HOST: db
-      USER: ${POSTGRES_USER:-odoo}
-      PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      USER: ${POSTGRES_USER:-cycom}
+      PASSWORD: ${POSTGRES_PASSWORD:-cycom}
     volumes:
-      - ./odoo-data:/var/lib/odoo
-      - ./config:/etc/odoo
+      - ./cycom-data:/var/lib/cycom
+      - ./config:/etc/cycom
       - ./addons:/mnt/extra-addons
-      - ./odoo-source:/mnt/odoo-source
-    command: ["odoo", "-c", "/etc/odoo/odoo.conf"]
+      - ./cycom-source:/mnt/cycom-source
+    command: ["cycom", "-c", "/etc/cycom/cycom.conf"]
     restart: unless-stopped

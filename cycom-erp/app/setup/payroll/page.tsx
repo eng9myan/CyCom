@@ -68,7 +68,7 @@ export default function PayrollWizard() {
           </h1>
           <p className="page-subtitle">Pay frequency, working hours, overtime, lateness. Cycom builds the rules so you don't open salary-rule XML.</p>
         </div>
-        <a href="/odoo/odoo/action-hr_payroll.action_hr_payroll_structure_type_list_view" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
+        <a href="/cycom/cycom/action-hr_payroll.action_hr_payroll_structure_type_list_view" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
           <Wrench className="w-3.5 h-3.5" /> Configure manually
         </a>
       </div>

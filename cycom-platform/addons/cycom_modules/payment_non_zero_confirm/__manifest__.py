@@ -1,4 +1,4 @@
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
+# Part of Cycom. See LICENSE file for full copyright and licensing details.
 {
     "name": "Account Payment Non-Zero Confirmation",
     "version": "19.0.1.0.0",

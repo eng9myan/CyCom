@@ -87,11 +87,11 @@ export default function CoaWizard() {
           </p>
         </div>
         <a
-          href="/odoo/odoo/action-account.action_account_form"
+          href="/cycom/cycom/action-account.action_account_form"
           target="_blank"
           rel="noreferrer"
           className="btn-secondary flex items-center gap-2 text-xs"
-          title="Drop into the raw Odoo Accounts configuration page"
+          title="Drop into the raw Cycom Accounts configuration page"
         >
           <Wrench className="w-3.5 h-3.5" /> Configure manually
         </a>
@@ -114,7 +114,7 @@ export default function CoaWizard() {
               </h2>
 
               {!prefsLoaded && (
-                <p className="text-[11px] text-slate-500">Reading your Company Setup defaults from Odoo…</p>
+                <p className="text-[11px] text-slate-500">Reading your Company Setup defaults from Cycom…</p>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -134,7 +134,7 @@ export default function CoaWizard() {
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 block mb-1.5 font-bold uppercase tracking-wider">
-                    Odoo localization module
+                    Cycom localization module
                   </label>
                   <input
                     type="text"
@@ -153,7 +153,7 @@ export default function CoaWizard() {
               lines={[
                 template.advisor,
                 'Installing the localization auto-creates the standard chart of accounts, journals, and tax structure for your country — there is no manual setup after this.',
-                'If the country lacks a dedicated Odoo localization, Cycom falls back to l10n_generic_coa.',
+                'If the country lacks a dedicated Cycom localization, Cycom falls back to l10n_generic_coa.',
               ]}
             />
           </>
@@ -228,7 +228,7 @@ export default function CoaWizard() {
               </div>
 
               <p className="text-[11px] text-slate-500">
-                When you click Apply, Cycom will install the localization module in Odoo (this can take up to a minute), then update the default tax rates. Existing accounts will not be removed.
+                When you click Apply, Cycom will install the localization module in Cycom (this can take up to a minute), then update the default tax rates. Existing accounts will not be removed.
               </p>
             </div>
 

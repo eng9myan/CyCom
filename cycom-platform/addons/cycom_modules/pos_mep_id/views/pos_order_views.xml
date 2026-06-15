@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="view_pos_order_form_inherit_pos_mep_id" model="ir.ui.view">
         <field name="name">pos.order.form.inherit.pos.mep.id</field>
         <field name="model">pos.order</field>
@@ -21,4 +21,4 @@
             </field>
         </field>
     </record>
-</odoo>
+</cycom>

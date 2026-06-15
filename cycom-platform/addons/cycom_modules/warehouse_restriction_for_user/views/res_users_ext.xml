@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo>
+<cycom>
     <record id="user_restrict" model="ir.ui.view">
         <field name="name">Users</field>
         <field name="model">res.users</field>
@@ -30,7 +30,7 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>
 
 
 

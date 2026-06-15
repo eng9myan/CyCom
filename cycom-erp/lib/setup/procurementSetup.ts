@@ -14,7 +14,7 @@ export type ProcurementSetupResult =
   | { ok: false; error: string; warnings?: string[] };
 
 export async function applyProcurementSetup(p: ProcurementSetupPayload): Promise<ProcurementSetupResult> {
-  const res = await fetch('/api/odoo/setup/procurement', {
+  const res = await fetch('/api/cycom/setup/procurement', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(p),

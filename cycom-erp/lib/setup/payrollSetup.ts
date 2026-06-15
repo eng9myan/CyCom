@@ -14,7 +14,7 @@ export type PayrollSetupResult =
   | { ok: false; error: string; warnings?: string[] };
 
 export async function applyPayrollSetup(p: PayrollSetupPayload): Promise<PayrollSetupResult> {
-  const res = await fetch('/api/odoo/setup/payroll', {
+  const res = await fetch('/api/cycom/setup/payroll', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(p),

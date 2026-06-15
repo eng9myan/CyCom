@@ -100,7 +100,7 @@ In POS product screen:
 
 2. **Is module upgraded?**
    ```bash
-   ./odoo-bin -u pos_pledge -d odoo19 --stop-after-init
+   ./cycom-bin -u pos_pledge -d cycom19 --stop-after-init
    ```
 
 3. **Browser cache cleared?**
@@ -158,7 +158,7 @@ pos_pledge/
 | Log Message | Meaning |
 |------------|---------|
 | `Module loading started...` | JavaScript file is being parsed |
-| `All imports successful` | All Odoo dependencies found |
+| `All imports successful` | All Cycom dependencies found |
 | `PosStore patched` | POS config loading extended |
 | `PledgePopup class defined` | Popup component ready |
 | `ControlButtons patch applied` | Buttons will appear in POS |

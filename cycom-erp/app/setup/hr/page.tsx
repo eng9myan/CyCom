@@ -72,7 +72,7 @@ export default function HrWizard() {
           </h1>
           <p className="page-subtitle">Departments + the workforce features your operation actually uses.</p>
         </div>
-        <a href="/odoo/odoo/action-hr.open_view_department_form" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
+        <a href="/cycom/cycom/action-hr.open_view_department_form" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
           <Wrench className="w-3.5 h-3.5" /> Configure manually
         </a>
       </div>

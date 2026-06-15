@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="hr_attendance_view_form_overtime_bridge" model="ir.ui.view">
         <field name="name">hr.attendance.form.overtime.bridge</field>
         <field name="model">hr.attendance</field>
@@ -10,5 +10,5 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>
 

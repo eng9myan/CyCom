@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<odoo>
+<cycom>
     <!--Biometric device configuration tree view-->
     <record id="biometric_device_details_view_tree" model="ir.ui.view">
         <field name="name">biometric.device.details.view.tree</field>
@@ -66,4 +66,4 @@
     </record>
 
 
-</odoo>
+</cycom>

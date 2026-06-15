@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
     <record id="approval_category_view_form_inherit_sale_line_approval" model="ir.ui.view">
         <field name="name">approval.category.view.form.inherit.sale.line.approval</field>
         <field name="model">approval.category</field>
@@ -30,4 +30,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

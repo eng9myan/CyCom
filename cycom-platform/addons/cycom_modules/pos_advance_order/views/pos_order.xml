@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <data>
         <record id="view_pos_order" model="ir.ui.view">
             <field name="name">pos.order</field>
@@ -60,5 +60,5 @@
             sequence="25"
             groups="point_of_sale.group_pos_manager,point_of_sale.group_pos_user"/>
     </data>
-</odoo>
+</cycom>
 

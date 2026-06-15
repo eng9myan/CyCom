@@ -1,6 +1,6 @@
 /**
  * Browser-side client + types for the Company Setup wizard.
- * Talks to /api/odoo/setup/company which orchestrates the actual Odoo calls server-side.
+ * Talks to /api/cycom/setup/company which orchestrates the actual Cycom calls server-side.
  */
 
 import type { IndustryKey } from './industry-templates';
@@ -41,7 +41,7 @@ export type CompanySetupError = {
 export async function applyCompanySetup(
   payload: CompanySetupPayload,
 ): Promise<CompanySetupResult | CompanySetupError> {
-  const res = await fetch('/api/odoo/setup/company', {
+  const res = await fetch('/api/cycom/setup/company', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

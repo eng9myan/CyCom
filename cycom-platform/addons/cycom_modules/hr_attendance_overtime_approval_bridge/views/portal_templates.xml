@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <template id="portal_overtime_no_employee" name="Overtime portal: no employee">
         <t t-call="portal.portal_layout">
             <t t-set="no_breadcrumbs" t-value="True"/>
@@ -181,4 +181,4 @@
             </form>
         </t>
     </template>
-</odoo>
+</cycom>

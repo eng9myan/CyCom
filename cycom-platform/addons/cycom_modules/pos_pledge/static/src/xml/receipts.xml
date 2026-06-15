@@ -163,7 +163,7 @@
        t-inherit-mode="extension"
        owl="1">
 
-        <!-- Show active pricelist on the original Odoo receipt -->
+        <!-- Show active pricelist on the original Cycom receipt -->
         <xpath expr="//ReceiptHeader" position="after">
             <t t-set="orderPricelist"
                t-value="(props.order and props.order.get_pricelist and props.order.get_pricelist()) or (props.order and props.order.pricelist) or (props.order and props.order.pricelist_id)"/>

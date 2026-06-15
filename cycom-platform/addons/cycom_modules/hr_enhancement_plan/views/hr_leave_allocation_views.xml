@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<odoo>
+<cycom>
     <record id="hr_leave_allocation_view_form_enhancement" model="ir.ui.view">
         <field name="name">hr.leave.allocation.view.form.enhancement</field>
         <field name="model">hr.leave.allocation</field>
@@ -11,4 +11,4 @@
             </field>
         </field>
     </record>
-</odoo>
+</cycom>

@@ -19,8 +19,8 @@ __pycache__/
 venv/
 
 # --- Cycom platform: heavy / generated / secret ---
-cycom-platform/odoo-source/
-cycom-platform/odoo-data/
+cycom-platform/engine-source/
+cycom-platform/engine-data/
 cycom-platform/postgres-data/
 cycom-platform/uploads/
 

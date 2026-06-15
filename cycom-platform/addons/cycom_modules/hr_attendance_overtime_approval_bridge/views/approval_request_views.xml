@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="approval_request_view_form_overtime_bridge" model="ir.ui.view">
         <field name="name">approval.request.view.form.overtime.bridge</field>
         <field name="model">approval.request</field>
@@ -72,5 +72,5 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>
 

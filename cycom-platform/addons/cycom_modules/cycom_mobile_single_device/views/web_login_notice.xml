@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <template id="web_login_single_device_notice" inherit_id="web.login" name="Single device login notice">
         <xpath expr="//p[@t-if='message']" position="after">
             <p class="alert alert-warning" role="note">
@@ -8,4 +8,4 @@
             </p>
         </xpath>
     </template>
-</odoo>
+</cycom>

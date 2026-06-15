@@ -14,7 +14,7 @@ export type ManufacturingSetupResult =
   | { ok: false; error: string; warnings?: string[] };
 
 export async function applyManufacturingSetup(p: ManufacturingSetupPayload): Promise<ManufacturingSetupResult> {
-  const res = await fetch('/api/odoo/setup/manufacturing', {
+  const res = await fetch('/api/cycom/setup/manufacturing', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(p),

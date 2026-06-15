@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <template
         id="portal_layout_hide_footer_on_my_pages"
         inherit_id="portal.portal_layout"
@@ -20,4 +20,4 @@
             <t t-set="no_footer" t-value="1 if request.params.get('from_app') in ('1', 'true', 'True') else 0"/>
         </xpath>
     </template>
-</odoo>
+</cycom>

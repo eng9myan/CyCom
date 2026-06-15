@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <template id="emp_profile_pdf">
         <t t-call="web.basic_layout">
             <t t-foreach="docs" t-as="o">
@@ -292,4 +292,4 @@
             </t>
         </t>
     </template>
-</odoo>
+</cycom>

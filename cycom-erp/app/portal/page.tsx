@@ -79,7 +79,7 @@ export default function PortalDashboard() {
     return R * c; // in meters
   };
 
-  // Perform geofence check (Odoo: hr_attendance_geofence_config)
+  // Perform geofence check (Cycom: hr_attendance_geofence_config)
   const handleCheckIn = () => {
     const lat = parseFloat(gpsLat);
     const lng = parseFloat(gpsLng);

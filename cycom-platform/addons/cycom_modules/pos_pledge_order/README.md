@@ -2,7 +2,7 @@
 
 ## Overview
 
-This module enables managing pledge (Rahn) transactions in Odoo Point of Sale. It supports three business cases with automatic accounting entries, dual receipt generation, and pledge return functionality.
+This module enables managing pledge (Rahn) transactions in Cycom Point of Sale. It supports three business cases with automatic accounting entries, dual receipt generation, and pledge return functionality.
 
 ---
 
@@ -19,8 +19,8 @@ This module enables managing pledge (Rahn) transactions in Odoo Point of Sale. I
 
 ## Installation
 
-1. Copy the `pos_pledge` folder to your Odoo addons directory
-2. Update the apps list in Odoo
+1. Copy the `pos_pledge` folder to your Cycom addons directory
+2. Update the apps list in Cycom
 3. Install the "POS Pledge (Rahn) Management" module
 4. Configure your POS settings (see Configuration section)
 
@@ -350,7 +350,7 @@ This module can be customized for:
 ## Version
 
 **Version**: 19.0.1.0.0  
-**Odoo Version**: 19.0  
+**Cycom Version**: 19.0  
 **License**: LGPL-3
 
 ---

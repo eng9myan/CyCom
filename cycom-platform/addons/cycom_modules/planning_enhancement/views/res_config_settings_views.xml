@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="res_config_settings_view_form_inherit_planning_extra_hours_limit" model="ir.ui.view">
         <field name="name">res.config.settings.view.form.inherit.planning.extra.hours.limit</field>
         <field name="model">res.config.settings</field>
@@ -15,4 +15,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

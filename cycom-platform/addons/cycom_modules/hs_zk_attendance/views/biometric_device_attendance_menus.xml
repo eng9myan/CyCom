@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<odoo>
+<cycom>
     <!--    Defined all menus here -->
     <menuitem id="biometric_device_details_menu"
               name="Biometric Device"
@@ -16,4 +16,4 @@
               action="daily_attendance_action"
               parent="biometric_device_details_menu"
               groups="hr_attendance.group_hr_attendance_officer"/>
-</odoo>
+</cycom>

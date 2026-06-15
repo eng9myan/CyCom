@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
     <record id="hr_leave_view_form_lateness_source" model="ir.ui.view">
         <field name="name">hr.leave.form.lateness</field>
         <field name="model">hr.leave</field>
@@ -25,4 +25,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

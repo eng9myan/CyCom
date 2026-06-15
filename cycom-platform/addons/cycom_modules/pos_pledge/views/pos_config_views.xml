@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     
     <!-- Extend POS Config Form -->
     <record id="pos_config_view_form_pledge" model="ir.ui.view">
@@ -28,4 +28,4 @@
         </field>
     </record>
 
-</odoo>
+</cycom>

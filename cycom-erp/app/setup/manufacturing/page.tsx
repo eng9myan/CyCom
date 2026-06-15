@@ -60,7 +60,7 @@ export default function ManufacturingWizard() {
           </h1>
           <p className="page-subtitle">Choose the production model; Cycom installs the matching modules.</p>
         </div>
-        <a href="/odoo/odoo/action-mrp.mrp_production_action" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
+        <a href="/cycom/cycom/action-mrp.mrp_production_action" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
           <Wrench className="w-3.5 h-3.5" /> Configure manually
         </a>
       </div>

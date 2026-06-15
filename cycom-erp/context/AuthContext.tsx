@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { login as odooLogin, logout as odooLogout, whoAmI, SessionUser } from '@/lib/odoo';
+import { login as cycomLogin, logout as cycomLogout, whoAmI, SessionUser } from '@/lib/cycom';
 
 interface AuthContextValue {
   user: SessionUser | null;
@@ -31,13 +31,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const db = process.env.NEXT_PUBLIC_ODOO_DB || 'cycom';
-    const u = await odooLogin(db, email, password);
+    const db = process.env.NEXT_PUBLIC_CYCOM_DB || 'cycom';
+    const u = await cycomLogin(db, email, password);
     setUser(u);
   };
 
   const logout = async () => {
-    await odooLogout();
+    await cycomLogout();
     setUser(null);
   };
 

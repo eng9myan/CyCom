@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <template id="portal_my_home_menu_employee_code" inherit_id="portal.portal_my_home" priority="95">
         <xpath expr="//div[@id='portal_common_category']" position="inside">
             <t t-call="portal.portal_docs_entry">
@@ -47,4 +47,4 @@
             </div>
         </t>
     </template>
-</odoo>
+</cycom>

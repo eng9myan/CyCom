@@ -32,13 +32,13 @@
 
 ## Installation Steps
 
-### 1. Restart Odoo Server
+### 1. Restart Cycom Server
 
 ```bash
-# Stop Odoo if running
+# Stop Cycom if running
 # Then restart with upgrade flag
-cd /home/rana-faris/git/odoo19/odoo
-./odoo-bin -u pos_pledge -d odoo19
+cd /home/rana-faris/git/cycom19/cycom
+./cycom-bin -u pos_pledge -d cycom19
 ```
 
 ### 2. Or Upgrade from UI

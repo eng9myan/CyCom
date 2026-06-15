@@ -259,7 +259,7 @@ export default function PayrollDashboard() {
             <div className="p-4 rounded-xl bg-white/3 border border-white/5 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Lateness Deduction</span>
-                <span className="text-[9px] bg-red-500/20 text-[#EF4444] px-1.5 py-0.2 rounded font-bold">Odoo Rules</span>
+                <span className="text-[9px] bg-red-500/20 text-[#EF4444] px-1.5 py-0.2 rounded font-bold">Cycom Rules</span>
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] text-slate-500">Lateness Minutes this month:</label>

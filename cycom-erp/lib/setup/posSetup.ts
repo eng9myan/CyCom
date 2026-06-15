@@ -16,7 +16,7 @@ export type PosSetupResult =
   | { ok: false; error: string; warnings?: string[] };
 
 export async function applyPosSetup(p: PosSetupPayload): Promise<PosSetupResult> {
-  const res = await fetch('/api/odoo/setup/pos', {
+  const res = await fetch('/api/cycom/setup/pos', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(p),

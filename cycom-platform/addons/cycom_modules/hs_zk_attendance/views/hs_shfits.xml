@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
     <data>
         <record id="hs_shifts_list_view" model="ir.ui.view">
             <field name="name">hs.shifts.view.tree</field>
@@ -50,4 +50,4 @@
                   parent="hr.menu_hr_employee_payroll"
                   action="action_open_shifts"/>
     </data>
-</odoo>
+</cycom>

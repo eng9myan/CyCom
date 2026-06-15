@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <data>
         <!-- Action available from account.move list views ("Action" menu) -->
         <record id="action_account_move_bulk_set_to_draft" model="ir.actions.server">
@@ -15,5 +15,5 @@ if records:
             </field>
         </record>
     </data>
-</odoo>
+</cycom>
 

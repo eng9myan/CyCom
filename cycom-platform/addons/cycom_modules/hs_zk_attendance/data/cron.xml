@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
 	<record forcecreate="True" id="cron_download_data" model="ir.cron">
 		<field name="name">Download Attendances</field>
 		<field eval="True" name="active"/>
@@ -10,4 +10,4 @@
 		<field name="code">model.cron_download_attendance()</field>
 	</record>
 
-</odoo>
+</cycom>

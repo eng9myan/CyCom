@@ -61,7 +61,7 @@ export default function ProcurementWizard() {
           </h1>
           <p className="page-subtitle">Vendor approval flow, RFQ validity, and default lead times.</p>
         </div>
-        <a href="/odoo/odoo/action-purchase.purchase_rfq" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
+        <a href="/cycom/cycom/action-purchase.purchase_rfq" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
           <Wrench className="w-3.5 h-3.5" /> Configure manually
         </a>
       </div>

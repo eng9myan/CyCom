@@ -65,7 +65,7 @@ export default function SalesWizard() {
           </h1>
           <p className="page-subtitle">Sales motion, discount ceilings, and dual-approval thresholds.</p>
         </div>
-        <a href="/odoo/odoo/action-sale.action_orders" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
+        <a href="/cycom/cycom/action-sale.action_orders" target="_blank" rel="noreferrer" className="btn-secondary flex items-center gap-2 text-xs">
           <Wrench className="w-3.5 h-3.5" /> Configure manually
         </a>
       </div>

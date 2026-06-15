@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
 
         <record model="tanmya_purchase_stage" id="5">
             <field name="code">cancel</field>
@@ -7,4 +7,4 @@
             <field name="issystem">True</field>
        </record>
 
-</odoo>
+</cycom>

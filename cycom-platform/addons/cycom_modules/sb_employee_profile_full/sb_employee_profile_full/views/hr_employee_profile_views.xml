@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
   <record id="view_employee_form_inherit_sb_profile" model="ir.ui.view">
     <field name="name">hr.employee.form.sb.profile</field>
     <field name="model">hr.employee</field>
@@ -159,4 +159,4 @@
     </field>
   </record>
 
-</odoo>
+</cycom>

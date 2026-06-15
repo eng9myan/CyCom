@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo>
+<cycom>
 
     <record id="ware_house_user_restrict" model="res.groups">
         <field name="name">Restrict Stock Warehouse Location &amp; Operations</field>
@@ -12,4 +12,4 @@
         <field name="model_id" ref="model_stock_picking"/>
         <field name="groups" eval="[(4, ref('warehouse_restriction_for_user.ware_house_user_restrict'))]"/>
     </record>
-</odoo>
+</cycom>

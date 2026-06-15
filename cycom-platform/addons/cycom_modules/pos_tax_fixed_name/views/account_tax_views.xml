@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
+<cycom>
     <record id="view_tax_form_pos_fixed_name_inherit" model="ir.ui.view">
         <field name="name">account.tax.form.pos.fixed.name.inherit</field>
         <field name="model">account.tax</field>
@@ -10,4 +10,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

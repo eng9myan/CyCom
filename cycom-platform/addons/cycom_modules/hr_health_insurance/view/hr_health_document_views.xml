@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="hr_health_document_type_view_list" model="ir.ui.view">
         <field name="name">hr.health.document.type.list</field>
         <field name="model">hr.health.document.type</field>
@@ -49,4 +49,4 @@
         sequence="5"
         groups="hr.group_hr_manager"
     />
-</odoo>
+</cycom>

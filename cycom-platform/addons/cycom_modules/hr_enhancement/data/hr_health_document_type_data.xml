@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="1">
+<cycom noupdate="1">
     <record id="hr_ae_doc_type_national_id" model="hr.health.document.type">
         <field name="name">National ID Copy</field>
         <field name="code">national_id</field>
@@ -60,4 +60,4 @@
         <field name="code">engineers_syndicate</field>
         <field name="sequence">120</field>
     </record>
-</odoo>
+</cycom>

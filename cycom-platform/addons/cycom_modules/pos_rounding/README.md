@@ -45,8 +45,8 @@ This module allows POS orders to be marked as "Collect Later" when customers pay
 
 ## Installation
 
-1. Copy the module to `odoo/enbtawi/pos_collect_later`
-2. Update the app list in Odoo
+1. Copy the module to `cycom/enbtawi/pos_collect_later`
+2. Update the app list in Cycom
 3. Install the module
 
 ## Usage

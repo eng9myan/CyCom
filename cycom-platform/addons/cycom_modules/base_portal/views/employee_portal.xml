@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <template id="portal_record_sidebar" name="My Portal Record Sidebar">
         <div t-attf-class="#{classes}">
             <div class="card bg-white mb-4 sticky-top" id="sidebar_content">
@@ -146,4 +146,4 @@
     <template id="totp_portal_hook" name="TOTP Portal hook" inherit_id="portal.portal_my_security">
         <xpath expr="//section[@name='portal_deactivate_account']" position="replace"/>
     </template>
-</odoo>
+</cycom>

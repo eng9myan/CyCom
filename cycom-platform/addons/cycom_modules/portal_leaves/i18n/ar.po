@@ -1,10 +1,10 @@
-# Translation of Odoo Server.
+# Translation of Cycom Server.
 # This file contains the translation of the following modules:
 # 	* portal_leaves
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Cycom Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-07-31 08:26+0000\n"
 "PO-Revision-Date: 2025-07-31 11:33+0300\n"
@@ -118,7 +118,7 @@ msgid "Access warning"
 msgstr "تحذير الوصول"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "All"
 msgstr "الجميع"
@@ -129,7 +129,7 @@ msgid "Approve"
 msgstr "موافقة"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Approved"
 msgstr "موافق عليها"
@@ -145,7 +145,7 @@ msgid "Basic Employee"
 msgstr "الموظف العادي "
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Confirmed"
 msgstr "موافق"
@@ -204,7 +204,7 @@ msgid "Description"
 msgstr "الوصف"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Draft"
 msgstr "مسودة"
@@ -238,19 +238,19 @@ msgid "Hours"
 msgstr "الساعات"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Last month"
 msgstr "الشهر الماضي"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Last week"
 msgstr "الأسبوع الماضي"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Last year"
 msgstr "السنة الماضية"
@@ -262,7 +262,7 @@ msgid "Leave Requests"
 msgstr "طلبات الإجازة"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Leave Type"
 msgstr "نوع الإجازة"
@@ -284,13 +284,13 @@ msgid "New Time off Request"
 msgstr "إجازة جديدة"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Newest"
 msgstr "الأحدث"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "None"
 msgstr "لا شيء"
@@ -306,13 +306,13 @@ msgid "Refuse"
 msgstr "رفض"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Refused"
 msgstr "مرفوضة"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Search In Description"
 msgstr "البحث في الوصف"
@@ -334,7 +334,7 @@ msgstr ""
 "إذا كان فارغاً، تتم الموافقة بواسطة مدير أو مانح الموافقة (يحدد في الإعدادات/المستخدمين). "
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Stage"
 msgstr "الحالة"
@@ -346,7 +346,7 @@ msgid "Start Date"
 msgstr "من"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "State"
 msgstr "الحالة"
@@ -363,19 +363,19 @@ msgid "Submit"
 msgstr "إرسال"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Submitted!"
 msgstr "تم الإرسال"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "The field '%s' does not exist in the targeted model"
 msgstr "الحقل '%s' غير موجود في النموذج المستهدف"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "The start date must be anterior to the end date"
 msgstr "يجب أن يكون تاريخ البدء قبل تاريخ الانتهاء"
@@ -392,25 +392,25 @@ msgid "There is no time-off types for portal"
 msgstr "لا توجد أنواع إجازة متاحة للبورتال."
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "This Quarter"
 msgstr "هذا الربع"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "This month"
 msgstr "هذا الشهر"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "This week"
 msgstr "هذا الأسبوع"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "This year"
 msgstr "هذه السنة"
@@ -435,7 +435,7 @@ msgid "Time Off To Approve"
 msgstr "بانتظار الموافقة"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 #: model:ir.model,name:portal_leaves.model_hr_leave_type
 #: model_terms:ir.ui.view,arch_db:portal_leaves.portal_my_leaves
@@ -445,7 +445,7 @@ msgid "Time Off Type"
 msgstr "نوع الإجازة "
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Today"
 msgstr "اليوم"
@@ -471,19 +471,19 @@ msgid "View your time off requests and create new ones"
 msgstr "قم بمراجعة طلبات الإجازة الخاصة بك أو انشاء طلبات جديدة"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Annual Leave"
 msgstr "الإجازة السنوية"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Extra Hours"
 msgstr "ساعات إضافية"
 
 #. module: portal_leaves
-#. odoo-python
+#. cycom-python
 #: code:addons/portal_leaves/controllers/portal.py:0
 msgid "Hrs"
 msgstr "ساعة"

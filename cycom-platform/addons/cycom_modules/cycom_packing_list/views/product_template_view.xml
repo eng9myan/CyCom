@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
   <record id="view_product_template_form_packing_list" model="ir.ui.view">
     <field name="name">product.template.form.packing.list</field>
     <field name="model">product.template</field>
@@ -14,4 +14,4 @@
       </xpath>
     </field>
   </record>
-</odoo>
+</cycom>

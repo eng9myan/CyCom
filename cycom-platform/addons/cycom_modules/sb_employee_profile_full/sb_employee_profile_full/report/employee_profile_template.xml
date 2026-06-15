@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
   <template id="employee_profile_pdf">
     <t t-call="web.external_layout">
       <t t-foreach="docs" t-as="emp">
@@ -271,4 +271,4 @@
       </t>
     </t>
   </template>
-</odoo>
+</cycom>

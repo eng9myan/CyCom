@@ -14,7 +14,7 @@ export type PermissionsSetupResult =
   | { ok: false; error: string; warnings?: string[] };
 
 export async function applyPermissionsSetup(p: PermissionsSetupPayload): Promise<PermissionsSetupResult> {
-  const res = await fetch('/api/odoo/setup/permissions', {
+  const res = await fetch('/api/cycom/setup/permissions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(p),

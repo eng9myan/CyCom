@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<odoo>
+<cycom>
     <record id="hr_accrual_plan_view_form_enhancement" model="ir.ui.view">
         <field name="name">hr.leave.accrual.plan.form.enhancement</field>
         <field name="model">hr.leave.accrual.plan</field>
@@ -13,4 +13,4 @@
             </xpath>
         </field>
     </record>
-</odoo>
+</cycom>

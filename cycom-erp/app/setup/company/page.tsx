@@ -127,11 +127,11 @@ export default function CompanySetupWizard() {
           </p>
         </div>
         <a
-          href="/odoo/web#action=base.action_res_company_form"
+          href="/cycom/web#action=base.action_res_company_form"
           target="_blank"
           rel="noreferrer"
           className="btn-secondary flex items-center gap-2 text-xs"
-          title="Drop into the raw Odoo Companies configuration page"
+          title="Drop into the raw Cycom Companies configuration page"
         >
           <Wrench className="w-3.5 h-3.5" /> Configure manually
         </a>
@@ -457,7 +457,7 @@ export default function CompanySetupWizard() {
             <AdvisorPanel
               lines={[
                 multiSite
-                  ? `Each branch will be created as a child of "${legalName || 'your company'}" in Odoo (res.company.parent_id). Inter-branch transfers and consolidated reporting will work out of the box.`
+                  ? `Each branch will be created as a child of "${legalName || 'your company'}" in Cycom (res.company.parent_id). Inter-branch transfers and consolidated reporting will work out of the box.`
                   : 'Single-location tenants skip the multi-company setup entirely — everything posts to one company ledger.',
               ]}
             />
@@ -490,9 +490,9 @@ export default function CompanySetupWizard() {
               <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-4 text-xs text-cyan-200/90 flex items-start gap-3">
                 <Sparkles className="w-4 h-4 text-cyan-300 flex-shrink-0 mt-0.5" />
                 <div>
-                  When you click <strong className="text-white">Apply</strong>, Cycom will create the company (and branches) in Odoo,
+                  When you click <strong className="text-white">Apply</strong>, Cycom will create the company (and branches) in Cycom,
                   activate the currency if needed, and persist your industry + commercial defaults so the next setup wizard
-                  (Chart of Accounts) inherits them. No manual Odoo configuration is required.
+                  (Chart of Accounts) inherits them. No manual Cycom configuration is required.
                 </div>
               </div>
             </div>

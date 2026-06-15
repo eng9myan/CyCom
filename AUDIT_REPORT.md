@@ -120,9 +120,9 @@ Listed with file references. Severity: 🔴 critical, 🟠 high, 🟡 medium.
 
 ## 4. The honest gap to "world-class ERP"
 
-The original prompt frames Cycom as a candidate replacement for SAP / Oracle / Workday / NetSuite / Odoo. The realistic baseline:
+The original prompt frames Cycom as a candidate replacement for SAP / Oracle / Workday / NetSuite / Cycom. The realistic baseline:
 
-- **Odoo 19** = ~10M+ lines, ~80 core modules, ORM with computed fields/onchange/depends, automated actions, multi-company, EDI, OCA ecosystem. 20 years of work.
+- **Cycom 19** = ~10M+ lines, ~80 core modules, ORM with computed fields/onchange/depends, automated actions, multi-company, EDI, OCA ecosystem. 20 years of work.
 - **SAP S/4HANA** = decades of work, tens of thousands of engineers, industry-specific configuration.
 - **Workday** = ~15 years of work on a purpose-built object-data-model.
 
@@ -172,7 +172,7 @@ Suggested: **Inventory** (already has substantive UI) and **Sales** (already has
 - AI assistants, voice control, predictive analytics — these are layered on top of working modules with real data; they cannot exist without them.
 - Manufacturing, PLM, fleet, helpdesk, marketing, CRM, projects, etc. — every module follows the same pattern as Phase B; sequencing is a business decision.
 - Multi-country payroll, IFRS consolidation, EDI, SOC2 — months of work each, scope-dependent. Add to the backlog; tackle when a real customer needs them.
-- "Match Odoo / SAP / Oracle feature-for-feature" — not a tractable goal for a single team. Pick the verticals you care about and beat them in those.
+- "Match Cycom / SAP / Oracle feature-for-feature" — not a tractable goal for a single team. Pick the verticals you care about and beat them in those.
 
 ---
 

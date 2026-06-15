@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<cycom>
     <record id="action_branch_allowed_products" model="ir.actions.act_window">
         <field name="name">Branch Allowed Products</field>
         <field name="res_model">product.template</field>
@@ -13,4 +13,4 @@
               parent="stock.menu_stock_config_settings"
               action="action_branch_allowed_products"
               sequence="90"/>
-</odoo>
+</cycom>

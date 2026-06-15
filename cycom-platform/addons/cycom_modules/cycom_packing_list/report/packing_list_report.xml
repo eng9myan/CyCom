@@ -1,4 +1,4 @@
-<odoo>
+<cycom>
   <!-- Report 1: Packing List (NO dates) -->
   <record id="action_report_packing_list" model="ir.actions.report">
     <field name="name">Packing List</field>
@@ -22,4 +22,4 @@
     <field name="binding_model_id" ref="account.model_account_move"/>
     <field name="binding_type">report</field>
   </record>
-</odoo>
+</cycom>
