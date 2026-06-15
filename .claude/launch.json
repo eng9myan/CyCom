@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "CyberCom Website",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3456", "cybercom-website"],
+      "port": 3456
+    }
+  ]
+}
