@@ -1,15 +1,54 @@
 'use client';
 
 import React from 'react';
-import { FileDown, FileText, Calendar } from 'lucide-react';
+import { FileDown, FileText } from 'lucide-react';
+import { useCycomList, type Many2One } from '@/lib/cycomModels';
 
-const MY_PAYSLIPS = [
-  { id: 'PAY-0982', period: 'June 2026', basic: 'JOD 1,400.00', allowance: 'JOD 150.00', deduction: 'JOD 0.00', net: 'JOD 1,550.00', status: 'Pending Approval' },
-  { id: 'PAY-0881', period: 'May 2026', basic: 'JOD 1,400.00', allowance: 'JOD 120.00', deduction: 'JOD 10.00', net: 'JOD 1,510.00', status: 'Released' },
-  { id: 'PAY-0780', period: 'April 2026', basic: 'JOD 1,400.00', allowance: 'JOD 90.00', deduction: 'JOD 5.00', net: 'JOD 1,485.00', status: 'Released' },
-];
+type CycomPayslip = {
+  id: number;
+  employee_id?: Many2One;
+  date_from?: string;
+  date_to?: string;
+  net_wage?: number;
+  state?: string;
+};
+
+interface Payslip {
+  id: string;
+  period: string;
+  basic: string;
+  allowance: string;
+  deduction: string;
+  net: string;
+  status: string;
+}
+
+const mapPayslip = (r: CycomPayslip): Payslip => {
+  const dateFrom = r.date_from ? new Date(r.date_from) : null;
+  const period = dateFrom
+    ? dateFrom.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : '—';
+  return {
+    id: `PAY-${String(r.id).padStart(4, '0')}`,
+    period,
+    basic: '—',
+    allowance: '—',
+    deduction: '—',
+    net: `JOD ${(r.net_wage ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    status: r.state === 'done' ? 'Released' : 'Pending Approval',
+  };
+};
 
 export default function MyPayslipsPortal() {
+  const { rows: payslips, loading } = useCycomList<CycomPayslip, Payslip>(
+    'hr.payslip',
+    [['state', '=', 'done']],
+    ['employee_id', 'date_from', 'date_to', 'net_wage', 'state'],
+    mapPayslip,
+  );
+
+  if (loading) return <div style={{ padding: '2rem', color: '#ccc' }}>Loading...</div>;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -24,7 +63,7 @@ export default function MyPayslipsPortal() {
       <div className="glass-card p-6 space-y-4">
         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">Payslip History</h2>
         <div className="space-y-4">
-          {MY_PAYSLIPS.map((p) => (
+          {payslips.map((p) => (
             <div key={p.id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors gap-4">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-cyan-500/10 text-cyan-400 rounded-lg">

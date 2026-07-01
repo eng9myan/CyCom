@@ -17,17 +17,41 @@ interface Contract {
   status: 'Active' | 'Trial' | 'Suspended';
 }
 
-const INITIAL_CONTRACTS: Contract[] = [
-  { id: 'SUB-1001', customer: 'Cycom Logistics LLC', plan: 'Premium Cloud', cost: 1250, renewal: '2026-07-01', status: 'Active' },
-  { id: 'SUB-1002', customer: 'Amman Retail Plaza', plan: 'POS Dedicated Support', cost: 450, renewal: '2026-06-28', status: 'Active' },
-  { id: 'SUB-1003', customer: 'Zarqa Supermarket chain', plan: 'Standard ERP', cost: 850, renewal: '2026-07-05', status: 'Active' },
-  { id: 'SUB-1004', customer: 'Irbid Pharma Depot', plan: 'Custom SLA', cost: 2400, renewal: '2026-07-12', status: 'Active' },
-  { id: 'SUB-1005', customer: 'Salt Bakery Group', plan: 'Standard ERP', cost: 850, renewal: '2026-06-25', status: 'Trial' },
-  { id: 'SUB-1006', customer: 'Aqaba Port Services', plan: 'Premium Cloud', cost: 1250, renewal: '2026-07-08', status: 'Suspended' }
-];
+type CycomSaleOrder = {
+  id: number;
+  name?: string;
+  partner_id?: Many2One;
+  recurring_monthly?: number;
+  stage_id?: Many2One;
+  next_invoice_date?: string;
+};
+
+const mapSaleOrder = (r: CycomSaleOrder): Contract => {
+  const stageName = m2oName(r.stage_id, '').toLowerCase();
+  const status: Contract['status'] =
+    stageName.includes('trial') ? 'Trial' :
+    stageName.includes('suspend') || stageName.includes('cancel') ? 'Suspended' :
+    'Active';
+  return {
+    id: r.name || `SUB-${r.id}`,
+    customer: m2oName(r.partner_id, '—'),
+    plan: 'Standard ERP',
+    cost: r.recurring_monthly ?? 0,
+    renewal: fmtDate(r.next_invoice_date),
+    status,
+  };
+};
 
 export default function SubscriptionsPage() {
-  const [contracts, setContracts] = useState<Contract[]>(INITIAL_CONTRACTS);
+  const { rows: liveContracts, loading } = useCycomList<CycomSaleOrder, Contract>(
+    'sale.order',
+    [['is_subscription', '=', true]],
+    ['name', 'partner_id', 'recurring_monthly', 'stage_id', 'next_invoice_date'],
+    mapSaleOrder,
+  );
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!loading) setContracts(liveContracts); }, [loading]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>('All');
   
@@ -102,6 +126,8 @@ export default function SubscriptionsPage() {
     if (filterStatus === 'All') return true;
     return c.status === filterStatus;
   });
+
+  if (loading) return <div style={{ padding: '2rem', color: '#ccc' }}>Loading...</div>;
 
   return (
     <div className="space-y-6 max-w-[1200px] mx-auto">

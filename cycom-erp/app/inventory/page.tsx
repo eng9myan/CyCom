@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCycomList, m2oName, type Many2One } from '@/lib/cycomModels';
 import { 
   Package, ArrowRight, ShieldAlert, CheckCircle2, AlertTriangle, 
   RefreshCw, Info, Lock, CheckCircle
@@ -26,12 +27,26 @@ interface UserWarehouse {
   restricted: boolean;
 }
 
-const INITIAL_TRANSFERS: StockTransfer[] = [
-  { id: 'WH-TR-402', source: 'HQ Warehouse Amman', destination: 'Amman Store North', item: 'Cycom Milk Powder 400g', sentQty: 100, receivedQty: 95, date: '2026-06-13', status: 'Discrepancy' },
-  { id: 'WH-TR-403', source: 'Amman Store North', destination: 'Zarqa Outlet', item: 'Premium Olive Oil 1L', sentQty: 50, receivedQty: 50, date: '2026-06-12', status: 'Resolved' },
-  { id: 'WH-TR-404', source: 'HQ Warehouse Amman', destination: 'Irbid Depot', item: 'Canned Hummus 24-Pack', sentQty: 250, receivedQty: 242, date: '2026-06-11', status: 'Discrepancy' },
-  { id: 'WH-TR-405', source: 'Irbid Depot', destination: 'Zarqa Outlet', item: 'Dry Yeast 500g', sentQty: 80, receivedQty: 0, date: '2026-06-14', status: 'Pending' },
-];
+type CycomProduct = {
+  id: number;
+  name?: string;
+  default_code?: string;
+  qty_available?: number;
+  virtual_available?: number;
+  uom_id?: Many2One;
+  categ_id?: Many2One;
+};
+
+const mapProduct = (r: CycomProduct): StockTransfer => ({
+  id: r.default_code || `PROD-${r.id}`,
+  source: m2oName(r.categ_id, '—'),
+  destination: m2oName(r.uom_id, '—'),
+  item: r.name || '—',
+  sentQty: r.qty_available ?? 0,
+  receivedQty: r.virtual_available ?? 0,
+  date: '—',
+  status: 'Pending',
+});
 
 const INITIAL_USERS: UserWarehouse[] = [
   { userName: 'Khaled Jaber', role: 'Amman Operator', assignedWarehouse: 'HQ Warehouse Amman', restricted: true },
@@ -40,8 +55,16 @@ const INITIAL_USERS: UserWarehouse[] = [
 ];
 
 export default function InventoryDashboard() {
-  const [transfers, setTransfers] = useState<StockTransfer[]>(INITIAL_TRANSFERS);
+  const { rows: liveProducts, loading } = useCycomList<CycomProduct, StockTransfer>(
+    'product.product',
+    [['type', '=', 'product']],
+    ['name', 'default_code', 'qty_available', 'virtual_available', 'uom_id', 'categ_id'],
+    mapProduct,
+  );
+  const [transfers, setTransfers] = useState<StockTransfer[]>([]);
   const [users, setUsers] = useState<UserWarehouse[]>(INITIAL_USERS);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!loading) setTransfers(liveProducts); }, [loading]);
   const [negBlockActive, setNegBlockActive] = useState(true);
 
   // Dispatch transfer states
@@ -128,6 +151,8 @@ export default function InventoryDashboard() {
   const toggleUserRestriction = (userName: string) => {
     setUsers(users.map(u => u.userName === userName ? { ...u, restricted: !u.restricted } : u));
   };
+
+  if (loading) return <div style={{ padding: '2rem', color: '#ccc' }}>Loading...</div>;
 
   return (
     <div className="space-y-6">
