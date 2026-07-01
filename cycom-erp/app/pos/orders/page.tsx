@@ -2,17 +2,39 @@
 
 import React, { useState } from 'react';
 import { ShoppingBag, Lock, DollarSign, Percent, ShieldCheck } from 'lucide-react';
+import { useCycomList, m2oName, type Many2One } from '@/lib/cycomModels';
 
-const ITEMS = [
-  { id: 'PROD-101', name: 'Premium Virgin Olive Oil 1L', price: 8.50, qty: 2, total: 17.00 },
-  { id: 'PROD-102', name: 'Refined Table Salt 1kg', price: 0.85, qty: 10, total: 8.50 },
-  { id: 'PROD-103', name: 'Fine Wheat Flour 5kg', price: 3.20, qty: 5, total: 16.00 },
-];
+type CyPosOrder = {
+  id: number;
+  name?: string;
+  session_id?: Many2One;
+  date_order?: string;
+  partner_id?: Many2One;
+  amount_total?: number;
+  state?: string;
+};
+
+const mapPosOrder = (r: CyPosOrder) => ({
+  id: r.name || `ORD-${r.id}`,
+  name: m2oName(r.partner_id, 'Walk-in'),
+  price: r.amount_total ?? 0,
+  qty: 1,
+  total: r.amount_total ?? 0,
+});
 
 export default function POSOrderCheckout() {
-  const [items, setItems] = useState(ITEMS);
+  const { rows: items, loading } = useCycomList<CyPosOrder, ReturnType<typeof mapPosOrder>>(
+    'pos.order',
+    [],
+    ['name', 'session_id', 'date_order', 'partner_id', 'amount_total', 'state'],
+    mapPosOrder,
+    { order: 'date_order desc', limit: 200 },
+  );
+
   const [pledgeMode, setPledgeMode] = useState(false);
   const [discountPercent, setDiscountPercent] = useState(0);
+
+  if (loading) return <div style={{ padding: '2rem', color: '#ccc' }}>Loading...</div>;
 
   const subTotal = items.reduce((acc, curr) => acc + curr.total, 0);
   const discountAmount = subTotal * (discountPercent / 100);

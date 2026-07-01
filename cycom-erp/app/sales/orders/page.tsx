@@ -2,25 +2,47 @@
 
 import React, { useState } from 'react';
 import { ShoppingBag, DollarSign, AlertTriangle, ShieldCheck, Plus } from 'lucide-react';
+import { useCycomList, m2oName, type Many2One } from '@/lib/cycomModels';
 
-const ORDER_ITEMS = [
-  { id: 'ITM-901', name: 'Al-Ghazal Tea 500g', listPrice: 4.50, minPrice: 4.00, customPrice: 4.20, qty: 100, error: false },
-  { id: 'ITM-902', name: 'Cycom Premium Halawa 1kg', listPrice: 6.00, minPrice: 5.50, customPrice: 5.20, qty: 50, error: true },
-];
+type CySaleOrderItem = {
+  id: number;
+  name?: string;
+  partner_id?: Many2One;
+  date_order?: string;
+  amount_total?: number;
+  state?: string;
+  user_id?: Many2One;
+};
+
+const mapSaleOrderItem = (r: CySaleOrderItem) => ({
+  id: r.name || `SO-${r.id}`,
+  name: m2oName(r.partner_id, '—'),
+  listPrice: r.amount_total ?? 0,
+  minPrice: 0,
+  customPrice: r.amount_total ?? 0,
+  qty: 1,
+  error: false,
+});
 
 export default function SalesOrderCreation() {
-  const [items, setItems] = useState(ORDER_ITEMS);
+  const { rows: baseItems, loading } = useCycomList<CySaleOrderItem, ReturnType<typeof mapSaleOrderItem>>(
+    'sale.order',
+    [],
+    ['name', 'partner_id', 'date_order', 'amount_total', 'state', 'user_id'],
+    mapSaleOrderItem,
+    { order: 'date_order desc' },
+  );
+  const [priceOverrides, setPriceOverrides] = useState<Record<string, { customPrice: number; error: boolean }>>({});
+  const items = baseItems.map(item => ({ ...item, ...(priceOverrides[item.id] || {}) }));
   const [customer, setCustomer] = useState('Cycom Trading Est');
 
   const updatePrice = (id: string, priceVal: number) => {
-    setItems(prev => prev.map(item => {
-      if (item.id === id) {
-        const hasError = priceVal < item.minPrice;
-        return { ...item, customPrice: priceVal, error: hasError };
-      }
-      return item;
-    }));
+    const baseItem = baseItems.find(i => i.id === id);
+    const hasError = baseItem ? priceVal < baseItem.minPrice : false;
+    setPriceOverrides(prev => ({ ...prev, [id]: { customPrice: priceVal, error: hasError } }));
   };
+
+  if (loading) return <div style={{ padding: '2rem', color: '#ccc' }}>Loading...</div>;
 
   const total = items.reduce((acc, curr) => acc + (curr.customPrice * curr.qty), 0);
   const hasValidationExceptions = items.some(item => item.error);

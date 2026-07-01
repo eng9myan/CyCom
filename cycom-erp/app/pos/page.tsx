@@ -9,6 +9,7 @@ import {
   ReceiptText, ScanBarcode, Tag, Package, ArrowLeft
 } from 'lucide-react';
 import { useCompany } from '@/context/CompanyContext';
+import { useCycomList, fmtDate, m2oName, type Many2One } from '@/lib/cycomModels';
 
 // ── Product Catalog ──
 interface Product {
@@ -69,6 +70,27 @@ interface PosOrder {
 
 type PosView = 'terminal' | 'orders' | 'receipt';
 
+type CyPosSession = {
+  id: number;
+  name?: string;
+  user_id?: Many2One;
+  config_id?: Many2One;
+  start_at?: string;
+  stop_at?: string;
+  state?: string;
+  cash_register_balance_end_real?: number;
+};
+
+const mapSession = (r: CyPosSession): PosOrder => ({
+  id: r.name || `SES-${r.id}`,
+  customerName: m2oName(r.user_id, '—'),
+  type: 'Advance Order',
+  total: r.cash_register_balance_end_real ?? 0,
+  deposit: 0,
+  deadlineDate: r.stop_at ? fmtDate(r.stop_at) : r.start_at ? fmtDate(r.start_at) : '—',
+  status: r.state === 'closed' ? 'Fulfilled' : r.state === 'opened' ? 'Pending' : 'Overdue',
+});
+
 export default function PosDashboard() {
   const { activeCompany } = useCompany();
   
@@ -99,11 +121,20 @@ export default function PosDashboard() {
   const [moveAmt, setMoveAmt] = useState('');
   const [moveReason, setMoveReason] = useState('');
 
-  // Advance/Pledge orders
-  const [orders, setOrders] = useState<PosOrder[]>([
-    { id: 'POS-ADV-102', customerName: 'Zaid Food Dist.', type: 'Advance Order', total: 450, deposit: 100, deadlineDate: '2026-06-20', status: 'Pending' },
-    { id: 'POS-PLG-088', customerName: 'Jordan Catering Co.', type: 'Pledge Order', total: 1200, deposit: 0, deadlineDate: '2026-06-18', status: 'Pending' },
-  ]);
+  // Advance/Pledge orders — wired to live pos.session data
+  const { rows: sessionOrders, loading: sessionsLoading } = useCycomList<CyPosSession, PosOrder>(
+    'pos.session',
+    [],
+    ['name', 'user_id', 'config_id', 'start_at', 'stop_at', 'state', 'cash_register_balance_end_real'],
+    mapSession,
+    { order: 'start_at desc' },
+  );
+  const [newLocalOrders, setNewLocalOrders] = useState<PosOrder[]>([]);
+  const [fulfilledIds, setFulfilledIds] = useState<string[]>([]);
+  const orders = [
+    ...newLocalOrders,
+    ...sessionOrders.map(o => fulfilledIds.includes(o.id) ? { ...o, status: 'Fulfilled' as const } : o),
+  ];
   const [orderCust, setOrderCust] = useState('');
   const [orderType, setOrderType] = useState<'Advance Order' | 'Pledge Order'>('Advance Order');
   const [orderTotal, setOrderTotal] = useState('');
@@ -206,7 +237,7 @@ export default function PosDashboard() {
   const handleCreateOrder = (e: React.FormEvent) => {
     e.preventDefault();
     if (!orderCust || !orderTotal || !orderDeadline) return;
-    setOrders([{ id: `POS-${orderType === 'Advance Order' ? 'ADV' : 'PLG'}-${Math.floor(200 + Math.random() * 800)}`, customerName: orderCust, type: orderType, total: parseFloat(orderTotal), deposit: orderType === 'Advance Order' ? parseFloat(orderDeposit) || 0 : 0, deadlineDate: orderDeadline, status: 'Pending' }, ...orders]);
+    setNewLocalOrders(prev => [{ id: `POS-${orderType === 'Advance Order' ? 'ADV' : 'PLG'}-${Math.floor(200 + Math.random() * 800)}`, customerName: orderCust, type: orderType, total: parseFloat(orderTotal), deposit: orderType === 'Advance Order' ? parseFloat(orderDeposit) || 0 : 0, deadlineDate: orderDeadline, status: 'Pending' }, ...prev]);
     setOrderCust(''); setOrderTotal(''); setOrderDeposit(''); setOrderDeadline('');
   };
 
@@ -622,6 +653,8 @@ export default function PosDashboard() {
         </div>
       </div>
 
+      {sessionsLoading && <div style={{ padding: '2rem', color: '#ccc' }}>Loading...</div>}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Cash Drawer */}
         <div className="glass-card p-5 space-y-4">
@@ -681,7 +714,7 @@ export default function PosDashboard() {
                       <td>{ord.deadlineDate}</td>
                       <td><span className={`badge text-[9px] ${ord.status === 'Fulfilled' ? 'badge-green' : ord.status === 'Overdue' ? 'badge-red' : 'badge-yellow'}`}>{ord.status}</span></td>
                       <td className="text-right">{ord.status === 'Pending' && (
-                        <button onClick={() => setOrders(orders.map(o => o.id === ord.id ? { ...o, status: 'Fulfilled' } : o))} className="p-1 px-2 text-[10px] font-bold rounded bg-emerald-500/10 border border-emerald-500/25 text-[#10B981]">Fulfill</button>
+                        <button onClick={() => setFulfilledIds(prev => [...prev, ord.id])} className="p-1 px-2 text-[10px] font-bold rounded bg-emerald-500/10 border border-emerald-500/25 text-[#10B981]">Fulfill</button>
                       )}</td>
                     </tr>
                   ))}

@@ -2,18 +2,44 @@
 
 import React, { useState } from 'react';
 import { ShieldAlert, Check, X, Percent, HelpCircle } from 'lucide-react';
+import { useCycomList, m2oName, type Many2One } from '@/lib/cycomModels';
 
-const EXCEPTIONS = [
-  { id: 'SO-1091', customer: 'Jordan Food Co', submittedBy: 'Samir Halabi (Sales Rep)', requestedDiscount: '18%', limitDiscount: '10%', totalAmount: 'JOD 8,910.00', status: 'Pending Review', reason: 'High-volume contract negotiations' },
-  { id: 'SO-1093', customer: 'Zarqa Coop Supermarket', submittedBy: 'Rami Khasawneh (POS Lead)', requestedDiscount: '15%', limitDiscount: '5%', totalAmount: 'JOD 1,420.00', status: 'Pending Review', reason: 'Promotional bundle clearing' },
-];
+type CySaleOrderApproval = {
+  id: number;
+  name?: string;
+  partner_id?: Many2One;
+  date_order?: string;
+  amount_total?: number;
+  user_id?: Many2One;
+  state?: string;
+};
+
+const mapSaleApproval = (r: CySaleOrderApproval) => ({
+  id: r.name || `SO-${r.id}`,
+  customer: m2oName(r.partner_id, '—'),
+  submittedBy: m2oName(r.user_id, '—'),
+  requestedDiscount: '—',
+  limitDiscount: '—',
+  totalAmount: `JOD ${(r.amount_total ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+  status: 'Pending Review',
+  reason: '—',
+});
 
 export default function SalesApprovalsFlow() {
-  const [list, setList] = useState(EXCEPTIONS);
+  const { rows: approvalRows, loading } = useCycomList<CySaleOrderApproval, ReturnType<typeof mapSaleApproval>>(
+    'sale.order',
+    [['state', '=', 'draft']],
+    ['name', 'partner_id', 'date_order', 'amount_total', 'user_id', 'state'],
+    mapSaleApproval,
+  );
+  const [hiddenIds, setHiddenIds] = useState<string[]>([]);
+  const list = approvalRows.filter(item => !hiddenIds.includes(item.id));
 
   const handleAction = (id: string, action: 'Approved' | 'Rejected') => {
-    setList(prev => prev.filter(item => item.id !== id));
+    setHiddenIds(prev => [...prev, id]);
   };
+
+  if (loading) return <div style={{ padding: '2rem', color: '#ccc' }}>Loading...</div>;
 
   return (
     <div className="space-y-6">

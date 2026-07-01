@@ -3,6 +3,7 @@
 import React from 'react';
 import { BarChart3, TrendingUp, ShoppingBag, FileDown } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+import { useCycomList, fmtDate, m2oName, type Many2One } from '@/lib/cycomModels';
 
 const GRAPH_DATA = [
   { name: 'Amman HQ', sales: 42000 },
@@ -11,14 +12,33 @@ const GRAPH_DATA = [
   { name: 'Aqaba Branch', sales: 12100 },
 ];
 
-const TRANSACTIONS = [
-  { id: 'ORD-7729', date: 'Jun 14, 15:40', branch: 'Amman HQ', amount: 'JOD 42.00', items: 3, payment: 'Cash' },
-  { id: 'ORD-7728', date: 'Jun 14, 15:32', branch: 'Zarqa Branch', amount: 'JOD 112.50', items: 8, payment: 'Card' },
-  { id: 'ORD-7727', date: 'Jun 14, 15:10', branch: 'Amman HQ', amount: 'JOD 19.50', items: 2, payment: 'Pledge Invoice' },
-  { id: 'ORD-7726', date: 'Jun 14, 14:55', branch: 'Irbid Branch', amount: 'JOD 88.00', items: 12, payment: 'Card' },
-];
+type CyPosOrderReport = {
+  id: number;
+  name?: string;
+  date_order?: string;
+  session_id?: Many2One;
+  amount_total?: number;
+  amount_tax?: number;
+};
+
+const mapPosOrderReport = (r: CyPosOrderReport) => ({
+  id: r.name || `ORD-${r.id}`,
+  date: r.date_order ? fmtDate(r.date_order) : '—',
+  branch: m2oName(r.session_id, '—'),
+  amount: `JOD ${(r.amount_total ?? 0).toFixed(2)}`,
+  items: 0,
+  payment: '—',
+});
 
 export default function POSReports() {
+  const { rows: transactions, loading } = useCycomList<CyPosOrderReport, ReturnType<typeof mapPosOrderReport>>(
+    'pos.order',
+    [['state', 'in', ['done', 'paid', 'invoiced']]],
+    ['name', 'date_order', 'session_id', 'amount_total', 'amount_tax'],
+    mapPosOrderReport,
+    { order: 'date_order desc', limit: 200 },
+  );
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -77,6 +97,7 @@ export default function POSReports() {
       {/* Orders Table */}
       <div className="glass-card p-6">
         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Recent Sales Transactions</h2>
+        {loading && <div style={{ padding: '2rem', color: '#ccc' }}>Loading...</div>}
         <div className="overflow-x-auto">
           <table className="data-table">
             <thead>
@@ -90,7 +111,7 @@ export default function POSReports() {
               </tr>
             </thead>
             <tbody>
-              {TRANSACTIONS.map((tx) => (
+              {transactions.map((tx) => (
                 <tr key={tx.id}>
                   <td className="font-mono text-xs font-bold text-slate-400">{tx.id}</td>
                   <td>{tx.date}</td>
