@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCycomList, m2oName, fmtDate, type Many2One } from '@/lib/cycomModels';
 import { 
   ShieldAlert, Plus, Trash2, CheckCircle2, AlertTriangle, 
   RefreshCw, Clipboard, CheckCircle, XCircle
@@ -18,14 +19,38 @@ interface QualityCheck {
   notes: string;
 }
 
-const INITIAL_CHECKS: QualityCheck[] = [
-  { id: 'QL-901', productName: 'Premium Olive Oil 1L', sku: 'OLIVE-OIL-1L', parameter: 'Acidity / Purity', inspector: 'Khaled Jaber', dateChecked: '2026-06-14', status: 'Passed', notes: 'Acidity measured at 0.4% (extra virgin threshold < 0.8%). Approved.' },
-  { id: 'QL-902', productName: 'Cycom Milk Powder 400g', sku: 'MILK-POW-400G', parameter: 'Seal Test', inspector: 'Ahmad Masri', dateChecked: '2026-06-14', status: 'Pending', notes: 'Leakage audit on batch #B29.' },
-  { id: 'QL-903', productName: 'Premium Olive Oil 1L', sku: 'OLIVE-OIL-1L', parameter: 'Weight Check', inspector: 'Rami Khasawneh', dateChecked: '2026-06-13', status: 'Failed', notes: 'Bottles under-filled. Average net weight 982ml (limit > 995ml). Rejected batch.' },
-];
+type CycomQualityCheck = {
+  id: number;
+  name?: string;
+  product_id?: Many2One;
+  picking_id?: Many2One;
+  quality_state?: string;
+  create_date?: string;
+};
+
+const QUALITY_STATE_MAP: Record<string, QualityCheck['status']> = {
+  pass: 'Passed', fail: 'Failed', none: 'Pending',
+};
+
+const mapQualityCheck = (r: CycomQualityCheck): QualityCheck => ({
+  id: r.name || `QL-${r.id}`,
+  productName: m2oName(r.product_id, '—'),
+  sku: '—',
+  parameter: 'Seal Test',
+  inspector: '—',
+  dateChecked: fmtDate(r.create_date),
+  status: QUALITY_STATE_MAP[r.quality_state ?? ''] ?? 'Pending',
+  notes: '',
+});
 
 export default function QualityPage() {
-  const [checks, setChecks] = useState<QualityCheck[]>(INITIAL_CHECKS);
+  const { rows: liveChecks, loading } = useCycomList<CycomQualityCheck, QualityCheck>(
+    'quality.check', [], ['name', 'product_id', 'picking_id', 'quality_state', 'create_date'],
+    mapQualityCheck,
+  );
+  const [checks, setChecks] = useState<QualityCheck[]>([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!loading) setChecks(liveChecks); }, [loading]);
 
   // New check form
   const [product, setProduct] = useState('Premium Olive Oil 1L');
@@ -69,6 +94,8 @@ export default function QualityPage() {
   const totalChecked = checks.filter(c => c.status !== 'Pending').length;
   const passedCount = checks.filter(c => c.status === 'Passed').length;
   const passRate = totalChecked > 0 ? Math.round((passedCount / totalChecked) * 100) : 100;
+
+  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
 
   return (
     <div className="space-y-6">

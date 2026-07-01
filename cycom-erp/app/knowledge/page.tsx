@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCycomList, m2oName, fmtDate, type Many2One } from '@/lib/cycomModels';
 import { 
   BookOpen, Folder, FileText, ChevronRight, ChevronDown, 
   Edit3, Save, Eye, Plus, Trash2, Check, Sparkles 
@@ -16,102 +17,32 @@ interface Article {
   updatedBy: string;
 }
 
-const INITIAL_ARTICLES: Article[] = [
-  {
-    id: 'employee-handbook',
-    title: 'Employee Handbook & Code of Conduct',
-    category: 'Company Policies',
-    lastUpdated: '2026-06-10 14:30',
-    updatedBy: 'Sara Haddad',
-    content: `## Cycom Employee Code of Conduct
+type CycomKnowledgeArticle = {
+  id: number;
+  name?: string;
+  parent_id?: Many2One;
+  last_edition_date?: string;
+  write_uid?: Many2One;
+};
 
-Welcome to the official Cycom ERP organizational handbook. This document outlines key parameters regarding attendance, leaves, and workplace conduct.
-
-### 1. Attendance & Punching Rules
-All staff must register their presence using the active **ZK Biometric reader** nodes located at the entrance.
-- **Geofence Range**: Employees using the portal check-in must match the GPS range allowed within our warehouse or headquarters.
-- **Late Policy**: Punch-ins after 08:30 AM are logged as tardy and subject to lateness deductions unless a correction request is submitted and approved by the HR coordinator.
-
-### 2. Allowances & Deductions
-Our current payroll utilizes standard allowances for transport, housing, and social security. Overtime is computed on a weekly basis, with double rate applied on weekend rosters.`
-  },
-  {
-    id: 'medical-insurance',
-    title: 'Medical Insurance Policy & Coverages',
-    category: 'Company Policies',
-    lastUpdated: '2026-06-12 09:12',
-    updatedBy: 'Sara Haddad',
-    content: `## Corporate Medical Insurance Scheme (Jordanian Health Networks)
-
-Cycom provides comprehensive medical insurance for all active employees and their dependents.
-
-### 1. Network Grades
-- **Grade A**: Executive level. 95% coverage on inpatient, 90% on outpatient.
-- **Grade B**: Managers and key operators. 85% inpatient, 80% outpatient.
-- **Grade C**: Frontline, POS staff, and warehouse workers. 75% coverage.
-
-### 2. Claims & Approvals
-For treatments outside the immediate network provider list, employees must upload the receipt files via the **Expenses Claims** module on Cycom ERP. Maximum reimbursement response is 3 working days.`
-  },
-  {
-    id: 'zk-reader-config',
-    title: 'ZK Reader Hardware configuration',
-    category: 'Operations & Logistics',
-    lastUpdated: '2026-05-20 16:40',
-    updatedBy: 'Admin User',
-    content: `## Biometric Reader (ZK Device Interface) Manual
-
-Guide for system administrators to check biometric communication links.
-
-### 1. Network Parameters
-- **IP Address range**: \`192.168.10.200\` through \`205\`
-- **UDP Port**: \`4370\` (default ZK protocol)
-- **Heartbeat Interval**: 30 seconds
-
-### 2. Troubleshooting Sync Failures
-If the Attendance module logs a "ZK Reader Timeout" error:
-1. Verify device ping via local server command terminal.
-2. Confirm the biometric data sync bridge service is running.
-3. If necessary, execute a manual pull of logs from the backup memory buffer.`
-  },
-  {
-    id: 'pos-rounding-standard',
-    title: 'POS Cash Rounding Standards (JOD)',
-    category: 'Operations & Logistics',
-    lastUpdated: '2026-06-05 11:00',
-    updatedBy: 'Lina Qudah',
-    content: `## POS Cash Register Rounding Regulations
-
-This policy dictates rules for Point of Sale transactions within Jordan.
-
-### 1. Rounding Rules
-To optimize customer checkout speeds, the POS register rounding is configured as follows:
-- Transactions matching fractional prices are rounded to the nearest **0.05 JOD** or **0.10 JOD** based on register settings.
-- Difference totals are recorded in the general ledger under the "Rounding Variance" account automatically during session closures.`
-  },
-  {
-    id: 'mass-invoice-auto',
-    title: 'Mass Invoice Auto-matching & Reconciliation',
-    category: 'Accounting & Finance',
-    lastUpdated: '2026-06-08 17:15',
-    updatedBy: 'Lina Qudah',
-    content: `## Automated Ledger Move Reconciliation Rules
-
-The reconciliation engine matches customer payments against invoices using the following steps:
-
-### 1. Reconciliation Priorities
-1. **Invoice Number Match**: Matches payments stating the exact invoice ID.
-2. **Customer Balance Match**: Matches payments matching the exact outstanding debt balance.
-3. **FIFO Match**: Matches payment to oldest invoice first for that partner.
-
-### 2. Approval Safeguards
-Reconciliations with matching confidence below **90%** are held in draft state and flagged for verification on the Accounting dashboard.`
-  }
-];
+const mapKnowledgeArticle = (r: CycomKnowledgeArticle): Article => ({
+  id: String(r.id),
+  title: r.name || '—',
+  content: '',
+  category: m2oName(r.parent_id, 'General'),
+  lastUpdated: fmtDate(r.last_edition_date),
+  updatedBy: m2oName(r.write_uid, '—'),
+});
 
 export default function KnowledgePage() {
-  const [articles, setArticles] = useState<Article[]>(INITIAL_ARTICLES);
-  const [activeArticleId, setActiveArticleId] = useState<string>('employee-handbook');
+  const { rows: liveArticles, loading } = useCycomList<CycomKnowledgeArticle, Article>(
+    'knowledge.article', [], ['name', 'parent_id', 'last_edition_date', 'write_uid'],
+    mapKnowledgeArticle,
+  );
+  const [articles, setArticles] = useState<Article[]>([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!loading) setArticles(liveArticles); }, [loading]);
+  const [activeArticleId, setActiveArticleId] = useState<string>('');
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editedContent, setEditedContent] = useState<string>('');
   const [editedTitle, setEditedTitle] = useState<string>('');
@@ -158,6 +89,8 @@ export default function KnowledgePage() {
   };
 
   const categories = Array.from(new Set(articles.map(a => a.category)));
+
+  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
 
   return (
     <div className="space-y-6 max-w-[1200px] mx-auto">

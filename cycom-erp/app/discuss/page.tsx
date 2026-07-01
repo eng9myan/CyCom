@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCycomList, m2oName, type Many2One } from '@/lib/cycomModels';
 import { MessageSquare, Send, Hash, Users, Search, Bell, Sparkles, Smile, ShieldAlert } from 'lucide-react';
 
 interface Message {
@@ -27,13 +28,20 @@ interface DM {
   role: string;
 }
 
-const INITIAL_CHANNELS: Channel[] = [
-  { id: 'general', name: 'general', unread: false, topic: 'Company-wide general discussions for Cycom ERP' },
-  { id: 'announcements', name: 'announcements', unread: true, topic: 'Official Cycom announcements' },
-  { id: 'supply-chain', name: 'supply-chain-ops', unread: false, topic: 'POS, Warehouse, and Inventory updates' },
-  { id: 'hr-payroll', name: 'hr-and-payroll', unread: false, topic: 'Attendance checkings & salary transfers coordination' },
-  { id: 'finance-ledger', name: 'finance-ledger', unread: false, topic: 'Accounting reconciliation updates' }
-];
+type CycomMailChannel = {
+  id: number;
+  name?: string;
+  channel_type?: string;
+  member_count?: number;
+  last_interest_dt?: string;
+};
+
+const mapMailChannel = (r: CycomMailChannel): Channel => ({
+  id: String(r.id),
+  name: r.name || '—',
+  unread: false,
+  topic: r.channel_type || '',
+});
 
 const INITIAL_DMS: DM[] = [
   { id: 'sara', name: 'Sara Haddad', status: 'online', role: 'HR & Planning Lead' },
@@ -72,7 +80,11 @@ const BOT_REPLIES: string[] = [
 ];
 
 export default function DiscussPage() {
-  const [channels, setChannels] = useState<Channel[]>(INITIAL_CHANNELS);
+  const { rows: liveChannels, loading } = useCycomList<CycomMailChannel, Channel>(
+    'mail.channel', [], ['name', 'channel_type', 'member_count', 'last_interest_dt'],
+    mapMailChannel,
+  );
+  const [channels, setChannels] = useState<Channel[]>([]);
   const [dms, setDms] = useState<DM[]>(INITIAL_DMS);
   const [activeTab, setActiveTab] = useState<'channel' | 'dm'>('channel');
   const [activeId, setActiveId] = useState<string>('general');
@@ -81,6 +93,10 @@ export default function DiscussPage() {
   const [searchQuery, setSearchQuery] = useState('');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Seed channels from live Odoo data
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!loading) setChannels(liveChannels); }, [loading]);
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -148,6 +164,8 @@ export default function DiscussPage() {
 
   const filteredChannels = channels.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
   const filteredDms = dms.filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
 
   return (
     <div className="space-y-6 max-w-[1200px] mx-auto">

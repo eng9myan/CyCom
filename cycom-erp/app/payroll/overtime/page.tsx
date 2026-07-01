@@ -1,17 +1,58 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Clock, CheckCircle2, ShieldAlert, Award, FileSpreadsheet, Plus } from 'lucide-react';
+import { useCycomList, fmtCode, fmtDate, m2oName, type Many2One } from '@/lib/cycomModels';
 
-const OVERTIME_ENTRIES = [
-  { id: 'OT-8821', employee: 'Ahmad Masri', date: 'Jun 12, 2026', normalHours: 4, holidayHours: 0, multiplierNormal: '1.25x', multiplierHoliday: '1.50x', totalCalculated: 'JOD 45.00', status: 'Approved' },
-  { id: 'OT-8822', employee: 'Rami Khasawneh', date: 'Jun 13, 2026', normalHours: 2, holidayHours: 3, multiplierNormal: '1.25x', multiplierHoliday: '1.50x', totalCalculated: 'JOD 95.00', status: 'Pending Approval' },
-  { id: 'OT-8823', employee: 'Noor Al-Fayegh', date: 'Jun 10, 2026', normalHours: 4, holidayHours: 0, multiplierNormal: '1.25x', multiplierHoliday: '1.50x', totalCalculated: 'JOD 45.00', status: 'Approved' },
-  { id: 'OT-8824', employee: 'Yousef Ali', date: 'Jun 08, 2026', normalHours: 0, holidayHours: 6, multiplierNormal: '1.25x', multiplierHoliday: '1.50x', totalCalculated: 'JOD 120.00', status: 'Approved' },
-];
+// --- Odoo raw type ---
+type CycomOvertimeRaw = {
+  id: number;
+  employee_id: Many2One;
+  date: string;
+  duration: number;
+  state: string;
+  reason: string;
+};
+
+// --- UI type ---
+interface OvertimeEntry {
+  id: string;
+  employee: string;
+  date: string;
+  normalHours: number;
+  holidayHours: number;
+  multiplierNormal: string;
+  multiplierHoliday: string;
+  totalCalculated: string;
+  status: string;
+}
+
+// --- Mapper ---
+const mapOvertime = (r: CycomOvertimeRaw): OvertimeEntry => ({
+  id: fmtCode('OT', r.id),
+  employee: m2oName(r.employee_id),
+  date: fmtDate(r.date),
+  normalHours: r.duration ?? 0,
+  holidayHours: 0,
+  multiplierNormal: '1.25x',
+  multiplierHoliday: '1.50x',
+  totalCalculated: '—',
+  status:
+    r.state === 'validated' ? 'Approved' :
+    r.state === 'refused' ? 'Rejected' :
+    'Pending Approval',
+});
 
 export default function OvertimePayroll() {
-  const [entries, setEntries] = useState(OVERTIME_ENTRIES);
+  const { rows: entries, loading } = useCycomList<CycomOvertimeRaw, OvertimeEntry>(
+    'hr.attendance.overtime',
+    [],
+    ['employee_id', 'date', 'duration', 'state', 'reason'],
+    mapOvertime,
+    { order: 'date desc' },
+  );
+
+  if (loading) return <div style={{ padding: '2rem', color: '#ccc' }}>Loading...</div>;
 
   return (
     <div className="space-y-6">

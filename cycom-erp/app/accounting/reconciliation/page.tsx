@@ -1,17 +1,57 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRightLeft, ShieldCheck, Play, HelpCircle } from 'lucide-react';
+import { useCycomList, m2oName, fmtDate, fmtCode, Many2One } from '@/lib/cycomModels';
 
-const STATEMENTS = [
-  { id: 'STMT-0201', date: 'Jun 14, 2026', label: 'POS register Amman HQ settlement receipt', amount: 'JOD 4,200.00', matchTarget: 'BNK-0012 Receipt Log', confidence: '100% Match', status: 'Unmatched' },
-  { id: 'STMT-0202', date: 'Jun 14, 2026', label: 'Arab Bank transfer ref #1928374', amount: 'JOD 8,910.00', matchTarget: 'INV-2026-004 Wholesale Invoice', confidence: '98% Match', status: 'Unmatched' },
-  { id: 'STMT-0203', date: 'Jun 12, 2026', label: 'Supplier payout olive oil batch delivery', amount: '-JOD 12,400.00', matchTarget: 'BILL-2026-009 Vendor Bill', confidence: '99% Match', status: 'Unmatched' },
-];
+type OdooBankLine = {
+  id: number;
+  date?: string;
+  payment_ref?: string | false;
+  partner_id?: Many2One;
+  amount?: number;
+  journal_id?: Many2One;
+  is_reconciled?: boolean;
+};
+
+type StatementLine = {
+  id: string;
+  date: string;
+  label: string;
+  amount: string;
+  matchTarget: string;
+  confidence: string;
+  status: string;
+};
+
+function fmtBankAmount(amt: number): string {
+  const abs = Math.abs(amt).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return amt < 0 ? `-JOD ${abs}` : `JOD ${abs}`;
+}
 
 export default function BankReconciliation() {
-  const [items, setItems] = useState(STATEMENTS);
+  const { rows, loading } = useCycomList<OdooBankLine, StatementLine>(
+    'account.bank.statement.line',
+    [],
+    ['date', 'payment_ref', 'partner_id', 'amount', 'journal_id', 'is_reconciled'],
+    (r) => ({
+      id: fmtCode('STMT', r.id),
+      date: fmtDate(r.date),
+      label: (r.payment_ref as string) || m2oName(r.partner_id),
+      amount: fmtBankAmount(r.amount ?? 0),
+      matchTarget: m2oName(r.journal_id),
+      confidence: '—',
+      status: r.is_reconciled ? 'Reconciled' : 'Unmatched',
+    }),
+    { order: 'date desc' },
+  );
+
+  const [items, setItems] = useState<StatementLine[]>([]);
   const [reconciling, setReconciling] = useState(false);
+
+  useEffect(() => {
+    if (rows.length > 0) setItems(rows);
+  }, [rows]);
 
   const triggerMassReconcile = () => {
     setReconciling(true);
@@ -29,7 +69,7 @@ export default function BankReconciliation() {
           <h1 className="page-title text-white">Mass Bank Reconciliation</h1>
           <p className="page-subtitle">Verify, match, and reconcile bank statement lines against internal ledger invoices recursively (mass_reconciliation).</p>
         </div>
-        <button 
+        <button
           onClick={triggerMassReconcile}
           disabled={reconciling}
           className="btn-primary flex items-center gap-2"
@@ -43,11 +83,17 @@ export default function BankReconciliation() {
         </button>
       </div>
 
+      {loading && (
+        <div className="glass-card p-8 text-center text-slate-400 text-sm">
+          Loading bank statement lines from Odoo…
+        </div>
+      )}
+
       {/* Info Rules Box */}
       <div className="glass-card p-6 border-cyan-500/20 bg-cyan-950/10 text-xs">
         <h3 className="text-sm font-bold text-white mb-2">Mass Reconciliation Engine</h3>
         <p className="text-slate-400 leading-relaxed mb-4">
-          <strong>mass_reconciliation:</strong> Automatically processes hundreds of bank statements and matches them against open invoices 
+          <strong>mass_reconciliation:</strong> Automatically processes hundreds of bank statements and matches them against open invoices
           using date thresholds, exact amount matching, and string similarity matching on statement labels.
         </p>
       </div>

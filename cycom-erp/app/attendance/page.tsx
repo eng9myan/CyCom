@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useCycomList, fmtCode, fmtDate, m2oName, m2oId, type Many2One } from '@/lib/cycomModels';
 import { motion } from 'framer-motion';
 import { 
   Clock, Server, MapPin, RefreshCw, Plus, CheckCircle, 
@@ -27,22 +28,60 @@ interface BiometricLog {
   method: 'Face ID' | 'Fingerprint' | 'RFID Card';
 }
 
-const INITIAL_DEVICES: ZkDevice[] = [
-  { id: 'DEV-10', name: 'Gate A Biometric', ipAddress: '192.168.10.51', port: 4370, location: 'HQ Main Lobby', status: 'Online', lastSynced: '14:30 today' },
-  { id: 'DEV-11', name: 'Warehouse Entry', ipAddress: '192.168.10.52', port: 4370, location: 'Amman Store North', status: 'Online', lastSynced: '14:30 today' },
-  { id: 'DEV-12', name: 'Admin Office Floor 1', ipAddress: '192.168.10.53', port: 4370, location: 'HQ Admin Office', status: 'Online', lastSynced: '12:05 today' },
-  { id: 'DEV-13', name: 'Gate B Employee', ipAddress: '192.168.10.54', port: 4370, location: 'HQ Back Gate', status: 'Offline', lastSynced: 'Yesterday' },
-];
+type CycomZkMachine = {
+  id: number;
+  name?: string;
+  ip?: string;
+  state?: string;
+  last_activity?: string;
+};
 
-const INITIAL_LOGS: BiometricLog[] = [
-  { id: 'LOG-001', employeeName: 'Ahmad Masri', employeeId: 'EMP-029', device: 'HQ Main Lobby', timestamp: '14:28:10', type: 'Check-In', method: 'Face ID' },
-  { id: 'LOG-002', employeeName: 'Sara Haddad', employeeId: 'EMP-034', device: 'HQ Admin Office', timestamp: '14:26:44', type: 'Check-In', method: 'Fingerprint' },
-  { id: 'LOG-003', employeeName: 'Rami Khasawneh', employeeId: 'EMP-088', device: 'Amman Store North', timestamp: '14:22:15', type: 'Check-In', method: 'RFID Card' },
-];
+type CycomAttendanceLog = {
+  id: number;
+  employee_id: Many2One;
+  check_in?: string;
+  check_out?: string;
+  worked_hours?: number;
+};
+
+const mapDevice = (r: CycomZkMachine): ZkDevice => ({
+  id: fmtCode('DEV', r.id),
+  name: r.name || `Device ${r.id}`,
+  ipAddress: r.ip || '—',
+  port: 4370,
+  location: r.name || '—',
+  status: r.state === 'online' ? 'Online' : 'Offline',
+  lastSynced: fmtDate(r.last_activity),
+});
+
+const mapAttendanceLog = (r: CycomAttendanceLog): BiometricLog => ({
+  id: fmtCode('LOG', r.id, 3),
+  employeeName: m2oName(r.employee_id),
+  employeeId: fmtCode('EMP', m2oId(r.employee_id) ?? 0),
+  device: '—',
+  timestamp: r.check_in
+    ? new Date(r.check_in.replace(' ', 'T') + 'Z').toLocaleTimeString()
+    : '—',
+  type: 'Check-In',
+  method: 'Fingerprint',
+});
 
 export default function AttendanceDashboard() {
-  const [devices, setDevices] = useState<ZkDevice[]>(INITIAL_DEVICES);
-  const [logs, setLogs] = useState<BiometricLog[]>(INITIAL_LOGS);
+  const { rows: devices, loading: devicesLoading, reload: reloadDevices } = useCycomList<CycomZkMachine, ZkDevice>(
+    'zk.machine', // TODO: verify model name
+    [],
+    ['name', 'ip', 'state', 'last_activity'],
+    mapDevice,
+    { limit: 100 },
+  );
+  const { rows: logs, loading: logsLoading, reload: reloadLogs } = useCycomList<CycomAttendanceLog, BiometricLog>(
+    'hr.attendance',
+    [],
+    ['employee_id', 'check_in', 'check_out', 'worked_hours'],
+    mapAttendanceLog,
+    { limit: 50, order: 'check_in desc' },
+  );
+  const loading = devicesLoading || logsLoading;
   const [isSyncing, setIsSyncing] = useState(false);
 
   // New device form states
@@ -68,44 +107,20 @@ export default function AttendanceDashboard() {
   const [corrReason, setCorrReason] = useState('');
   const [corrSuccess, setCorrSuccess] = useState(false);
 
-  // Syncing simulation
+  // Syncing — triggers a live reload from Odoo
   const triggerSync = () => {
     setIsSyncing(true);
     setTimeout(() => {
       setIsSyncing(false);
-      // Inject mock log
-      const newLogs: BiometricLog[] = [
-        {
-          id: `LOG-${Math.floor(100 + Math.random() * 900)}`,
-          employeeName: 'Sara Haddad',
-          employeeId: 'EMP-034',
-          device: 'HQ Main Lobby',
-          timestamp: new Date().toLocaleTimeString(),
-          type: 'Check-Out',
-          method: 'Face ID'
-        },
-        ...logs
-      ];
-      setLogs(newLogs);
-      
-      // Update device sync stamp
-      setDevices(devices.map(d => d.status === 'Online' ? { ...d, lastSynced: 'Just now' } : d));
+      reloadLogs();
+      reloadDevices();
     }, 1200);
   };
 
   const handleAddDevice = (e: React.FormEvent) => {
     e.preventDefault();
     if (!devName || !devIp) return;
-    const newDev: ZkDevice = {
-      id: `DEV-${Math.floor(20 + Math.random() * 80)}`,
-      name: devName,
-      ipAddress: devIp,
-      port: devPort,
-      location: devLoc || 'General facility',
-      status: 'Online',
-      lastSynced: 'Never'
-    };
-    setDevices([...devices, newDev]);
+    // TODO: call Odoo create API to register device, then reload
     setDevName('');
     setDevIp('');
     setDevLoc('');
@@ -125,6 +140,8 @@ export default function AttendanceDashboard() {
   // Weekly OT Calculator logic
   const extraHours = weeklyActualHours - weeklyContractHours;
   const isEligible = extraHours > 0;
+
+  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
 
   return (
     <div className="space-y-6">

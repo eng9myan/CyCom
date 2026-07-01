@@ -1,26 +1,53 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Cpu, RefreshCw, Radio, MapPin, Plus, Play } from 'lucide-react';
+import { useCycomList, fmtCode, fmtDate } from '@/lib/cycomModels';
 
-const DEVICES = [
-  { id: 'DEV-001', name: 'Zarqa Warehouse Entrance', type: 'ZK Teco Fingerprint', ip: '192.168.10.45', port: '4370', status: 'Online', lastSync: '10 mins ago', recordsCount: '4,102 logs' },
-  { id: 'DEV-002', name: 'Amman HQ Main Gate', type: 'STTL Face Recognition', ip: '192.168.1.112', port: '5005', status: 'Online', lastSync: '2 mins ago', recordsCount: '19,281 logs' },
-  { id: 'DEV-003', name: 'Irbid Warehouse Gate', type: 'ZK Teco Fingerprint', ip: '192.168.20.15', port: '4370', status: 'Online', lastSync: '1 hr ago', recordsCount: '3,890 logs' },
-  { id: 'DEV-004', name: 'Zarqa Retail Shop Gate', type: 'ZK Teco Fingerprint', ip: '192.168.30.22', port: '4370', status: 'Offline', lastSync: '1 day ago', recordsCount: '1,204 logs' },
-];
+type CycomZkMachine = {
+  id: number;
+  name?: string;
+  ip?: string;
+  state?: string;
+  last_activity?: string;
+};
+
+type DeviceRow = {
+  id: string;
+  name: string;
+  type: string;
+  ip: string;
+  port: string;
+  status: 'Online' | 'Offline';
+  lastSync: string;
+  recordsCount: string;
+};
+
+const mapDevice = (r: CycomZkMachine): DeviceRow => ({
+  id: fmtCode('DEV', r.id, 3),
+  name: r.name || `Device ${r.id}`,
+  type: 'ZK Teco',
+  ip: r.ip || '—',
+  port: '4370',
+  status: r.state === 'online' ? 'Online' : 'Offline',
+  lastSync: fmtDate(r.last_activity),
+  recordsCount: '—',
+});
 
 export default function BiometricDevices() {
-  const [devices, setDevices] = useState(DEVICES);
+  const { rows: devices, loading, reload } = useCycomList<CycomZkMachine, DeviceRow>(
+    'zk.machine', // TODO: verify model name
+    [],
+    ['name', 'ip', 'state', 'last_activity'],
+    mapDevice,
+    { limit: 100 },
+  );
 
-  const syncDevice = (id: string) => {
-    setDevices(prev => prev.map(d => {
-      if (d.id === id) {
-        return { ...d, lastSync: 'Just now', recordsCount: 'Synced successfully' };
-      }
-      return d;
-    }));
+  const syncDevice = (_id: string) => {
+    reload();
   };
+
+  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
 
   return (
     <div className="space-y-6">

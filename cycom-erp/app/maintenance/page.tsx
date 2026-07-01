@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCycomList, m2oName, fmtDate, type Many2One } from '@/lib/cycomModels';
 import { 
   Wrench, Plus, Trash2, CheckCircle, Clock, 
   Settings2, Activity, ShieldAlert, AlertTriangle, ShieldCheck
@@ -34,15 +35,42 @@ const INITIAL_EQUIPMENT: Equipment[] = [
   { id: 'EQ-04', name: 'HQ ERP Main Server', model: 'Dell PowerEdge R760', category: 'Server', tech: 'Lina Qudah', status: 'Operational' },
 ];
 
-const INITIAL_REQUESTS: MaintenanceRequest[] = [
-  { id: 'MNT-101', title: 'Calibrate optical face scan sensor', equipId: 'EQ-01', equipName: 'Gate A Biometric ZK', type: 'Preventive', dateRequested: '2026-06-12', assignedTo: 'Khaled Jaber', status: 'Repaired' },
-  { id: 'MNT-102', title: 'Register touch panel freezing', equipId: 'EQ-02', equipName: 'Counter 1 Retail POS', type: 'Corrective', dateRequested: '2026-06-14', assignedTo: 'Ahmad Masri', status: 'In Progress' },
-  { id: 'MNT-103', title: 'Hydraulic lift cylinder oil leak', equipId: 'EQ-03', equipName: 'Amman North Forklift', type: 'Corrective', dateRequested: '2026-06-13', assignedTo: 'Rami Khasawneh', status: 'New' },
-];
+type CycomMaintenanceRequest = {
+  id: number;
+  name?: string;
+  equipment_id?: Many2One;
+  stage_id?: Many2One;
+  priority?: string;
+  create_date?: string;
+};
+
+const mapMaintenanceStatus = (stageName: string): MaintenanceRequest['status'] => {
+  const n = stageName.toLowerCase();
+  if (n.includes('progress') || n.includes('repair')) return 'In Progress';
+  if (n.includes('done') || n.includes('repaired') || n.includes('complete')) return 'Repaired';
+  return 'New';
+};
+
+const mapMaintenanceRequest = (r: CycomMaintenanceRequest): MaintenanceRequest => ({
+  id: r.name || `MNT-${r.id}`,
+  title: r.name || '—',
+  equipId: r.equipment_id ? String(r.equipment_id[0]) : '—',
+  equipName: m2oName(r.equipment_id, '—'),
+  type: 'Corrective',
+  dateRequested: fmtDate(r.create_date),
+  assignedTo: '—',
+  status: mapMaintenanceStatus(m2oName(r.stage_id)),
+});
 
 export default function MaintenancePage() {
+  const { rows: liveRequests, loading } = useCycomList<CycomMaintenanceRequest, MaintenanceRequest>(
+    'maintenance.request', [], ['name', 'equipment_id', 'stage_id', 'priority', 'create_date'],
+    mapMaintenanceRequest,
+  );
   const [equipment, setEquipment] = useState<Equipment[]>(INITIAL_EQUIPMENT);
-  const [requests, setRequests] = useState<MaintenanceRequest[]>(INITIAL_REQUESTS);
+  const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!loading) setRequests(liveRequests); }, [loading]);
 
   // New Request Form states
   const [reqTitle, setReqTitle] = useState('');
@@ -90,6 +118,8 @@ export default function MaintenancePage() {
   const handleDeleteRequest = (id: string) => {
     setRequests(requests.filter(r => r.id !== id));
   };
+
+  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
 
   return (
     <div className="space-y-6">

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useCycomList, m2oName, fmtDate, type Many2One } from '@/lib/cycomModels';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FolderOpen, Folder, Plus, Trash2, Download, Search, 
@@ -29,12 +30,28 @@ interface ESignRequest {
   sha256?: string;
 }
 
-const INITIAL_FILES: DocFile[] = [
-  { id: 'DOC-501', name: 'Zaid_Food_Contract_2026.pdf', size: '2.4 MB', tag: 'Contract', workspace: 'Legal', dateUploaded: '2026-06-12' },
-  { id: 'DOC-502', name: 'Monthly_Sales_Report_May.xlsx', size: '1.8 MB', tag: 'Report', workspace: 'Finance', dateUploaded: '2026-06-10' },
-  { id: 'DOC-503', name: 'Iqama_Khalid_Jaber.jpg', size: '420 KB', tag: 'ID', workspace: 'HR', dateUploaded: '2026-06-14' },
-  { id: 'DOC-504', name: 'Vendor_Invoice_INV9821.pdf', size: '890 KB', tag: 'Invoice', workspace: 'Finance', dateUploaded: '2026-06-13' },
-];
+type CycomDocument = {
+  id: number;
+  name?: string;
+  type?: string;
+  owner_id?: Many2One;
+  folder_id?: Many2One;
+  create_date?: string;
+};
+
+const VALID_WORKSPACES: DocFile['workspace'][] = ['Finance', 'HR', 'Operations', 'Legal'];
+
+const mapDocument = (r: CycomDocument): DocFile => {
+  const folderName = m2oName(r.folder_id);
+  return {
+    id: `DOC-${r.id}`,
+    name: r.name || '—',
+    size: '—',
+    tag: 'Other',
+    workspace: (VALID_WORKSPACES.includes(folderName as DocFile['workspace']) ? folderName as DocFile['workspace'] : 'Finance'),
+    dateUploaded: fmtDate(r.create_date),
+  };
+};
 
 const INITIAL_ESIGN_REQUESTS: ESignRequest[] = [
   { id: 'SIG-901', fileName: 'Zaid_Food_Contract_2026.pdf', signerName: 'Zaid Al-Fayegh', signerEmail: 'zaid@fayeghfoods.jo', role: 'Contractor', status: 'Pending Signature', dateRequested: '2026-06-14' },
@@ -46,8 +63,12 @@ const WORKSPACES: Array<'Finance' | 'HR' | 'Operations' | 'Legal'> = ['Finance',
 const TAGS: Array<'Invoice' | 'Contract' | 'ID' | 'Report' | 'Other'> = ['Invoice', 'Contract', 'ID', 'Report', 'Other'];
 
 export default function DocumentsPage() {
+  const { rows: liveDocs, loading } = useCycomList<CycomDocument, DocFile>(
+    'documents.document', [], ['name', 'type', 'owner_id', 'folder_id', 'create_date'],
+    mapDocument,
+  );
   const [activeTab, setActiveTab] = useState<'dms' | 'esign'>('dms');
-  const [files, setFiles] = useState<DocFile[]>(INITIAL_FILES);
+  const [files, setFiles] = useState<DocFile[]>([]);
   const [selectedWorkspace, setSelectedWorkspace] = useState<'Finance' | 'HR' | 'Operations' | 'Legal'>('Finance');
   const [tagFilter, setTagFilter] = useState<string>('All');
   const [search, setSearch] = useState('');
@@ -118,6 +139,10 @@ export default function DocumentsPage() {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
+
+  // Seed files from live Odoo data
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!loading) setFiles(liveDocs); }, [loading]);
 
   // Pre-initialize canvas styling when modal opens
   useEffect(() => {
@@ -210,6 +235,8 @@ export default function DocumentsPage() {
       setTypedName('');
     }, 1500);
   };
+
+  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
 
   return (
     <div className="space-y-6">

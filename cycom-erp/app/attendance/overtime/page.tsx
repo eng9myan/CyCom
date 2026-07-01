@@ -1,19 +1,50 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
+import { useCycomList, fmtCode, fmtDate, m2oName, type Many2One } from '@/lib/cycomModels';
 import { Check, X, Clock, HelpCircle, ShieldCheck } from 'lucide-react';
 
-const REQS = [
-  { id: 'OT-REQ-1002', employee: 'Ahmad Masri', week: 'Week 24 (Jun 07 - Jun 13)', overtimeHours: 4.5, eligibility: 'Eligible', rateType: '1.25x (Normal)', reason: 'Warehouse inventory reconciliation backlog' },
-  { id: 'OT-REQ-1003', employee: 'Rami Khasawneh', week: 'Week 24 (Jun 07 - Jun 13)', overtimeHours: 6.0, eligibility: 'Requires Review', rateType: '1.50x (Holiday)', reason: 'POS system migration deployment support' },
-  { id: 'OT-REQ-1004', employee: 'Noor Al-Fayegh', week: 'Week 24 (Jun 07 - Jun 13)', overtimeHours: 3.0, eligibility: 'Eligible', rateType: '1.25x (Normal)', reason: 'Unloading urgent branch shipments' },
-];
+type CycomOvertime = {
+  id: number;
+  employee_id: Many2One;
+  date?: string;
+  duration?: number;
+  state?: string;
+};
+
+type OvertimeReq = {
+  id: string;
+  employee: string;
+  week: string;
+  overtimeHours: number;
+  eligibility: string;
+  rateType: string;
+  reason: string;
+};
+
+const mapOvertime = (r: CycomOvertime): OvertimeReq => ({
+  id: fmtCode('OT-REQ', r.id, 4),
+  employee: m2oName(r.employee_id),
+  week: fmtDate(r.date),
+  overtimeHours: r.duration ?? 0,
+  eligibility: r.state === 'validated' ? 'Eligible' : 'Requires Review',
+  rateType: '1.25x (Normal)',
+  reason: '—',
+});
 
 export default function OvertimeApprovalFlow() {
-  const [requests, setRequests] = useState(REQS);
+  const { rows: requests, loading } = useCycomList<CycomOvertime, OvertimeReq>(
+    'hr.attendance.overtime', // TODO: verify model name
+    [],
+    ['employee_id', 'date', 'duration', 'state'],
+    mapOvertime,
+    { limit: 100, order: 'date desc' },
+  );
 
-  const handleAction = (id: string, action: 'Approved' | 'Rejected') => {
-    setRequests(prev => prev.filter(r => r.id !== id));
+  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
+
+  const handleAction = (_id: string, _action: 'Approved' | 'Rejected') => {
+    // TODO: call Odoo write API to update state, then reload
   };
 
   return (

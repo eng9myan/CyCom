@@ -2,19 +2,70 @@
 
 import React, { useState } from 'react';
 import { FileText, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter } from 'lucide-react';
+import { useCycomList, m2oName, fmtDate, fmtCode, Many2One } from '@/lib/cycomModels';
 
-const DOCUMENTS = [
-  { id: 'DOC-9082', employee: 'Khaled Jaber', type: 'Passport', number: 'P-9827361', expiry: 'Jun 19, 2026', daysLeft: 5, status: 'Critical', dept: 'Logistics' },
-  { id: 'DOC-9081', employee: 'Lina Qudah', type: 'Residency Permit (Iqama)', number: 'R-7728394', expiry: 'Jun 26, 2026', daysLeft: 12, status: 'Warning', dept: 'Finance & Accounting' },
-  { id: 'DOC-9080', employee: 'Yousef Ali', type: 'Driving License', number: 'D-1192837', expiry: 'Jul 12, 2026', daysLeft: 28, status: 'Attention', dept: 'Operations & Logistics' },
-  { id: 'DOC-9079', employee: 'Sara Haddad', type: 'Work Permit', number: 'W-0028376', expiry: 'Aug 30, 2026', daysLeft: 77, status: 'Active', dept: 'Human Resources' },
-  { id: 'DOC-9078', employee: 'Ahmad Masri', type: 'Passport', number: 'P-1283748', expiry: 'Dec 15, 2026', daysLeft: 184, status: 'Active', dept: 'Logistics' },
-];
+type OdooDocument = {
+  id: number;
+  employee_id?: Many2One;
+  name?: string;
+  document_type?: string | false;
+  expiry_date?: string | false;
+  state?: string;
+};
+
+type DocumentRow = {
+  id: string;
+  employee: string;
+  type: string;
+  number: string;
+  expiry: string;
+  daysLeft: number;
+  status: string;
+  dept: string;
+};
+
+function computeDaysLeft(expiry_date?: string | false): number {
+  if (!expiry_date) return 0;
+  const exp = new Date(expiry_date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.max(0, Math.ceil((exp.getTime() - today.getTime()) / 86400000));
+}
+
+function deriveDocStatus(daysLeft: number): string {
+  if (daysLeft <= 7) return 'Critical';
+  if (daysLeft <= 14) return 'Warning';
+  if (daysLeft <= 30) return 'Attention';
+  return 'Active';
+}
 
 export default function DocumentExpiry() {
   const [filterStatus, setFilterStatus] = useState<'All' | 'Critical' | 'Warning' | 'Active'>('All');
 
-  const filteredDocs = DOCUMENTS.filter(doc => {
+  const { rows, loading } = useCycomList<OdooDocument, DocumentRow>(
+    'hr.document',
+    [],
+    ['employee_id', 'name', 'document_type', 'expiry_date', 'state'],
+    (r) => {
+      const daysLeft = computeDaysLeft(r.expiry_date);
+      return {
+        id: fmtCode('DOC', r.id),
+        employee: m2oName(r.employee_id),
+        type: (r.document_type as string) || '—',
+        number: r.name || '—',
+        expiry: fmtDate(r.expiry_date as string | undefined),
+        daysLeft,
+        status: deriveDocStatus(daysLeft),
+        dept: '—',
+      };
+    },
+  );
+
+  const criticalCount = rows.filter(d => d.status === 'Critical').length;
+  const warningCount = rows.filter(d => d.status === 'Warning' || d.status === 'Attention').length;
+  const activeCount = rows.filter(d => d.status === 'Active').length;
+
+  const filteredDocs = rows.filter(doc => {
     if (filterStatus === 'All') return true;
     if (filterStatus === 'Critical') return doc.status === 'Critical';
     if (filterStatus === 'Warning') return doc.status === 'Warning' || doc.status === 'Attention';
@@ -35,6 +86,12 @@ export default function DocumentExpiry() {
         </button>
       </div>
 
+      {loading && (
+        <div className="glass-card p-8 text-center text-slate-400 text-sm">
+          Loading documents from Odoo…
+        </div>
+      )}
+
       {/* Filter Tabs */}
       <div className="flex justify-between items-center bg-[#0B0F19] p-1.5 rounded-lg border border-white/5 max-w-md">
         {(['All', 'Critical', 'Warning', 'Active'] as const).map((tab) => (
@@ -42,8 +99,8 @@ export default function DocumentExpiry() {
             key={tab}
             onClick={() => setFilterStatus(tab)}
             className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-md transition-colors ${
-              filterStatus === tab 
-                ? 'bg-white/10 text-white' 
+              filterStatus === tab
+                ? 'bg-white/10 text-white'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -58,7 +115,7 @@ export default function DocumentExpiry() {
           <AlertTriangle className="w-8 h-8 text-red-500 flex-shrink-0" />
           <div>
             <h3 className="text-sm font-bold text-white">Critical Expirations</h3>
-            <p className="text-2xl font-black text-white mt-1">1</p>
+            <p className="text-2xl font-black text-white mt-1">{criticalCount}</p>
             <p className="text-xs text-slate-400 mt-1">Documents expiring within 7 days. Urgent action is needed.</p>
           </div>
         </div>
@@ -66,7 +123,7 @@ export default function DocumentExpiry() {
           <Clock className="w-8 h-8 text-amber-500 flex-shrink-0" />
           <div>
             <h3 className="text-sm font-bold text-white">Pending Warning</h3>
-            <p className="text-2xl font-black text-white mt-1">2</p>
+            <p className="text-2xl font-black text-white mt-1">{warningCount}</p>
             <p className="text-xs text-slate-400 mt-1">Documents expiring within 30 days. Renewal process should start.</p>
           </div>
         </div>
@@ -74,7 +131,7 @@ export default function DocumentExpiry() {
           <CheckCircle className="w-8 h-8 text-emerald-500 flex-shrink-0" />
           <div>
             <h3 className="text-sm font-bold text-white">Valid & Verified</h3>
-            <p className="text-2xl font-black text-white mt-1">339</p>
+            <p className="text-2xl font-black text-white mt-1">{activeCount}</p>
             <p className="text-xs text-slate-400 mt-1">All other documents are valid with no upcoming expiration.</p>
           </div>
         </div>

@@ -1,17 +1,54 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Percent, Clock, AlertTriangle, ShieldCheck, Settings, Plus } from 'lucide-react';
+import { useCycomList, fmtCode, fmtDate, m2oName, type Many2One } from '@/lib/cycomModels';
 
-const DEDUCTIONS = [
-  { id: 'DED-5021', employee: 'Sara Haddad', date: 'Jun 10, 2026', delayMinutes: 45, calculation: '1.5x Hourly Rate', deduction: 'JOD 15.00', status: 'Applied' },
-  { id: 'DED-5022', employee: 'Rami Khasawneh', date: 'Jun 11, 2026', delayMinutes: 120, calculation: '2.0x Hourly Rate', deduction: 'JOD 40.00', status: 'Applied' },
-  { id: 'DED-5023', employee: 'Noor Al-Fayegh', date: 'Jun 12, 2026', delayMinutes: 30, calculation: '1.0x Hourly Rate', deduction: 'JOD 10.00', status: 'Pending Review' },
-  { id: 'DED-5024', employee: 'Ahmad Masri', date: 'Jun 13, 2026', delayMinutes: 15, calculation: 'Within Grace Period', deduction: 'JOD 0.00', status: 'Excused' },
-];
+// --- Odoo raw type ---
+type CycomPayslipLineRaw = {
+  id: number;
+  employee_id: Many2One;
+  name: string;
+  amount: number;
+  date: string;
+  slip_id: Many2One;
+  code: string;
+};
+
+// --- UI type ---
+interface DeductionEntry {
+  id: string;
+  employee: string;
+  date: string;
+  delayMinutes: number;
+  calculation: string;
+  deduction: string;
+  status: string;
+}
+
+// --- Mapper ---
+const mapDeduction = (r: CycomPayslipLineRaw): DeductionEntry => ({
+  id: fmtCode('DED', r.id),
+  employee: m2oName(r.employee_id),
+  date: fmtDate(r.date),
+  delayMinutes: 0,
+  calculation:
+    r.code === 'LATE' ? 'Lateness Deduction' :
+    r.code === 'ABSENCE' ? 'Absence Deduction' :
+    'General Deduction',
+  deduction: `JOD ${Math.abs(r.amount ?? 0).toFixed(2)}`,
+  status: 'Applied',
+});
 
 export default function LatenessDeductions() {
-  const [list, setList] = useState(DEDUCTIONS);
+  const { rows: list, loading } = useCycomList<CycomPayslipLineRaw, DeductionEntry>(
+    'hr.payslip.line',
+    [['code', 'in', ['DED', 'ABSENCE', 'LATE']]],
+    ['employee_id', 'name', 'amount', 'date', 'slip_id', 'code'],
+    mapDeduction,
+  );
+
+  if (loading) return <div style={{ padding: '2rem', color: '#ccc' }}>Loading...</div>;
 
   return (
     <div className="space-y-6">

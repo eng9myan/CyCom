@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCycomList, m2oName, fmtDate, type Many2One } from '@/lib/cycomModels';
 import { 
   Mail, Send, Sparkles, BarChart2, MousePointer, Users, Plus, 
   X, Check, AlertCircle, FileText, ChevronRight, MessageSquare 
@@ -19,12 +20,31 @@ interface Campaign {
   date: string;
 }
 
-const INITIAL_CAMPAIGNS: Campaign[] = [
-  { id: 'CMP-001', name: 'Summer Promotion 2026', type: 'Email Blast', target: 'All retail customers', status: 'Sent', sentCount: 18500, openRate: 28.4, clickRate: 5.2, date: '2026-06-01' },
-  { id: 'CMP-002', name: 'Loyalty Points Balance Reminder', type: 'SMS Alert', target: 'POS members (>100 points)', status: 'Sent', sentCount: 4200, openRate: 98.2, clickRate: 12.8, date: '2026-06-10' },
-  { id: 'CMP-003', name: 'Cycom Monthly Corporate Newsletter', type: 'Newsletter', target: 'B2B Partners', status: 'Scheduled', sentCount: 1200, openRate: 0, clickRate: 0, date: '2026-06-25' },
-  { id: 'CMP-004', name: 'Cart Abandonment Follow-up', type: 'Email Blast', target: 'Portal users', status: 'Draft', sentCount: 0, openRate: 0, clickRate: 0, date: 'Pending' }
-];
+type CycomMailing = {
+  id: number;
+  name?: string;
+  mailing_model_id?: Many2One;
+  state?: string;
+  sent?: number;
+  failed?: number;
+  scheduled_date?: string;
+};
+
+const MAILING_STATE_MAP: Record<string, Campaign['status']> = {
+  done: 'Sent', sending: 'Sent', in_queue: 'Scheduled', draft: 'Draft',
+};
+
+const mapMailing = (r: CycomMailing): Campaign => ({
+  id: `CMP-${r.id}`,
+  name: r.name || '—',
+  type: 'Email Blast',
+  target: m2oName(r.mailing_model_id, '—'),
+  status: MAILING_STATE_MAP[r.state ?? ''] ?? 'Draft',
+  sentCount: r.sent ?? 0,
+  openRate: 0,
+  clickRate: 0,
+  date: fmtDate(r.scheduled_date),
+});
 
 const TEMPLATES = [
   { id: 'promo', title: 'Summer Sale Template', desc: 'Bold grid, product discounts, JOD checkout buttons.', color: '#E67E22' },
@@ -33,7 +53,13 @@ const TEMPLATES = [
 ];
 
 export default function MarketingPage() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>(INITIAL_CAMPAIGNS);
+  const { rows: liveCampaigns, loading } = useCycomList<CycomMailing, Campaign>(
+    'mass.mailing', [], ['name', 'mailing_model_id', 'state', 'sent', 'failed', 'scheduled_date'],
+    mapMailing,
+  );
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!loading) setCampaigns(liveCampaigns); }, [loading]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState('promo');
   
@@ -71,6 +97,8 @@ export default function MarketingPage() {
     setCampType('Email Blast');
     setCampTarget('All retail customers');
   };
+
+  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
 
   return (
     <div className="space-y-6 max-w-[1200px] mx-auto">

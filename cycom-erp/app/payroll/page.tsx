@@ -2,11 +2,31 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  DollarSign, Clock, Download, Plus, CheckCircle, 
+import {
+  DollarSign, Clock, Download, Plus, CheckCircle,
   XCircle, Calculator, FileSpreadsheet, Eye, RefreshCw
 } from 'lucide-react';
+import { useCycomList, fmtCode, fmtDate, m2oName, type Many2One } from '@/lib/cycomModels';
 
+// --- Odoo raw types ---
+type CycomOvertimeRaw = {
+  id: number;
+  employee_id: Many2One;
+  date: string;
+  duration: number;
+  state: string;
+};
+
+type CycomPayslipRaw = {
+  id: number;
+  employee_id: Many2One;
+  date_from: string;
+  date_to: string;
+  net_wage: number;
+  state: string;
+};
+
+// --- UI types ---
 interface OvertimeClaim {
   id: string;
   employeeName: string;
@@ -29,22 +49,51 @@ interface GeneratedPayslip {
   status: 'Draft' | 'Approved' | 'Paid';
 }
 
-const INITIAL_OVERTIME: OvertimeClaim[] = [
-  { id: 'OT-902', employeeName: 'Ahmad Masri', hours: 8, ratePerHour: 5.5, multiplier: 1.5, date: '2026-06-12', status: 'pending' },
-  { id: 'OT-903', employeeName: 'Sara Haddad', hours: 4, ratePerHour: 6.0, multiplier: 1.5, date: '2026-06-11', status: 'approved' },
-  { id: 'OT-904', employeeName: 'Rami Khasawneh', hours: 12, ratePerHour: 4.8, multiplier: 2.0, date: '2026-06-10', status: 'pending' },
-  { id: 'OT-905', employeeName: 'Khaled Jaber', hours: 6, ratePerHour: 5.0, multiplier: 1.5, date: '2026-06-09', status: 'rejected' },
-];
+// --- Mappers ---
+const mapOvertimeClaim = (r: CycomOvertimeRaw): OvertimeClaim => ({
+  id: fmtCode('OT', r.id),
+  employeeName: m2oName(r.employee_id),
+  hours: r.duration ?? 0,
+  ratePerHour: 0,
+  multiplier: 1.5,
+  date: fmtDate(r.date),
+  status: r.state === 'validated' ? 'approved' : r.state === 'refused' ? 'rejected' : 'pending',
+});
 
-const INITIAL_PAYSLIPS: GeneratedPayslip[] = [
-  { id: 'PS-1209', employeeName: 'Ahmad Masri', baseSalary: 750, overtimePaid: 66, latenessDeductions: 12, allowances: 80, netSalary: 884, period: 'May 2026', status: 'Approved' },
-  { id: 'PS-1210', employeeName: 'Sara Haddad', baseSalary: 950, overtimePaid: 36, latenessDeductions: 0, allowances: 120, netSalary: 1106, period: 'May 2026', status: 'Paid' },
-  { id: 'PS-1211', employeeName: 'Rami Khasawneh', baseSalary: 600, overtimePaid: 115.2, latenessDeductions: 45, allowances: 50, netSalary: 720.2, period: 'May 2026', status: 'Draft' },
-];
+const fmtPeriod = (s?: string): string => {
+  if (!s) return '—';
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return s;
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+};
+
+const mapPayslip = (r: CycomPayslipRaw): GeneratedPayslip => ({
+  id: fmtCode('PS', r.id),
+  employeeName: m2oName(r.employee_id),
+  baseSalary: 0,
+  overtimePaid: 0,
+  latenessDeductions: 0,
+  allowances: 0,
+  netSalary: r.net_wage ?? 0,
+  period: fmtPeriod(r.date_from),
+  status: r.state === 'done' ? 'Paid' : r.state === 'verify' ? 'Approved' : 'Draft',
+});
 
 export default function PayrollDashboard() {
-  const [otClaims, setOtClaims] = useState<OvertimeClaim[]>(INITIAL_OVERTIME);
-  const [payslips, setPayslips] = useState<GeneratedPayslip[]>(INITIAL_PAYSLIPS);
+  const { rows: otClaims, loading: loadingOT } = useCycomList<CycomOvertimeRaw, OvertimeClaim>(
+    'hr.attendance.overtime',
+    [],
+    ['employee_id', 'date', 'duration', 'state'],
+    mapOvertimeClaim,
+  );
+  const { rows: payslips, loading: loadingPayslips } = useCycomList<CycomPayslipRaw, GeneratedPayslip>(
+    'hr.payslip',
+    [],
+    ['employee_id', 'date_from', 'date_to', 'net_wage', 'state'],
+    mapPayslip,
+    { order: 'date_from desc' },
+  );
+  const loading = loadingOT || loadingPayslips;
 
   // Payslip Generator states
   const [selectedEmp, setSelectedEmp] = useState('Ahmad Masri');
@@ -71,40 +120,25 @@ export default function PayrollDashboard() {
 
   const handleGeneratePayslip = (e: React.FormEvent) => {
     e.preventDefault();
-    const newSlip: GeneratedPayslip = {
-      id: `PS-${Math.floor(1200 + Math.random() * 800)}`,
-      employeeName: selectedEmp,
-      baseSalary: baseSalary,
-      overtimePaid: parseFloat(otPaidValue.toFixed(2)),
-      latenessDeductions: parseFloat(latenessDeduction.toFixed(2)),
-      allowances: customAllowances,
-      netSalary: parseFloat(calculatedNet.toFixed(2)),
-      period: slipPeriod,
-      status: 'Draft'
-    };
-    setPayslips([newSlip, ...payslips]);
-    // Reset inputs
-    setOtHours(0);
-    setLatenessMins(0);
-    setCustomAllowances(0);
+    // Payslip creation requires an Odoo write; local addition disabled after live data wiring.
   };
 
-  const handleApproveOT = (id: string) => {
-    setOtClaims(otClaims.map(claim => claim.id === id ? { ...claim, status: 'approved' } : claim));
+  const handleApproveOT = (_id: string) => {
+    // OT approval requires an Odoo write; local mutation disabled after live data wiring.
   };
 
-  const handleRejectOT = (id: string) => {
-    setOtClaims(otClaims.map(claim => claim.id === id ? { ...claim, status: 'rejected' } : claim));
+  const handleRejectOT = (_id: string) => {
+    // OT rejection requires an Odoo write; local mutation disabled after live data wiring.
   };
 
   const handleBulkApprovePayslips = () => {
-    setPayslips(payslips.map(ps => ps.status === 'Draft' ? { ...ps, status: 'Approved' } : ps));
+    // Bulk approval requires an Odoo write; local mutation disabled after live data wiring.
   };
 
   // Excel csv export simulation
   const exportToExcel = () => {
     const headers = ['Payslip ID,Employee,Base Salary,OT Paid,Lateness Deductions,Allowances,Net Salary,Period,Status\n'];
-    const rows = payslips.map(ps => 
+    const rows = payslips.map(ps =>
       `${ps.id},"${ps.employeeName}",${ps.baseSalary},${ps.overtimePaid},${ps.latenessDeductions},${ps.allowances},${ps.netSalary},"${ps.period}",${ps.status}\n`
     );
     const blob = new Blob([...headers, ...rows], { type: 'text/csv;charset=utf-8;' });
@@ -117,6 +151,8 @@ export default function PayrollDashboard() {
     document.body.removeChild(link);
   };
 
+  if (loading) return <div style={{ padding: '2rem', color: '#ccc' }}>Loading...</div>;
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -126,13 +162,13 @@ export default function PayrollDashboard() {
           <p className="page-subtitle">Process monthly wages, calculate lateness deductions, manage overtime approvals, and export financial summaries.</p>
         </div>
         <div className="flex gap-3">
-          <button 
+          <button
             onClick={exportToExcel}
             className="btn-secondary flex items-center gap-2"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-400" /> Export XLSX Summary
           </button>
-          <button 
+          <button
             onClick={handleBulkApprovePayslips}
             className="btn-primary flex items-center gap-2"
           >
@@ -186,7 +222,7 @@ export default function PayrollDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Left Column - Payslip Calculator Form */}
         <div className="glass-card p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-white/5 pb-3">
@@ -197,12 +233,12 @@ export default function PayrollDashboard() {
           <form onSubmit={handleGeneratePayslip} className="space-y-4">
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-500 uppercase">Employee</label>
-              <select 
-                value={selectedEmp} 
+              <select
+                value={selectedEmp}
                 onChange={e => {
                   setSelectedEmp(e.target.value);
                   setBaseSalary(e.target.value === 'Sara Haddad' ? 950 : e.target.value === 'Rami Khasawneh' ? 600 : 750);
-                }} 
+                }}
                 className="input-field"
               >
                 <option value="Ahmad Masri">Ahmad Masri (EMP-029)</option>
@@ -214,18 +250,18 @@ export default function PayrollDashboard() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-500 uppercase">Base Salary (JOD)</label>
-                <input 
-                  type="number" 
-                  value={baseSalary} 
+                <input
+                  type="number"
+                  value={baseSalary}
                   onChange={e => setBaseSalary(parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-500 uppercase">Pay Period</label>
-                <input 
-                  type="text" 
-                  value={slipPeriod} 
+                <input
+                  type="text"
+                  value={slipPeriod}
                   onChange={e => setSlipPeriod(e.target.value)}
                   className="input-field"
                 />
@@ -235,9 +271,9 @@ export default function PayrollDashboard() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-500 uppercase">OT Hours</label>
-                <input 
-                  type="number" 
-                  value={otHours} 
+                <input
+                  type="number"
+                  value={otHours}
                   onChange={e => setOtHours(parseFloat(e.target.value) || 0)}
                   placeholder="e.g. 5"
                   className="input-field"
@@ -245,9 +281,9 @@ export default function PayrollDashboard() {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-500 uppercase">Allowances (JOD)</label>
-                <input 
-                  type="number" 
-                  value={customAllowances} 
+                <input
+                  type="number"
+                  value={customAllowances}
                   onChange={e => setCustomAllowances(parseFloat(e.target.value) || 0)}
                   placeholder="e.g. 100"
                   className="input-field"
@@ -263,8 +299,8 @@ export default function PayrollDashboard() {
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] text-slate-500">Lateness Minutes this month:</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   value={latenessMins}
                   onChange={e => setLatenessMins(parseInt(e.target.value) || 0)}
                   placeholder="e.g. 45 min"
@@ -309,7 +345,7 @@ export default function PayrollDashboard() {
 
         {/* Right Column - Overtime wallet claims & Payslip Records */}
         <div className="lg:col-span-2 space-y-6">
-          
+
           {/* Overtime Wallet approvals */}
           <div className="glass-card p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
@@ -355,13 +391,13 @@ export default function PayrollDashboard() {
                         <td className="text-right">
                           {claim.status === 'pending' && (
                             <div className="flex gap-1 justify-end">
-                              <button 
+                              <button
                                 onClick={() => handleApproveOT(claim.id)}
                                 className="p-1 rounded hover:bg-emerald-500/20 text-[#10B981]"
                               >
                                 <CheckCircle className="w-4 h-4" />
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleRejectOT(claim.id)}
                                 className="p-1 rounded hover:bg-red-500/20 text-[#EF4444]"
                               >

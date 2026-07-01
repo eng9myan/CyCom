@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FileText, CheckCircle2, ArrowRight, AlertTriangle, RefreshCw, 
+import {
+  FileText, CheckCircle2, ArrowRight, AlertTriangle, RefreshCw,
   HelpCircle, Trash2, ShieldAlert, CheckCircle, Calculator
 } from 'lucide-react';
+import { useCycomList, m2oName, fmtCode, Many2One } from '@/lib/cycomModels';
 
 interface JournalEntry {
   id: string;
@@ -27,14 +28,6 @@ interface BankStatementLine {
   matchedEntryId: string | null;
 }
 
-const INITIAL_ENTRIES: JournalEntry[] = [
-  { id: 'MOVE/2026/06/001', ref: 'INV/2026/0029', date: '2026-06-14', journal: 'Bank', partner: 'Jordan Hypermarkets', debit: 4200, credit: 0, status: 'Posted', reconciled: false },
-  { id: 'MOVE/2026/06/002', ref: 'POS-SESS/2026-06-12', date: '2026-06-12', journal: 'Cash', partner: 'POS Counter A', debit: 180, credit: 0, status: 'Posted', reconciled: true },
-  { id: 'MOVE/2026/06/003', ref: 'PO-PYMT-0982', date: '2026-06-13', journal: 'Bank', partner: 'Samer Wholesale Est.', debit: 0, credit: 1250, status: 'Posted', reconciled: false },
-  { id: 'MOVE/2026/06/004', ref: 'RENT-HQ-2026', date: '2026-06-11', journal: 'General', partner: 'HQ Landlord', debit: 0, credit: 2000, status: 'Posted', reconciled: false },
-  { id: 'MOVE/2026/06/005', ref: 'MISC-0918', date: '2026-06-14', journal: 'General', partner: 'Office Supplies', debit: 45, credit: 0, status: 'Draft', reconciled: false },
-];
-
 const INITIAL_BANK_LINES: BankStatementLine[] = [
   { id: 'STMT-TX-101', date: '2026-06-14', label: 'DEPOSIT FRM JORDAN HYPERMARKETS', amount: 4200, matchedEntryId: null },
   { id: 'STMT-TX-102', date: '2026-06-13', label: 'TRANSFER TO SAMER WHOLESALE EST', amount: -1250, matchedEntryId: null },
@@ -42,11 +35,52 @@ const INITIAL_BANK_LINES: BankStatementLine[] = [
   { id: 'STMT-TX-104', date: '2026-06-14', label: 'CASH SALE DEP COUNTER A', amount: 180, matchedEntryId: 'MOVE/2026/06/002' },
 ];
 
+type OdooMove = {
+  id: number;
+  name?: string;
+  date?: string;
+  journal_id?: Many2One;
+  partner_id?: Many2One;
+  amount_total?: number;
+  state?: string;
+};
+
+const VALID_JOURNALS = ['Bank', 'Cash', 'General'] as const;
+function resolveJournal(name: string): 'Bank' | 'Cash' | 'General' {
+  if (VALID_JOURNALS.includes(name as any)) return name as 'Bank' | 'Cash' | 'General';
+  return 'General';
+}
+
 export default function AccountingDashboard() {
-  const [entries, setEntries] = useState<JournalEntry[]>(INITIAL_ENTRIES);
+  const { rows: liveEntries, loading } = useCycomList<OdooMove, JournalEntry>(
+    'account.move',
+    [['move_type', '=', 'entry']],
+    ['name', 'date', 'journal_id', 'partner_id', 'amount_total', 'state'],
+    (r) => {
+      const amt = r.amount_total ?? 0;
+      return {
+        id: r.name || fmtCode('MOVE', r.id),
+        ref: r.name || '—',
+        date: r.date || '',
+        journal: resolveJournal(m2oName(r.journal_id)),
+        partner: m2oName(r.partner_id),
+        debit: amt > 0 ? amt : 0,
+        credit: amt < 0 ? Math.abs(amt) : 0,
+        status: r.state === 'posted' ? 'Posted' : 'Draft',
+        reconciled: false,
+      };
+    },
+    { limit: 100, order: 'date desc' },
+  );
+
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [bankLines, setBankLines] = useState<BankStatementLine[]>(INITIAL_BANK_LINES);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  
+
+  useEffect(() => {
+    if (liveEntries.length > 0) setEntries(liveEntries);
+  }, [liveEntries]);
+
   // Payment Validation states
   const [payAmount, setPayAmount] = useState('');
   const [payPartner, setPayPartner] = useState('');
@@ -69,9 +103,9 @@ export default function AccountingDashboard() {
   // Bulk Draft Action (Cycom: account_move_bulk_set_draft)
   const handleBulkDraft = () => {
     if (selectedIds.length === 0) return;
-    setEntries(entries.map(ent => 
-      selectedIds.includes(ent.id) 
-        ? { ...ent, status: 'Draft', reconciled: false } 
+    setEntries(entries.map(ent =>
+      selectedIds.includes(ent.id)
+        ? { ...ent, status: 'Draft', reconciled: false }
         : ent
     ));
     // Reset selections
@@ -86,8 +120,8 @@ export default function AccountingDashboard() {
 
       // Attempt match on absolute values
       const targetAmount = Math.abs(line.amount);
-      const match = updatedEntries.find(ent => 
-        !ent.reconciled && 
+      const match = updatedEntries.find(ent =>
+        !ent.reconciled &&
         (ent.debit === targetAmount || ent.credit === targetAmount)
       );
 
@@ -110,15 +144,15 @@ export default function AccountingDashboard() {
   const handleManualReconcile = () => {
     if (!reconcileSelectBankId || !reconcileSelectEntryId) return;
 
-    setBankLines(bankLines.map(line => 
-      line.id === reconcileSelectBankId 
-        ? { ...line, matchedEntryId: reconcileSelectEntryId } 
+    setBankLines(bankLines.map(line =>
+      line.id === reconcileSelectBankId
+        ? { ...line, matchedEntryId: reconcileSelectEntryId }
         : line
     ));
 
-    setEntries(entries.map(ent => 
-      ent.id === reconcileSelectEntryId 
-        ? { ...ent, reconciled: true } 
+    setEntries(entries.map(ent =>
+      ent.id === reconcileSelectEntryId
+        ? { ...ent, reconciled: true }
         : ent
     ));
 
@@ -165,13 +199,13 @@ export default function AccountingDashboard() {
           <p className="page-subtitle">Reconcile bank accounts, track journal drafts, post vendor payments, and configure bulk ledger states.</p>
         </div>
         <div className="flex gap-3">
-          <button 
+          <button
             onClick={handleAutoReconcile}
             className="btn-secondary flex items-center gap-2"
           >
             <RefreshCw className="w-4 h-4 text-cyan-400" /> Run Mass Auto-Reconcile
           </button>
-          <button 
+          <button
             onClick={handleBulkDraft}
             disabled={selectedIds.length === 0}
             className="btn-primary flex items-center gap-2 disabled:opacity-50"
@@ -180,6 +214,12 @@ export default function AccountingDashboard() {
           </button>
         </div>
       </div>
+
+      {loading && (
+        <div className="glass-card p-8 text-center text-slate-400 text-sm">
+          Loading journal entries from Odoo…
+        </div>
+      )}
 
       {/* Grid Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -224,10 +264,10 @@ export default function AccountingDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Left Column - Payment Creator */}
         <div className="space-y-6">
-          
+
           {/* Post Payment */}
           <div className="glass-card p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
@@ -249,10 +289,10 @@ export default function AccountingDashboard() {
               <form onSubmit={handlePostPayment} className="space-y-4 text-xs">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-500 uppercase">Vendor Partner</label>
-                  <input 
-                    type="text" 
-                    required 
-                    placeholder="e.g. Samer Wholesale Est." 
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Samer Wholesale Est."
                     value={payPartner}
                     onChange={e => setPayPartner(e.target.value)}
                     className="input-field"
@@ -261,8 +301,8 @@ export default function AccountingDashboard() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-slate-500 uppercase">Journal Mode</label>
-                    <select 
-                      value={payJournal} 
+                    <select
+                      value={payJournal}
                       onChange={e => setPayJournal(e.target.value as any)}
                       className="input-field"
                     >
@@ -272,9 +312,9 @@ export default function AccountingDashboard() {
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-slate-500 uppercase">Amount (JOD)</label>
-                    <input 
-                      type="number" 
-                      placeholder="e.g. 1500" 
+                    <input
+                      type="number"
+                      placeholder="e.g. 1500"
                       value={payAmount}
                       onChange={e => setPayAmount(e.target.value)}
                       className="input-field font-mono"
@@ -299,8 +339,8 @@ export default function AccountingDashboard() {
                 <button onClick={() => { setReconcileSelectBankId(null); setReconcileSelectEntryId(null); }} className="text-slate-500">Cancel</button>
               </div>
               <p className="text-slate-400">Match Statement line <strong>{reconcileSelectBankId}</strong> to draft ledger entry:</p>
-              <select 
-                value={reconcileSelectEntryId || ''} 
+              <select
+                value={reconcileSelectEntryId || ''}
                 onChange={e => setReconcileSelectEntryId(e.target.value)}
                 className="input-field"
               >
@@ -311,7 +351,7 @@ export default function AccountingDashboard() {
                   </option>
                 ))}
               </select>
-              <button 
+              <button
                 onClick={handleManualReconcile}
                 disabled={!reconcileSelectEntryId}
                 className="btn-primary w-full py-1.5 disabled:opacity-50"
@@ -325,7 +365,7 @@ export default function AccountingDashboard() {
 
         {/* Right Column - Statement Matcher & Journal Entries Grid */}
         <div className="lg:col-span-2 space-y-6">
-          
+
           {/* Statement Reconciliation Panel */}
           <div className="glass-card p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
@@ -352,7 +392,7 @@ export default function AccountingDashboard() {
                       )}
                     </div>
                     {!line.matchedEntryId ? (
-                      <button 
+                      <button
                         onClick={() => setReconcileSelectBankId(line.id)}
                         className="p-1 px-2 text-[10px] font-bold rounded bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/25 text-[#00F0FF]"
                       >
@@ -381,8 +421,8 @@ export default function AccountingDashboard() {
                 <thead>
                   <tr>
                     <th className="w-8">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         onChange={(e) => {
                           if (e.target.checked) {
                             setSelectedIds(entries.map(x => x.id));
@@ -390,7 +430,7 @@ export default function AccountingDashboard() {
                             setSelectedIds([]);
                           }
                         }}
-                        checked={selectedIds.length === entries.length}
+                        checked={entries.length > 0 && selectedIds.length === entries.length}
                         className="rounded bg-white/5 border-white/10 accent-[#E67E22]"
                       />
                     </th>
@@ -408,8 +448,8 @@ export default function AccountingDashboard() {
                   {entries.map(ent => (
                     <tr key={ent.id}>
                       <td>
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           checked={selectedIds.includes(ent.id)}
                           onChange={() => toggleSelectEntry(ent.id)}
                           className="rounded bg-white/5 border-white/10 accent-[#E67E22]"

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCycomList, m2oName, type Many2One } from '@/lib/cycomModels';
 import { 
   Clock, Plus, Calendar, AlertTriangle, CheckCircle, 
   Trash2, User, UserPlus, Info, CheckSquare
@@ -17,13 +18,34 @@ interface ShiftSlot {
   timeRange: string;
 }
 
-const INITIAL_SHIFTS: ShiftSlot[] = [
-  { id: 'SFT-1', employeeName: 'Ahmad Masri', role: 'Day Cashier', department: 'Sales', day: 'Mon', hours: 8, timeRange: '08:00 - 16:00' },
-  { id: 'SFT-2', employeeName: 'Sara Haddad', role: 'Sales Lead', department: 'Sales', day: 'Mon', hours: 8, timeRange: '08:00 - 16:00' },
-  { id: 'SFT-3', employeeName: 'Rami Khasawneh', role: 'Forklift Op', department: 'Warehouse', day: 'Tue', hours: 10, timeRange: '07:00 - 17:00' },
-  { id: 'SFT-4', employeeName: 'Khaled Jaber', role: 'Inventory Control', department: 'Warehouse', day: 'Mon', hours: 8, timeRange: '08:00 - 16:00' },
-  { id: 'SFT-5', employeeName: 'Ahmad Masri', role: 'Night Supervisor', department: 'Sales', day: 'Wed', hours: 12, timeRange: '20:00 - 08:00' },
-];
+type CycomPlanningSlot = {
+  id: number;
+  resource_id?: Many2One;
+  role_id?: Many2One;
+  start_datetime?: string;
+  end_datetime?: string;
+  state?: string;
+};
+
+const DAY_ABBRS: ShiftSlot['day'][] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const mapPlanningSlot = (r: CycomPlanningSlot): ShiftSlot => {
+  const start = r.start_datetime ? new Date(r.start_datetime.replace(' ', 'T') + 'Z') : null;
+  const end = r.end_datetime ? new Date(r.end_datetime.replace(' ', 'T') + 'Z') : null;
+  const hours = start && end ? Math.round((end.getTime() - start.getTime()) / 3600000) : 0;
+  const day: ShiftSlot['day'] = start ? DAY_ABBRS[start.getDay()] : 'Mon';
+  const fmt = (d: Date) => d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const timeRange = start && end ? `${fmt(start)} - ${fmt(end)}` : '—';
+  return {
+    id: `SFT-${r.id}`,
+    employeeName: m2oName(r.resource_id, '—'),
+    role: m2oName(r.role_id, '—'),
+    department: 'Sales',
+    day,
+    hours,
+    timeRange,
+  };
+};
 
 const DEPT_COLORS = {
   Sales: 'bg-blue-500/10 text-blue-400 border-blue-500/25',
@@ -33,7 +55,13 @@ const DEPT_COLORS = {
 };
 
 export default function PlanningPage() {
-  const [shifts, setShifts] = useState<ShiftSlot[]>(INITIAL_SHIFTS);
+  const { rows: liveSlots, loading } = useCycomList<CycomPlanningSlot, ShiftSlot>(
+    'planning.slot', [], ['resource_id', 'role_id', 'start_datetime', 'end_datetime', 'state'],
+    mapPlanningSlot,
+  );
+  const [shifts, setShifts] = useState<ShiftSlot[]>([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!loading) setShifts(liveSlots); }, [loading]);
 
   // New slot form states
   const [empName, setEmpName] = useState('Ahmad Masri');
@@ -95,6 +123,8 @@ export default function PlanningPage() {
   };
 
   const DAYS: Array<'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun'> = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
 
   return (
     <div className="space-y-6">

@@ -2,15 +2,48 @@
 
 import React, { useState } from 'react';
 import { Award, ShieldCheck, Heart, Users, Search, Plus, TrendingUp } from 'lucide-react';
+import { useCycomList, m2oName, fmtCode, Many2One } from '@/lib/cycomModels';
 
-const CONTRACTS = [
-  { id: 'INS-0112', employee: 'Ahmad Masri', grade: 'Grade A - Premium', provider: 'GIG Jordan', dependentCount: 3, premium: 'JOD 120.00', companyShare: 'JOD 90.00', employeeDeduction: 'JOD 30.00' },
-  { id: 'INS-0113', employee: 'Sara Haddad', grade: 'Grade B - Standard', provider: 'GIG Jordan', dependentCount: 0, premium: 'JOD 60.00', companyShare: 'JOD 50.00', employeeDeduction: 'JOD 10.00' },
-  { id: 'INS-0114', employee: 'Rami Khasawneh', grade: 'Grade B - Standard', provider: 'GIG Jordan', dependentCount: 2, premium: 'JOD 90.00', companyShare: 'JOD 70.00', employeeDeduction: 'JOD 20.00' },
-  { id: 'INS-0115', employee: 'Noor Al-Fayegh', grade: 'Grade C - Basic', provider: 'Active Jordan', dependentCount: 1, premium: 'JOD 45.00', companyShare: 'JOD 40.00', employeeDeduction: 'JOD 5.00' },
-];
+// TODO: verify model name — may be hr.insurance in some Odoo versions
+type OdooInsurance = {
+  id: number;
+  employee_id?: Many2One;
+  name?: string;
+  policy_number?: string | false;
+  insurance_provider?: string | false;
+  date_start?: string | false;
+  date_end?: string | false;
+  state?: string;
+};
+
+type ContractRow = {
+  id: string;
+  employee: string;
+  grade: string;
+  provider: string;
+  dependentCount: number;
+  premium: string;
+  companyShare: string;
+  employeeDeduction: string;
+};
 
 export default function HealthInsurance() {
+  const { rows, loading } = useCycomList<OdooInsurance, ContractRow>(
+    'hr.employee.insurance', // TODO: verify model name
+    [],
+    ['employee_id', 'name', 'policy_number', 'insurance_provider', 'date_start', 'date_end', 'state'],
+    (r) => ({
+      id: fmtCode('INS', r.id),
+      employee: m2oName(r.employee_id),
+      grade: r.name || '—',
+      provider: (r.insurance_provider as string) || '—',
+      dependentCount: 0,
+      premium: '—',
+      companyShare: '—',
+      employeeDeduction: '—',
+    }),
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -23,6 +56,12 @@ export default function HealthInsurance() {
           <Plus className="w-4 h-4" /> Add Contract
         </button>
       </div>
+
+      {loading && (
+        <div className="glass-card p-8 text-center text-slate-400 text-sm">
+          Loading insurance data from Odoo…
+        </div>
+      )}
 
       {/* Insurance Grades Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -95,7 +134,7 @@ export default function HealthInsurance() {
               </tr>
             </thead>
             <tbody>
-              {CONTRACTS.map((contract) => (
+              {rows.map((contract) => (
                 <tr key={contract.id}>
                   <td className="font-mono text-xs text-slate-400 font-bold">{contract.id}</td>
                   <td className="font-semibold text-slate-200">{contract.employee}</td>

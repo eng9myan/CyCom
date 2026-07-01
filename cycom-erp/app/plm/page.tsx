@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCycomList, m2oName, fmtDate, type Many2One } from '@/lib/cycomModels';
 import { 
   Layers, Plus, Trash2, CheckCircle, Calculator, 
   Settings2, Activity, ShieldAlert, AlertTriangle, FileText
@@ -54,14 +55,40 @@ const INITIAL_BOMS: ProductBOM[] = [
   }
 ];
 
-const INITIAL_ECOS: EcoOrder[] = [
-  { id: 'ECO-102', productName: 'Premium Olive Oil 1L (Carton of 6)', title: 'Transition to Aluminum Screw Caps', reason: 'Plastic caps suffer cracking during sea transit. Enforce aluminum caps.', state: 'Under Review', dateCreated: '2026-06-13' },
-  { id: 'ECO-103', productName: 'Cycom Milk Powder 400g (Pack of 12)', title: 'Modify Tin print graphic design', reason: 'Updated branding logo for Saudi export requirements.', state: 'Draft', dateCreated: '2026-06-14' },
-];
+type CycomEco = {
+  id: number;
+  name?: string;
+  product_tmpl_id?: Many2One;
+  stage_id?: Many2One;
+  user_id?: Many2One;
+  create_date?: string;
+};
+
+const mapEcoState = (stageName: string): EcoOrder['state'] => {
+  const n = stageName.toLowerCase();
+  if (n.includes('review') || n.includes('progress')) return 'Under Review';
+  if (n.includes('approv') || n.includes('done')) return 'Approved';
+  return 'Draft';
+};
+
+const mapEco = (r: CycomEco): EcoOrder => ({
+  id: r.name || `ECO-${r.id}`,
+  productName: m2oName(r.product_tmpl_id, '—'),
+  title: r.name || '—',
+  reason: '',
+  state: mapEcoState(m2oName(r.stage_id)),
+  dateCreated: fmtDate(r.create_date),
+});
 
 export default function PLMPage() {
+  const { rows: liveEcos, loading } = useCycomList<CycomEco, EcoOrder>(
+    'mrp.eco', [], ['name', 'product_tmpl_id', 'stage_id', 'user_id', 'create_date'],
+    mapEco,
+  );
   const [boms, setBoms] = useState<ProductBOM[]>(INITIAL_BOMS);
-  const [ecos, setEcos] = useState<EcoOrder[]>(INITIAL_ECOS);
+  const [ecos, setEcos] = useState<EcoOrder[]>([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!loading) setEcos(liveEcos); }, [loading]);
   
   // Selected BOM for details
   const [selectedBomId, setSelectedBomId] = useState('BOM-001');
@@ -145,6 +172,8 @@ export default function PLMPage() {
       return eco;
     }));
   };
+
+  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
 
   return (
     <div className="space-y-6">
