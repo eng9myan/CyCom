@@ -13,12 +13,12 @@ import { searchRead } from '@/lib/cycom';
 
 export type Many2One = [number, string] | false | null;
 
-export function m2oName(v: Many2One, fallback = '—'): string {
+export function m2oName(v: Many2One | undefined, fallback = '—'): string {
   if (!v) return fallback;
   return v[1] ?? fallback;
 }
 
-export function m2oId(v: Many2One): number | null {
+export function m2oId(v: Many2One | undefined): number | null {
   return v ? v[0] : null;
 }
 

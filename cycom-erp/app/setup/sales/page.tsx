@@ -20,7 +20,7 @@ export default function SalesWizard() {
   const [step, setStep] = useState<StepIdx>(0);
   const [industry, setIndustry] = useState<string | undefined>();
 
-  const [motion, setMotion] = useState<SalesMotion>('mixed');
+  const [salesMotion, setSalesMotion] = useState<SalesMotion>('mixed');
   const [freeDiscountLimitPct, setFreeDiscountLimitPct] = useState(5);
   const [managerDiscountLimitPct, setManagerDiscountLimitPct] = useState(10);
   const [dualApprovalThresholdPct, setDualApprovalThresholdPct] = useState(20);
@@ -36,7 +36,7 @@ export default function SalesWizard() {
     fetchTenantPrefs().then((prefs) => {
       setIndustry(prefs.industry);
       const d = getSalesDefaults(prefs.industry);
-      setMotion(d.motion);
+      setSalesMotion(d.motion);
       setFreeDiscountLimitPct(d.freeDiscountLimitPct);
       setManagerDiscountLimitPct(d.managerDiscountLimitPct);
       setDualApprovalThresholdPct(d.dualApprovalThresholdPct);
@@ -50,7 +50,7 @@ export default function SalesWizard() {
   const submit = async () => {
     setApplying(true);
     setResult(await applySalesSetup({
-      motion, freeDiscountLimitPct, managerDiscountLimitPct, dualApprovalThresholdPct,
+      motion: salesMotion, freeDiscountLimitPct, managerDiscountLimitPct, dualApprovalThresholdPct,
       enableDiscountExceptionApproval, enableLineLevelApproval, enablePricingControl, enableSaleFiscalKeepPrice,
     }));
     setApplying(false);
@@ -79,7 +79,7 @@ export default function SalesWizard() {
               <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">Sales motion</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {(['b2c', 'b2b', 'mixed'] as SalesMotion[]).map((m) => (
-                  <button key={m} type="button" onClick={() => setMotion(m)} className={'text-left p-4 rounded-xl border transition-all ' + (m === motion ? 'bg-gradient-to-br from-orange-500/15 to-blue-500/10 border-orange-500/40 text-white' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10')}>
+                  <button key={m} type="button" onClick={() => setSalesMotion(m)} className={'text-left p-4 rounded-xl border transition-all ' + (m === salesMotion ? 'bg-gradient-to-br from-orange-500/15 to-blue-500/10 border-orange-500/40 text-white' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10')}>
                     <div className="text-sm font-bold">{MOTION_LABEL[m]}</div>
                   </button>
                 ))}
@@ -125,7 +125,7 @@ export default function SalesWizard() {
                 <Layers className="w-4 h-4 text-[#E67E22]" /> Review
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <ReviewRow label="Motion" value={MOTION_LABEL[motion]} />
+                <ReviewRow label="Motion" value={MOTION_LABEL[salesMotion]} />
                 <ReviewRow label="Free discount up to" value={`${freeDiscountLimitPct}%`} />
                 <ReviewRow label="Manager up to" value={`${managerDiscountLimitPct}%`} />
                 <ReviewRow label="Dual approval over" value={`${dualApprovalThresholdPct}%`} />

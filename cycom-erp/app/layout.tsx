@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { CompanyProvider } from "@/context/CompanyContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { QueryProvider } from "@/context/QueryProvider";
 import CycomLayoutWrapper from "@/components/layout/CycomLayoutWrapper";
+import { CyCommandBar } from "@/components/CyCommandBar";
 
 export const metadata: Metadata = {
   title: "Cycom ERP — Enterprise Resource Planning",
@@ -19,11 +21,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-[#030712] text-white">
         <AuthProvider>
-          <CompanyProvider>
-            <CycomLayoutWrapper>
-              {children}
-            </CycomLayoutWrapper>
-          </CompanyProvider>
+          <QueryProvider>
+            <CompanyProvider>
+              <CycomLayoutWrapper>
+                {children}
+                <CyCommandBar />
+              </CycomLayoutWrapper>
+            </CompanyProvider>
+          </QueryProvider>
         </AuthProvider>
       </body>
     </html>
