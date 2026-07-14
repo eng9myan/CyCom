@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Settings, Shield, Cpu, Sliders, Percent, Workflow, Key, Cloud } from 'lucide-react';
+import { Settings, Shield, Cpu, Sliders, Percent, Workflow, Key, Cloud, Coins } from 'lucide-react';
 
 export default function SettingsAdminPage() {
   return (
@@ -18,7 +18,7 @@ export default function SettingsAdminPage() {
       {/* Global Enterprise Pillars Command Grid */}
       <div className="glass-card p-6 space-y-4">
         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">Global Enterprise Pillars (POC Controls)</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <Link 
             href="/settings/tax"
             className="p-4 bg-slate-950/40 border border-slate-850 rounded-xl hover:border-blue-500/30 hover:bg-slate-900/20 transition-all flex flex-col justify-between"
@@ -65,6 +65,18 @@ export default function SettingsAdminPage() {
               <p className="text-[10px] text-slate-500 mt-1">Hot-load custom packages and track Git-integrated sandbox status.</p>
             </div>
             <span className="text-[10px] text-purple-400 font-bold mt-4 inline-block">Configure →</span>
+          </Link>
+
+          <Link 
+            href="/settings/currency"
+            className="p-4 bg-slate-950/40 border border-slate-850 rounded-xl hover:border-amber-500/30 hover:bg-slate-900/20 transition-all flex flex-col justify-between"
+          >
+            <div>
+              <Coins className="w-6 h-6 text-amber-400 mb-2" />
+              <h4 className="font-semibold text-slate-200">Multi-Currency & Rates</h4>
+              <p className="text-[10px] text-slate-500 mt-1">Enable international currencies and update exchange rates to JOD.</p>
+            </div>
+            <span className="text-[10px] text-amber-400 font-bold mt-4 inline-block">Configure →</span>
           </Link>
         </div>
       </div>

@@ -25,6 +25,7 @@ from app.schemas.finance import (
     AccountCreate, AccountResponse,
     BankStatementLineCreate, BankStatementLineResponse,
     CurrencyCreate, CurrencyResponse,
+    ExchangeRateCreate, ExchangeRateResponse,
     CustomerInvoiceCreate, CustomerInvoiceResponse,
     CustomerPaymentCreate, CustomerPaymentResponse,
     FiscalPeriodCreate, FiscalPeriodResponse,
@@ -81,6 +82,69 @@ def _compute_lines(lines_data):
     return sub, tax, sub + tax
 
 
+def _get_exchange_rate(db: Session, currency_id: Optional[int], dt: date) -> Decimal:
+    if not currency_id:
+        return Decimal("1.0")
+    rate_entry = db.query(ExchangeRate).filter(
+        ExchangeRate.currency_id == currency_id,
+        ExchangeRate.date == dt
+    ).order_by(ExchangeRate.id.desc()).first()
+    if rate_entry:
+        return rate_entry.rate
+    curr = db.query(Currency).filter(Currency.id == currency_id).first()
+    if curr:
+        return curr.rate_to_jod
+    return Decimal("1.0")
+
+
+def _post_forex_difference(db: Session, cid: int, user_id: int, partner_id: int, amount_diff: Decimal, ref_doc: str, dt: date):
+    forex_acc = db.query(Account).filter(Account.company_id == cid, Account.code == "5510").first()
+    if not forex_acc:
+        forex_acc = Account(
+            company_id=cid, code="5510", name="Foreign Exchange Gain/Loss",
+            account_type="expense", is_reconcilable=False, created_by_id=user_id
+        )
+        db.add(forex_acc)
+        db.flush()
+        
+    cash_diff_acc = db.query(Account).filter(Account.company_id == cid, Account.code == "1100").first()
+    if not cash_diff_acc:
+        cash_diff_acc = Account(
+            company_id=cid, code="1100", name="Cash & Cash Equivalents",
+            account_type="asset", is_reconcilable=True, created_by_id=user_id
+        )
+        db.add(cash_diff_acc)
+        db.flush()
+
+    val = abs(amount_diff)
+    if val < Decimal("0.01"):
+        return None
+
+    journal = db.query(Journal).filter(Journal.company_id == cid, Journal.journal_type == "general").first()
+    if not journal:
+        journal = Journal(company_id=cid, name="General Journal", code="GEN", journal_type="general", created_by_id=user_id)
+        db.add(journal)
+        db.flush()
+
+    entry_ref = f"FOREX/{dt.year}/{dt.month:02d}/{_seq(db, JournalEntry, cid):04d}"
+    entry = JournalEntry(
+        company_id=cid, reference=entry_ref, journal_id=journal.id,
+        date=dt, partner_id=partner_id, description=f"Forex Revaluation diff for {ref_doc}",
+        debit_total=val, credit_total=val, status="Posted", created_by_id=user_id
+    )
+    db.add(entry)
+    db.flush()
+
+    if amount_diff > 0:
+        db.add(JournalLine(company_id=cid, entry_id=entry.id, account_id=cash_diff_acc.id, debit=val, credit=Decimal("0"), label="Forex Gain"))
+        db.add(JournalLine(company_id=cid, entry_id=entry.id, account_id=forex_acc.id, debit=Decimal("0"), credit=val, label="Forex Gain"))
+    else:
+        db.add(JournalLine(company_id=cid, entry_id=entry.id, account_id=forex_acc.id, debit=val, credit=Decimal("0"), label="Forex Loss"))
+        db.add(JournalLine(company_id=cid, entry_id=entry.id, account_id=cash_diff_acc.id, debit=Decimal("0"), credit=val, label="Forex Loss"))
+    db.flush()
+    return entry
+
+
 # ── Currencies ───────────────────────────────────────────────────────────────
 
 @router.get("/currencies", response_model=List[CurrencyResponse])
@@ -102,6 +166,68 @@ def create_currency(
     obj = Currency(company_id=cid, created_by_id=user.id, **payload.model_dump())
     db.add(obj); db.commit(); db.refresh(obj)
     return obj
+
+
+@router.get("/currencies/rates", response_model=List[ExchangeRateResponse])
+def list_exchange_rates(
+    db: Session = Depends(get_db),
+    user: User = Depends(require_permission("accounting.read")),
+    cid: int = Depends(get_current_company_id),
+):
+    return db.query(ExchangeRate).join(Currency).filter(Currency.company_id == cid).all()
+
+
+@router.post("/currencies/rates", response_model=ExchangeRateResponse)
+def add_exchange_rate(
+    payload: ExchangeRateCreate,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_permission("accounting.write")),
+    cid: int = Depends(get_current_company_id),
+):
+    # Verify currency belongs to company
+    curr = db.query(Currency).filter(Currency.id == payload.currency_id, Currency.company_id == cid).first()
+    if not curr:
+        raise HTTPException(status_code=404, detail="Currency not found")
+
+    # Update Currency's main rate
+    curr.rate_to_jod = payload.rate
+
+    # Create ExchangeRate history entry
+    obj = ExchangeRate(company_id=cid, created_by_id=user.id, **payload.model_dump())
+    db.add(obj)
+    db.commit()
+    db.refresh(obj)
+    return obj
+
+
+@router.get("/currencies/convert")
+def convert_currency(
+    from_currency: str,
+    to_currency: str,
+    amount: Decimal,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_permission("accounting.read")),
+    cid: int = Depends(get_current_company_id),
+):
+    c_from = db.query(Currency).filter(Currency.name == from_currency, Currency.company_id == cid).first()
+    c_to = db.query(Currency).filter(Currency.name == to_currency, Currency.company_id == cid).first()
+
+    if not c_from or not c_to:
+        raise HTTPException(status_code=400, detail="One or both currencies not supported or active")
+
+    # JOD is the base currency
+    # Amount in JOD = amount * c_from.rate_to_jod
+    # Amount in Target = Amount in JOD / c_to.rate_to_jod
+    amt_jod = amount * c_from.rate_to_jod
+    amt_target = amt_jod / c_to.rate_to_jod
+
+    return {
+        "from": from_currency,
+        "to": to_currency,
+        "amount": float(amount),
+        "rate": float(c_from.rate_to_jod / c_to.rate_to_jod),
+        "result": float(round(amt_target, 4))
+    }
 
 
 # ── Fiscal Periods ────────────────────────────────────────────────────────────
@@ -613,6 +739,14 @@ def pay_vendor_bill(
     bill = db.query(VendorBill).filter(VendorBill.id == bill_id, VendorBill.company_id == cid).first()
     if not bill:
         raise HTTPException(404, "Bill not found")
+
+    # Forex difference calculation & auto-journal entry
+    rate_bill = _get_exchange_rate(db, bill.currency_id, bill.invoice_date)
+    rate_pay = _get_exchange_rate(db, bill.currency_id, payload.payment_date)
+    if rate_bill != rate_pay:
+        diff = payload.amount * (rate_bill - rate_pay)
+        _post_forex_difference(db, cid, user.id, bill.vendor_id, diff, bill.reference, payload.payment_date)
+
     payment = VendorPayment(
         company_id=cid, created_by_id=user.id,
         reference=_next_vpay_ref(db, cid),
@@ -704,6 +838,14 @@ def receive_customer_payment(
     inv = db.query(CustomerInvoice).filter(CustomerInvoice.id == invoice_id, CustomerInvoice.company_id == cid).first()
     if not inv:
         raise HTTPException(404, "Invoice not found")
+
+    # Forex difference calculation & auto-journal entry
+    rate_inv = _get_exchange_rate(db, inv.currency_id, inv.invoice_date)
+    rate_pay = _get_exchange_rate(db, inv.currency_id, payload.payment_date)
+    if rate_inv != rate_pay:
+        diff = payload.amount * (rate_pay - rate_inv)
+        _post_forex_difference(db, cid, user.id, inv.customer_id, diff, inv.reference, payload.payment_date)
+
     cpay = CustomerPayment(
         company_id=cid, created_by_id=user.id,
         reference=_next_cpay_ref(db, cid),

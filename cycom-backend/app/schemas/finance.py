@@ -25,6 +25,21 @@ class CurrencyResponse(_M):
     is_active: bool
 
 
+# ─── Exchange Rate ───────────────────────────────────────────────────────────
+
+class ExchangeRateCreate(BaseModel):
+    currency_id: int
+    date: date
+    rate: Decimal
+
+
+class ExchangeRateResponse(_M):
+    id: int
+    currency_id: int
+    date: date
+    rate: Decimal
+
+
 # ─── Fiscal Period ────────────────────────────────────────────────────────────
 
 class FiscalPeriodCreate(BaseModel):

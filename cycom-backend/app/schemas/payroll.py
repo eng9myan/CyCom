@@ -104,3 +104,9 @@ class PayslipResponse(_M):
 
 class PayslipApprove(BaseModel):
     status: str  # Approved | Paid
+
+
+class PayslipBatchGenerateRequest(BaseModel):
+    period: str
+    date_start: date
+    date_end: date

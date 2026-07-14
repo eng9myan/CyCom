@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   DollarSign, Clock, Download, Plus, CheckCircle,
   XCircle, Calculator, FileSpreadsheet, Eye, RefreshCw
@@ -103,6 +103,40 @@ export default function PayrollDashboard() {
   const [customAllowances, setCustomAllowances] = useState(0);
   const [slipPeriod, setSlipPeriod] = useState('June 2026');
 
+  // Batch Generator States
+  const [showBatchModal, setShowBatchModal] = useState(false);
+  const [batchPeriod, setBatchPeriod] = useState('July 2026');
+  const [startDate, setStartDate] = useState('2026-07-01');
+  const [endDate, setEndDate] = useState('2026-07-31');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleBatchGenerate = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await fetch('/api/cycom/payroll/batch-generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          period: batchPeriod,
+          date_start: startDate,
+          date_end: endDate,
+        }),
+      });
+      if (res.ok) {
+        alert('Batch payslips generated successfully!');
+        window.location.reload();
+      } else {
+        const err = await res.text();
+        alert('Failed to generate batch: ' + err);
+      }
+    } catch (e: any) {
+      alert('Error: ' + e.message);
+    } finally {
+      setIsGenerating(false);
+      setShowBatchModal(false);
+    }
+  };
+
   // Lateness Calculator helper
   // Rule: 1-15 min = 0, 16-30 min = 0.5 hour deduction, 31-60 min = 1 hour deduction, 60+ min = 2 hours deduction
   const calculateLatenessDeduction = (mins: number, hourlyRate: number) => {
@@ -167,6 +201,12 @@ export default function PayrollDashboard() {
             className="btn-secondary flex items-center gap-2"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-400" /> Export XLSX Summary
+          </button>
+          <button
+            onClick={() => setShowBatchModal(true)}
+            className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-xl text-xs font-semibold shadow-lg transition-all"
+          >
+            <Calculator className="w-4 h-4" /> Batch Generate
           </button>
           <button
             onClick={handleBulkApprovePayslips}
@@ -465,6 +505,47 @@ export default function PayrollDashboard() {
         </div>
 
       </div>
+
+      {/* Batch Generate Modal */}
+      <AnimatePresence>
+        {showBatchModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }}
+              className="glass-card w-full max-w-sm p-6 space-y-4">
+              <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                <h3 className="text-white font-bold flex items-center gap-2"><Calculator className="w-4 h-4 text-amber-400" /> Batch Generate Payslips</h3>
+                <button onClick={() => setShowBatchModal(false)} className="text-slate-400 hover:text-white"><XCircle className="w-4 h-4" /></button>
+              </div>
+              <div className="space-y-3 text-xs">
+                <div>
+                  <label className="text-xs text-slate-400 font-semibold block mb-1">Period Name</label>
+                  <input type="text" value={batchPeriod} onChange={e => setBatchPeriod(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-none focus:border-amber-500/40" />
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="text-xs text-slate-400 font-semibold block mb-1">Start Date</label>
+                    <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-slate-400 font-semibold block mb-1">End Date</label>
+                    <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none" />
+                  </div>
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button onClick={() => setShowBatchModal(false)} className="flex-1 py-2.5 border border-white/10 rounded-xl text-xs text-slate-300 hover:bg-white/5">Cancel</button>
+                  <button onClick={handleBatchGenerate} disabled={isGenerating} className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs rounded-xl transition-all disabled:opacity-50">
+                    {isGenerating ? 'Processing...' : 'Generate Batch'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

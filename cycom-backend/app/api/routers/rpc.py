@@ -12,6 +12,7 @@ from app.models.projects import Project, Task
 from app.models.crm import Lead, Opportunity
 from app.models.company import Company
 from app.models.config_param import ConfigParameter
+from app.models.payroll import Payslip, OvertimeClaim
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -53,6 +54,8 @@ MODEL_MAP = {
     "res.groups": Role,
     "res.company": Company,
     "ir.config_parameter": ConfigParameter,
+    "hr.payslip": Payslip,
+    "hr.attendance.overtime": OvertimeClaim,
 }
 
 
@@ -134,6 +137,31 @@ def serialize_lead(l: Lead, db: Session) -> dict:
         "expected_revenue": float(l.expected_revenue or 0.0),
         "stage_id": [1, l.stage.replace("_", " ").title()] if l.stage else False,
         "user_id": [l.assigned_to_id, user_name] if l.assigned_to_id else False,
+    }
+
+
+def serialize_overtime(ot: OvertimeClaim, db: Session) -> dict:
+    emp = db.query(Employee).filter(Employee.id == ot.employee_id).first()
+    emp_name = f"{emp.first_name} {emp.last_name}" if emp else "Unknown"
+    return {
+        "id": ot.id,
+        "employee_id": [ot.employee_id, emp_name],
+        "date": ot.date.strftime("%Y-%m-%d") if ot.date else "",
+        "duration": float(ot.hours),
+        "state": "validated" if ot.status == "approved" else "refused" if ot.status == "rejected" else "draft"
+    }
+
+
+def serialize_payslip(ps: Payslip, db: Session) -> dict:
+    emp = db.query(Employee).filter(Employee.id == ps.employee_id).first()
+    emp_name = f"{emp.first_name} {emp.last_name}" if emp else "Unknown"
+    return {
+        "id": ps.id,
+        "employee_id": [ps.employee_id, emp_name],
+        "date_from": ps.period_start.strftime("%Y-%m-%d") if ps.period_start else ps.period,
+        "date_to": ps.period_end.strftime("%Y-%m-%d") if ps.period_end else ps.period,
+        "net_wage": float(ps.net_salary),
+        "state": "done" if ps.status == "Paid" else "verify" if ps.status == "Approved" else "draft"
     }
 
 
@@ -276,6 +304,10 @@ def rpc_call(
                 serialized.append(serialize_task(r, db))
             elif model == "crm.lead":
                 serialized.append(serialize_lead(r, db))
+            elif model == "hr.payslip":
+                serialized.append(serialize_payslip(r, db))
+            elif model == "hr.attendance.overtime":
+                serialized.append(serialize_overtime(r, db))
             else:
                 serialized.append(serialize_generic(r, db))
         return serialized

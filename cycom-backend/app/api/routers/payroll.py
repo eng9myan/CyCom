@@ -8,6 +8,7 @@ from app.core import crud
 from app.core.audit import log_action
 from app.core.dependencies import get_current_company_id, require_permission
 from app.db.session import get_db
+from app.models.hr import Employee, Contract
 from app.models.payroll import (
     OvertimeClaim,
     Payslip,
@@ -23,6 +24,7 @@ from app.schemas.payroll import (
     PayrollDeductionResponse,
     PayslipApprove,
     PayslipGenerateRequest,
+    PayslipBatchGenerateRequest,
     PayslipResponse,
     SalaryStructureCreate,
     SalaryStructureResponse,
@@ -165,6 +167,85 @@ def generate_payslip(
     db.refresh(payslip)
     log_action(db, user=user, action="generate", entity_type="Payslip", entity_id=payslip.id)
     return payslip
+
+
+@router.post("/payslips/batch-generate", response_model=List[PayslipResponse])
+def batch_generate_payslips(
+    payload: PayslipBatchGenerateRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_permission("payroll.write")),
+    cid: int = Depends(get_current_company_id),
+):
+    active_employees = db.query(Employee).filter(
+        Employee.company_id == cid,
+        Employee.status == "active"
+    ).all()
+
+    generated_payslips = []
+
+    for emp in active_employees:
+        # Check if payslip already exists for this period
+        existing = db.query(Payslip).filter(
+            Payslip.company_id == cid,
+            Payslip.employee_id == emp.id,
+            Payslip.period == payload.period
+        ).first()
+        if existing:
+            continue
+
+        # Get active contract
+        contract = db.query(Contract).filter(
+            Contract.employee_id == emp.id,
+            Contract.status == "active"
+        ).first()
+
+        if not contract:
+            continue
+
+        base_salary = contract.base_salary
+        hourly = base_salary / WORKING_HOURS_PER_MONTH
+
+        # Sum approved overtime claims
+        from sqlalchemy import func
+        ot_hours = db.query(func.sum(OvertimeClaim.hours)).filter(
+            OvertimeClaim.employee_id == emp.id,
+            OvertimeClaim.company_id == cid,
+            OvertimeClaim.status == "approved",
+            OvertimeClaim.date >= payload.date_start,
+            OvertimeClaim.date <= payload.date_end
+        ).scalar() or Decimal("0")
+
+        ot_amount = (ot_hours * hourly * Decimal("1.5")).quantize(Decimal("0.01"))
+
+        # Social Security deduction (Jordan standard: 7.5% employee share)
+        ssc_deduction = (base_salary * Decimal("0.075")).quantize(Decimal("0.01"))
+
+        net = (base_salary + ot_amount - ssc_deduction).quantize(Decimal("0.01"))
+
+        payslip = Payslip(
+            company_id=cid,
+            employee_id=emp.id,
+            period=payload.period,
+            period_start=payload.date_start,
+            period_end=payload.date_end,
+            base_salary=base_salary,
+            overtime_amount=ot_amount,
+            allowances=Decimal("0"),
+            lateness_deduction=Decimal("0"),
+            other_deductions=ssc_deduction,  # SSC listed as deduction
+            net_salary=net,
+            status="Draft",
+            created_by_id=user.id,
+        )
+        db.add(payslip)
+        generated_payslips.append(payslip)
+
+    db.commit()
+    for p in generated_payslips:
+        db.refresh(p)
+
+    log_action(db, user=user, action="batch_generate", entity_type="Payslip", changes={"count": len(generated_payslips)})
+    return generated_payslips
 
 
 @router.get("/payslips", response_model=List[PayslipResponse])
