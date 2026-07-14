@@ -56,6 +56,12 @@ MODEL_MAP = {
     "ir.config_parameter": ConfigParameter,
     "hr.payslip": Payslip,
     "hr.attendance.overtime": OvertimeClaim,
+    "mrp.bom": BillOfMaterials,
+    "mrp.bom.line": BillOfMaterialsLine,
+    "mrp.production": ManufacturingOrder,
+    "mrp.work.order": WorkOrder,
+    "mrp.eco": EngineeringChangeOrder,
+    "mrp.work.center": WorkCenter,
 }
 
 
@@ -162,6 +168,30 @@ def serialize_payslip(ps: Payslip, db: Session) -> dict:
         "date_to": ps.period_end.strftime("%Y-%m-%d") if ps.period_end else ps.period,
         "net_wage": float(ps.net_salary),
         "state": "done" if ps.status == "Paid" else "verify" if ps.status == "Approved" else "draft"
+    }
+
+
+def serialize_eco(eco: EngineeringChangeOrder, db: Session) -> dict:
+    bom = db.query(BillOfMaterials).filter(BillOfMaterials.id == eco.bom_id).first()
+    prod_name = "Unknown Product"
+    if bom:
+        prod = db.query(Product).filter(Product.id == bom.product_id).first()
+        if prod:
+            prod_name = prod.name
+            
+    approver_name = "Unassigned"
+    if eco.approved_by_id:
+        user = db.query(User).filter(User.id == eco.approved_by_id).first()
+        if user:
+            approver_name = user.full_name
+
+    return {
+        "id": eco.id,
+        "name": eco.reference or eco.name,
+        "product_tmpl_id": [bom.product_id if bom else 0, prod_name],
+        "stage_id": [1, eco.status],
+        "user_id": [eco.approved_by_id or 0, approver_name],
+        "create_date": eco.created_at.strftime("%Y-%m-%d %H:%M:%S") if eco.created_at else None,
     }
 
 
@@ -308,6 +338,8 @@ def rpc_call(
                 serialized.append(serialize_payslip(r, db))
             elif model == "hr.attendance.overtime":
                 serialized.append(serialize_overtime(r, db))
+            elif model == "mrp.eco":
+                serialized.append(serialize_eco(r, db))
             else:
                 serialized.append(serialize_generic(r, db))
         return serialized

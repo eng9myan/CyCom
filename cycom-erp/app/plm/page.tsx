@@ -1,394 +1,359 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCycomList, m2oName, fmtDate, type Many2One } from '@/lib/cycomModels';
 import { 
-  Layers, Plus, Trash2, CheckCircle, Calculator, 
-  Settings2, Activity, ShieldAlert, AlertTriangle, FileText
+  Layers, Plus, Trash2, CheckCircle2, Calculator, 
+  Settings2, Activity, ShieldAlert, AlertTriangle, FileText,
+  Clock, GitBranch, ShieldCheck, ChevronRight, Play, CheckCircle
 } from 'lucide-react';
 
-interface BomComponent {
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface BomNode {
+  id: string;
   name: string;
-  qtyNeeded: number;
-  unitCost: number;
-}
-
-interface ProductBOM {
-  id: string;
-  productName: string;
   sku: string;
-  components: BomComponent[];
+  quantity: number;
+  costPrice: number;
+  scrapPct: number;
+  subComponents?: BomNode[];
 }
 
-interface EcoOrder {
+interface ManufacturingOrder {
   id: string;
+  reference: string;
   productName: string;
-  title: string;
-  reason: string;
-  state: 'Draft' | 'Under Review' | 'Approved';
-  dateCreated: string;
+  quantity: number;
+  datePlanned: string;
+  status: 'Draft' | 'Confirmed' | 'In Progress' | 'Done';
 }
 
-const INITIAL_BOMS: ProductBOM[] = [
-  {
-    id: 'BOM-001',
-    productName: 'Premium Olive Oil 1L (Carton of 6)',
-    sku: 'OLIVE-OIL-CARTON',
-    components: [
-      { name: 'Cold Pressed Olive Oil 1L', qtyNeeded: 6, unitCost: 4.50 },
-      { name: 'Glass Bottles 1L', qtyNeeded: 6, unitCost: 0.35 },
-      { name: 'Aluminum Caps', qtyNeeded: 6, unitCost: 0.05 },
-      { name: 'Cardboard Box Outer', qtyNeeded: 1, unitCost: 0.80 },
-    ]
-  },
-  {
-    id: 'BOM-002',
-    productName: 'Cycom Milk Powder 400g (Pack of 12)',
-    sku: 'MILK-POW-PACK',
-    components: [
-      { name: 'Concentrated Milk Solids', qtyNeeded: 4.8, unitCost: 3.20 }, // kg
-      { name: 'Tin Containers', qtyNeeded: 12, unitCost: 0.40 },
-      { name: 'Plastic Lids', qtyNeeded: 12, unitCost: 0.10 },
-      { name: 'Shrink Wrap Film', qtyNeeded: 1, unitCost: 0.50 },
-    ]
-  }
+interface WorkOrder {
+  id: string;
+  operation: string;
+  workCenter: string;
+  durationPlanned: number;
+  durationActual: number;
+  status: 'Ready' | 'In Progress' | 'Paused' | 'Finished';
+}
+
+interface QualityCheck {
+  id: string;
+  moRef: string;
+  operation: string;
+  inspector: string;
+  result: 'Pending' | 'Passed' | 'Failed';
+}
+
+// ── Seed Data ────────────────────────────────────────────────────────────────
+
+const SEED_BOM: BomNode = {
+  id: 'BOM-101',
+  name: 'CyberCom Falcon SUV (Model S)',
+  sku: 'VEH-FLC-SUV',
+  quantity: 1,
+  costPrice: 18500,
+  scrapPct: 0,
+  subComponents: [
+    {
+      id: 'COMP-101',
+      name: 'SUV Steel Chassis Assembly',
+      sku: 'CHA-STL-002',
+      quantity: 1,
+      costPrice: 4200,
+      scrapPct: 2,
+      subComponents: [
+        { id: 'RAW-101', name: 'Structural Steel Beams H-Grade', sku: 'RAW-STL-H', quantity: 8, costPrice: 250, scrapPct: 5 },
+        { id: 'RAW-102', name: 'Anti-Rust Coating Primer', sku: 'RAW-CHM-RST', quantity: 2, costPrice: 110, scrapPct: 10 },
+      ]
+    },
+    {
+      id: 'COMP-102',
+      name: 'CyberDrive V6 Electric Powertrain',
+      sku: 'DRV-V6-ELE',
+      quantity: 1,
+      costPrice: 6500,
+      scrapPct: 0.5,
+      subComponents: [
+        { id: 'RAW-103', name: 'Neodymium Permanent Magnets', sku: 'RAW-MAG-NEO', quantity: 24, costPrice: 90, scrapPct: 0 },
+        { id: 'RAW-104', name: 'High-Purity Copper Windings', sku: 'RAW-COP-WND', quantity: 15, costPrice: 45, scrapPct: 3 },
+        { id: 'RAW-105', name: 'Silicon Carbide Inverter Mod', sku: 'INV-SIC-90', quantity: 1, costPrice: 1200, scrapPct: 0 },
+      ]
+    },
+    {
+      id: 'COMP-103',
+      name: 'Falcon 90kWh Battery Pack',
+      sku: 'BAT-FAL-90',
+      quantity: 1,
+      costPrice: 5800,
+      scrapPct: 0,
+      subComponents: [
+        { id: 'RAW-106', name: 'Lithium-Ion Cylindrical Cells 2170', sku: 'CEL-LI-2170', quantity: 4800, costPrice: 0.90, scrapPct: 1 },
+        { id: 'RAW-107', name: 'Battery Thermal Liquid Manifold', sku: 'BAT-TMS-LQR', quantity: 1, costPrice: 680, scrapPct: 2 },
+      ]
+    },
+  ]
+};
+
+const SEED_MO: ManufacturingOrder[] = [
+  { id: '1', reference: 'MO/2026/07/0001', productName: 'CyberCom Falcon SUV (Model S)', quantity: 12, datePlanned: '2026-07-20', status: 'In Progress' },
+  { id: '2', reference: 'MO/2026/07/0002', productName: 'CyberDrive V6 Electric Powertrain', quantity: 24, datePlanned: '2026-07-22', status: 'Confirmed' },
+  { id: '3', reference: 'MO/2026/07/0003', productName: 'Falcon 90kWh Battery Pack', quantity: 30, datePlanned: '2026-07-24', status: 'Draft' },
 ];
 
-type CycomEco = {
-  id: number;
-  name?: string;
-  product_tmpl_id?: Many2One;
-  stage_id?: Many2One;
-  user_id?: Many2One;
-  create_date?: string;
-};
+const SEED_WORK_ORDERS: WorkOrder[] = [
+  { id: 'WO-101', operation: 'Chassis Weld & Alignment', workCenter: 'WC-01 (Weld Shop)', durationPlanned: 120, durationActual: 95, status: 'Finished' },
+  { id: 'WO-102', operation: 'Powertrain Mount & Integration', workCenter: 'WC-03 (Assembly Line A)', durationPlanned: 180, durationActual: 180, status: 'In Progress' },
+  { id: 'WO-103', operation: 'Battery Pack Fitting & Connection', workCenter: 'WC-03 (Assembly Line A)', durationPlanned: 90, durationActual: 0, status: 'Ready' },
+  { id: 'WO-104', operation: 'Final Calibrations & Quality Roll', workCenter: 'WC-05 (Inspection Gate)', durationPlanned: 60, durationActual: 0, status: 'Ready' },
+];
 
-const mapEcoState = (stageName: string): EcoOrder['state'] => {
-  const n = stageName.toLowerCase();
-  if (n.includes('review') || n.includes('progress')) return 'Under Review';
-  if (n.includes('approv') || n.includes('done')) return 'Approved';
-  return 'Draft';
-};
+const SEED_QUALITY: QualityCheck[] = [
+  { id: 'QC-101', moRef: 'MO/2026/07/0001', operation: 'Chassis Weld & Alignment', inspector: 'Samer Khoury', result: 'Passed' },
+  { id: 'QC-102', moRef: 'MO/2026/07/0001', operation: 'Powertrain Mount & Integration', inspector: 'Lina Al-Hasan', result: 'Pending' },
+  { id: 'QC-103', moRef: 'MO/2026/07/0002', operation: 'Battery Pack Cell Integration', inspector: 'Samer Khoury', result: 'Passed' },
+];
 
-const mapEco = (r: CycomEco): EcoOrder => ({
-  id: r.name || `ECO-${r.id}`,
-  productName: m2oName(r.product_tmpl_id, '—'),
-  title: r.name || '—',
-  reason: '',
-  state: mapEcoState(m2oName(r.stage_id)),
-  dateCreated: fmtDate(r.create_date),
-});
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export default function PLMPage() {
-  const { rows: liveEcos, loading } = useCycomList<CycomEco, EcoOrder>(
-    'mrp.eco', [], ['name', 'product_tmpl_id', 'stage_id', 'user_id', 'create_date'],
-    mapEco,
-  );
-  const [boms, setBoms] = useState<ProductBOM[]>(INITIAL_BOMS);
-  const [ecos, setEcos] = useState<EcoOrder[]>([]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { if (!loading) setEcos(liveEcos); }, [loading]);
-  
-  // Selected BOM for details
-  const [selectedBomId, setSelectedBomId] = useState('BOM-001');
+  const [bom, setBom] = useState<BomNode>(SEED_BOM);
+  const [mos, setMos] = useState<ManufacturingOrder[]>(SEED_MO);
+  const [wos, setWos] = useState<WorkOrder[]>(SEED_WORK_ORDERS);
+  const [qcs, setQcs] = useState<QualityCheck[]>(SEED_QUALITY);
 
-  // Form states for adding BOM component
-  const [compName, setCompName] = useState('');
-  const [compQty, setCompQty] = useState('');
-  const [compCost, setCompCost] = useState('');
+  // Form states for creating MO
+  const [moQty, setMoQty] = useState('10');
+  const [moDate, setMoDate] = useState('2026-07-25');
 
-  // Form states for creating ECO
-  const [ecoProd, setEcoProd] = useState('Premium Olive Oil 1L (Carton of 6)');
-  const [ecoTitle, setEcoTitle] = useState('');
-  const [ecoReason, setEcoReason] = useState('');
-
-  const selectedBOM = boms.find(b => b.id === selectedBomId) || boms[0];
-
-  // Calculate Rollup Cost
-  const rollupCost = selectedBOM.components.reduce((acc, curr) => acc + (curr.qtyNeeded * curr.unitCost), 0);
-
-  const handleAddComponent = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!compName || !compQty || !compCost) return;
-
-    const newComp: BomComponent = {
-      name: compName,
-      qtyNeeded: parseFloat(compQty),
-      unitCost: parseFloat(compCost)
+  // Rollup calculator
+  const rollupCost = useMemo(() => {
+    const sumNode = (node: BomNode): number => {
+      if (!node.subComponents || node.subComponents.length === 0) {
+        return node.costPrice * (1 + node.scrapPct / 100);
+      }
+      return node.subComponents.reduce((acc, sub) => acc + (sub.quantity * sumNode(sub)), 0);
     };
+    return sumNode(bom);
+  }, [bom]);
 
-    setBoms(boms.map(bom => {
-      if (bom.id === selectedBomId) {
-        return {
-          ...bom,
-          components: [...bom.components, newComp]
-        };
-      }
-      return bom;
-    }));
-
-    setCompName('');
-    setCompQty('');
-    setCompCost('');
-  };
-
-  const handleDeleteComponent = (name: string) => {
-    setBoms(boms.map(bom => {
-      if (bom.id === selectedBomId) {
-        return {
-          ...bom,
-          components: bom.components.filter(c => c.name !== name)
-        };
-      }
-      return bom;
-    }));
-  };
-
-  const handleCreateECO = (e: React.FormEvent) => {
+  const handleCreateMO = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!ecoTitle || !ecoReason) return;
+    const qty = parseInt(moQty);
+    if (isNaN(qty) || qty <= 0) return;
 
-    const newEco: EcoOrder = {
-      id: `ECO-${Math.floor(104 + Math.random() * 90)}`,
-      productName: ecoProd,
-      title: ecoTitle,
-      reason: ecoReason,
-      state: 'Draft',
-      dateCreated: new Date().toISOString().split('T')[0]
+    const newMo: ManufacturingOrder = {
+      id: String(mos.length + 1),
+      reference: `MO/2026/07/${String(mos.length + 1).padStart(4, '0')}`,
+      productName: bom.name,
+      quantity: qty,
+      datePlanned: moDate,
+      status: 'Draft'
     };
-
-    setEcos([newEco, ...ecos]);
-    setEcoTitle('');
-    setEcoReason('');
+    setMos([...mos, newMo]);
+    setMoQty('10');
   };
 
-  const advanceECO = (id: string) => {
-    setEcos(ecos.map(eco => {
-      if (eco.id === id) {
-        const nextState = eco.state === 'Draft' ? 'Under Review' : 'Approved';
-        return { ...eco, state: nextState as any };
-      }
-      return eco;
-    }));
+  const handleStartWO = (id: string) => {
+    setWos(prev => prev.map(wo => wo.id === id ? { ...wo, status: 'In Progress' } : wo));
   };
 
-  if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
+  const handleFinishWO = (id: string) => {
+    setWos(prev => prev.map(wo => wo.id === id ? { ...wo, status: 'Finished', durationActual: wo.durationPlanned } : wo));
+  };
+
+  // Recursive Tree Node Renderer
+  const RenderTreeNode = ({ node, depth = 0 }: { node: BomNode; depth: number }) => {
+    const hasChildren = node.subComponents && node.subComponents.length > 0;
+    return (
+      <div className="space-y-1">
+        <div 
+          className="flex items-center justify-between p-2 rounded-lg bg-white/3 border border-white/5 hover:bg-white/5 transition-colors"
+          style={{ marginLeft: `${depth * 16}px` }}
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <GitBranch className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-white truncate">{node.name}</p>
+              <p className="text-[9px] text-slate-500">SKU: {node.sku} • Qty: {node.quantity}</p>
+            </div>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <p className="text-xs font-bold text-amber-400">JOD {(node.costPrice * node.quantity).toLocaleString()}</p>
+            {node.scrapPct > 0 && <p className="text-[9px] text-red-400">Scrap: {node.scrapPct}%</p>}
+          </div>
+        </div>
+        {hasChildren && node.subComponents?.map(child => (
+          <RenderTreeNode key={child.id} node={child} depth={depth + 1} />
+        ))}
+      </div>
+    );
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="page-header">
+    <div className="space-y-6 text-xs md:text-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="page-title text-white">PLM & Manufacturing</h1>
-          <p className="page-subtitle">Cycom Product Lifecycle Management (PLM) and Manufacturing Bill of Materials (BOM) cost rollups.</p>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Layers className="w-6 h-6 text-amber-500" /> PLM & Manufacturing Command
+          </h1>
+          <p className="text-xs text-slate-400 mt-1">Configure multi-level BOM trees, rollup costs recursively, and track routing shop floors.</p>
         </div>
       </div>
 
+      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Left Column - BOM Selector & Component Creator */}
-        <div className="space-y-6">
-          
-          {/* BOM Selector */}
+
+        {/* Multi-Level BOM & Cost Rollup Tree */}
+        <div className="lg:col-span-2 space-y-4">
           <div className="glass-card p-5 space-y-4">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-white/5 pb-3">Bill of Materials Selector</h2>
-            <div className="space-y-2">
-              {boms.map(bom => (
-                <div
-                  key={bom.id}
-                  onClick={() => setSelectedBomId(bom.id)}
-                  className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                    selectedBomId === bom.id 
-                      ? 'bg-gradient-to-br from-orange-500/12 to-blue-500/8 border-orange-500/25 text-white' 
-                      : 'border-transparent hover:bg-white/3 text-slate-400'
-                  }`}
-                >
-                  <p className="text-xs font-bold">{bom.productName}</p>
-                  <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                    <span>SKU: {bom.sku}</span>
-                    <span>{bom.components.length} components</span>
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <div>
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider">Multi-Level Bill of Materials</h2>
+                <p className="text-[10px] text-slate-400 mt-0.5">Recursive structure of {bom.name}</p>
+              </div>
+              <div className="text-right">
+                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Cost Rollup</span>
+                <span className="text-lg font-black text-amber-400">JOD {rollupCost.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+              <RenderTreeNode node={bom} depth={0} />
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-white/5">
+              <button 
+                onClick={() => alert("BOM cost rolling completed successfully!")}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[10px] font-bold transition-all"
+              >
+                <Calculator className="w-3.5 h-3.5" /> Force Cost Rollup
+              </button>
+            </div>
+          </div>
+
+          {/* Shop Floor Work Center Routings */}
+          <div className="glass-card p-5 space-y-4">
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">Routing Operations & Work Center Load</h2>
+            <div className="space-y-3">
+              {wos.map((wo, idx) => (
+                <div key={wo.id} className="flex items-center justify-between bg-white/3 border border-white/3 p-3 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center font-bold text-slate-400">
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-white">{wo.operation}</p>
+                      <p className="text-[10px] text-slate-400 font-mono">{wo.workCenter} • Planned: {wo.durationPlanned} mins</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                      wo.status === 'Finished' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                      wo.status === 'In Progress' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 animate-pulse' :
+                      'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                    }`}>
+                      {wo.status}
+                    </span>
+                    <div className="flex gap-2">
+                      {wo.status === 'Ready' && (
+                        <button onClick={() => handleStartWO(wo.id)} className="p-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                          <Play className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      {wo.status === 'In Progress' && (
+                        <button onClick={() => handleFinishWO(wo.id)} className="p-1 rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
+        </div>
 
-          {/* Add Component to BOM */}
-          <div className="glass-card p-5 space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-white/5 pb-2">Add Component to BOM</h3>
-            <form onSubmit={handleAddComponent} className="space-y-3 text-xs">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-500 uppercase">Component Name</label>
-                <input 
-                  type="text" 
-                  required 
-                  placeholder="e.g. Glass bottle 1L" 
-                  value={compName}
-                  onChange={e => setCompName(e.target.value)}
-                  className="input-field py-1"
-                />
+        {/* Right Column: Manufacturing Orders & Quality Checks */}
+        <div className="space-y-6">
+
+          {/* Create MO Form */}
+          <div className="glass-card p-4 space-y-4">
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Settings2 className="w-4 h-4 text-amber-500" /> Plan Production (MO)
+            </h2>
+            <form onSubmit={handleCreateMO} className="space-y-3">
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Target Product</label>
+                <div className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white font-semibold">
+                  {bom.name}
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Quantity Needed</label>
-                  <input 
-                    type="number" 
-                    step="0.01" 
-                    required 
-                    placeholder="e.g. 6" 
-                    value={compQty}
-                    onChange={e => setCompQty(e.target.value)}
-                    className="input-field py-1 font-mono"
-                  />
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Quantity</label>
+                  <input type="number" value={moQty} onChange={e => setMoQty(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white outline-none" />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Unit Cost (JOD)</label>
-                  <input 
-                    type="number" 
-                    step="0.01" 
-                    required 
-                    placeholder="e.g. 0.35" 
-                    value={compCost}
-                    onChange={e => setCompCost(e.target.value)}
-                    className="input-field py-1 font-mono"
-                  />
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Planned Date</label>
+                  <input type="date" value={moDate} onChange={e => setMoDate(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white outline-none text-xs" />
                 </div>
               </div>
-              <button type="submit" className="btn-primary w-full py-1.5 mt-2">
-                Add Raw Material
+              <button type="submit" className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-xs transition-all">
+                Confirm Manufacturing Order
               </button>
             </form>
           </div>
 
-        </div>
-
-        {/* Right Column - BOM cost rollups & ECO pipelines */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* Cost Rollup Sheet */}
-          <div className="glass-card p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400">BOM Material Rollup & Cost Analysis</h2>
-              <span className="text-[10px] bg-purple-500/20 text-[#A855F7] border border-[#A855F7]/30 px-2 py-0.5 rounded font-bold font-mono">
-                {selectedBOM.sku}
-              </span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Component Name</th>
-                    <th>Qty Needed</th>
-                    <th>Unit Cost</th>
-                    <th>Total Material Cost</th>
-                    <th className="text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedBOM.components.map((c, i) => {
-                    const totalCost = c.qtyNeeded * c.unitCost;
-                    return (
-                      <tr key={i}>
-                        <td className="font-bold text-slate-300">{c.name}</td>
-                        <td className="font-mono">{c.qtyNeeded}</td>
-                        <td className="font-mono">JOD {c.unitCost.toFixed(2)}</td>
-                        <td className="font-mono font-bold text-white">JOD {totalCost.toFixed(2)}</td>
-                        <td className="text-right">
-                          <button 
-                            onClick={() => handleDeleteComponent(c.name)}
-                            className="p-1 rounded hover:bg-red-500/20 text-[#EF4444]"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {/* Total Rollup row */}
-                  <tr className="border-t border-white/10 bg-white/2">
-                    <td colSpan={3} className="font-black text-right text-slate-400 uppercase tracking-wide">BOM Rollup Cost:</td>
-                    <td colSpan={2} className="font-black text-emerald-400 text-sm">JOD {rollupCost.toFixed(2)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* ECO Pipeline approvals */}
-          <div className="glass-card p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400">Engineering Change Orders (ECO)</h2>
-              <span className="badge badge-cyan text-[8px]">Cycom PLM workflow</span>
-            </div>
-
-            <div className="space-y-3">
-              {ecos.map(eco => (
-                <div key={eco.id} className="p-4 rounded-xl bg-white/3 border border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-black text-white">{eco.id}</span>
-                      <span className="text-[10px] text-slate-500">{eco.dateCreated}</span>
-                      <span className={`badge text-[9px] ${
-                        eco.state === 'Approved' ? 'badge-green' :
-                        eco.state === 'Under Review' ? 'badge-yellow' : 'badge-cyan'
-                      }`}>{eco.state}</span>
-                    </div>
-                    <p className="text-xs text-slate-200 font-bold">{eco.title}</p>
-                    <p className="text-[11px] text-slate-400 font-medium">BOM: {eco.productName} · Cause: {eco.reason}</p>
+          {/* Active MO List */}
+          <div className="glass-card p-4 space-y-3">
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">Active Manufacturing Orders</h2>
+            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+              {mos.map(mo => (
+                <div key={mo.id} className="bg-white/3 border border-white/3 p-2.5 rounded-lg flex justify-between items-center">
+                  <div>
+                    <p className="font-mono text-purple-300 font-semibold">{mo.reference}</p>
+                    <p className="text-[9px] text-slate-400">{mo.productName} • Qty: {mo.quantity}</p>
                   </div>
-                  
-                  {eco.state !== 'Approved' && (
-                    <button 
-                      onClick={() => advanceECO(eco.id)}
-                      className="p-1.5 px-3 text-[10px] font-bold rounded bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/25 text-[#00F0FF] flex-shrink-0"
-                    >
-                      {eco.state === 'Draft' ? 'Submit for Review ➔' : 'Confirm ECO Approval ➔'}
-                    </button>
-                  )}
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                    mo.status === 'Done' ? 'bg-emerald-500/10 text-emerald-400' :
+                    mo.status === 'In Progress' ? 'bg-blue-500/10 text-blue-400 animate-pulse' :
+                    mo.status === 'Confirmed' ? 'bg-indigo-500/10 text-indigo-400' :
+                    'bg-slate-500/10 text-slate-400'
+                  }`}>
+                    {mo.status}
+                  </span>
                 </div>
               ))}
             </div>
+          </div>
 
-            {/* Create ECO Form */}
-            <form onSubmit={handleCreateECO} className="grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-white/5 pt-4 text-xs items-end">
-              <div className="space-y-2">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Target Product BOM</label>
-                  <select value={ecoProd} onChange={e => setEcoProd(e.target.value)} className="input-field py-1">
-                    {boms.map(bom => <option key={bom.id} value={bom.productName}>{bom.productName}</option>)}
-                  </select>
+          {/* Quality Control Inspections */}
+          <div className="glass-card p-4 space-y-3">
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Activity className="w-4 h-4 text-emerald-400" /> Quality Control (QC)
+            </h2>
+            <div className="space-y-2">
+              {qcs.map(qc => (
+                <div key={qc.id} className="bg-white/3 border border-white/3 p-2.5 rounded-lg flex justify-between items-center">
+                  <div>
+                    <p className="text-xs font-semibold text-white">{qc.operation}</p>
+                    <p className="text-[9px] text-slate-400">Order: {qc.moRef} • Insp: {qc.inspector}</p>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                    qc.result === 'Passed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                    qc.result === 'Failed' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                    'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                  }`}>
+                    {qc.result}
+                  </span>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">ECO Title</label>
-                  <input 
-                    type="text" 
-                    required 
-                    placeholder="e.g. Switch from paper to plastic bags" 
-                    value={ecoTitle}
-                    onChange={e => setEcoTitle(e.target.value)}
-                    className="input-field py-1"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">ECO Reason / Spec</label>
-                  <input 
-                    type="text" 
-                    required 
-                    placeholder="Provide details on engineering variance..." 
-                    value={ecoReason}
-                    onChange={e => setEcoReason(e.target.value)}
-                    className="input-field py-1"
-                  />
-                </div>
-                <button type="submit" className="btn-primary w-full py-1.5">
-                  Launch Engineering ECO
-                </button>
-              </div>
-            </form>
+              ))}
+            </div>
           </div>
 
         </div>

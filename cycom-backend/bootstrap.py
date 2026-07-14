@@ -15,7 +15,7 @@ from app.models import (
     attendance, audit_log, company, crm, finance, fleet,
     helpdesk, hr, inventory, partner, payroll, pos,
     product, projects, purchase, recruitment, sales,
-    sign, user, config_param
+    sign, user, config_param, mrp
 )
 
 
