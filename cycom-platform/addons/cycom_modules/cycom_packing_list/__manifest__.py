@@ -1,5 +1,5 @@
 {
-    "name": "Ameen Packing List",
+    "name": "Cycom Packing List",
     "version": "19.0.1.0.0",
     "category": "Accounting",
     "summary": "Packing List PDF + XLSX export from Action menu",

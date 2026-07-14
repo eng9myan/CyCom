@@ -32,7 +32,7 @@ export default function SignTemplates() {
   const fetchTemplates = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/sign/templates');
+      const res = await fetch('/api/sign/templates');
       const data = await res.json();
       setTemplates(data);
     } catch (err) {
@@ -81,7 +81,7 @@ export default function SignTemplates() {
     formData.append('fields_config', JSON.stringify(fieldsConfig));
 
     try {
-      const res = await fetch('http://localhost:8000/api/sign/templates', {
+      const res = await fetch('/api/sign/templates', {
         method: 'POST',
         body: formData,
       });
@@ -108,7 +108,7 @@ export default function SignTemplates() {
 
     setSendingRequest(true);
     try {
-      const res = await fetch('http://localhost:8000/api/sign/requests', {
+      const res = await fetch('/api/sign/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

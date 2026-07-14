@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCycomList, m2oName, type Many2One } from '@/lib/cycomModels';
 import { 
   Package, ArrowRight, ShieldAlert, CheckCircle2, AlertTriangle, 
-  RefreshCw, Info, Lock, CheckCircle
+  RefreshCw, Info, Lock, CheckCircle, FileSpreadsheet, PackageCheck
 } from 'lucide-react';
 
 interface StockTransfer {
@@ -163,6 +164,15 @@ export default function InventoryDashboard() {
           <p className="page-subtitle">Track inter-warehouse stock transfers, audit item discrepancies, configure warehouse user access, and enforce negative stock blocks.</p>
         </div>
         <div className="flex gap-3">
+          <Link href="/inventory/branch-orders" className="btn-primary flex items-center gap-2">
+            <RefreshCw className="w-4 h-4" /> Replenishment Requests
+          </Link>
+          <Link href="/inventory/warehouse-requests" className="btn-secondary flex items-center gap-2">
+            <PackageCheck className="w-4 h-4 text-indigo-400" /> Warehouse Fulfillment
+          </Link>
+          <Link href="/inventory/import" className="btn-secondary flex items-center gap-2">
+            <FileSpreadsheet className="w-4 h-4 text-emerald-500" /> Import Products
+          </Link>
           <button 
             onClick={() => setNegBlockActive(!negBlockActive)}
             className={`btn-${negBlockActive ? 'primary' : 'secondary'} flex items-center gap-2`}

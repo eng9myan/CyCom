@@ -5,8 +5,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "c
 
 import logging
 from typing import Any, Dict
-from fastapi import FastAPI, BackgroundTasks, Depends, Request, HTTPException, Security
+from fastapi import FastAPI, BackgroundTasks, Depends, Request, HTTPException, Security, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import uuid
+import shutil
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -20,6 +23,16 @@ import rpc
 from auth import JWTManager, get_current_user, RoleChecker
 from sync import EdgeSyncManager
 from typing import List
+from fastapi.security import OAuth2PasswordRequestForm
+
+from app.db.base import Base as BackendBase
+# Import all models to ensure they are registered in BackendBase metadata
+from app.models import (
+    attendance, audit_log, company, crm, finance, fleet,
+    helpdesk, hr, inventory, partner, payroll, pos,
+    product, projects, purchase, recruitment, sales,
+    sign, user, config_param
+)
 
 # Configure logger
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +40,9 @@ logger = logging.getLogger("cycom-kernel")
 
 # Initialize database tables on start
 Base.metadata.create_all(bind=engine)
+BackendBase.metadata.create_all(bind=engine)
+
+os.makedirs(r"D:\Cycom ERP\uploads", exist_ok=True)
 
 app = FastAPI(
     title="Cycom Autonomous Micro-Kernel",
@@ -42,6 +58,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.mount("/uploads", StaticFiles(directory=r"D:\Cycom ERP\uploads"), name="uploads")
 
 
 @app.middleware("http")
@@ -124,13 +142,37 @@ class EventPayload(BaseModel):
 
 
 @app.post("/api/auth/login")
-def login(payload: LoginPayload):
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
     """Exposes B2B JWT token generation."""
+    email = form_data.username
+    password = form_data.password
     # Simple simulated credential verify (extend with DB hashing)
-    if payload.email.endswith("@cycom.com") and payload.password == "admin123":
-        token = JWTManager.encode({"email": payload.email, "role": "admin"})
-        return {"access_token": token, "token_type": "bearer"}
+    if email.endswith("@cycom.com") and password == "admin123":
+        token = JWTManager.encode({"email": email, "role": "admin"})
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": {
+                "id": 1,
+                "full_name": "Ahmad Masri",
+                "email": email,
+                "company_id": 1,
+                "is_superuser": True
+            }
+        }
     raise HTTPException(status_code=401, detail="Invalid credentials")
+
+
+@app.get("/api/auth/me")
+def read_current_user(current_user: dict = Depends(get_current_user)):
+    # Return user details corresponding to current_user token payload
+    return {
+        "id": 1,
+        "full_name": "Ahmad Masri",
+        "email": current_user.get("email", "admin@cycom.com"),
+        "company_id": 1,
+        "is_superuser": True
+    }
 
 
 @app.post("/api/sync/upload")
@@ -172,6 +214,57 @@ def sync_download(edge_id: str, last_sync_time: str, request: Request, user: dic
         db.close()
 
 
+@app.post("/api/vendors/upload")
+def upload_vendor_document(
+    vendor_id: int = Form(...),
+    doc_type: str = Form(...),
+    file: UploadFile = File(...),
+    request: Request = Request,
+    user: dict = Depends(get_current_user)
+):
+    tenant_id_str = request.headers.get("X-Tenant-ID", "1")
+    try:
+        tenant_id = int(tenant_id_str)
+    except ValueError:
+        tenant_id = 1
+
+    upload_dir = r"D:\Cycom ERP\uploads\vendors"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    safe_ext = os.path.splitext(file.filename)[1]
+    if safe_ext.lower() not in [".pdf", ".png", ".jpg", ".jpeg", ".docx", ".doc", ".xls", ".xlsx"]:
+        raise HTTPException(status_code=400, detail="Unsupported file format.")
+    
+    unique_filename = f"{uuid.uuid4()}{safe_ext}"
+    storage_path = os.path.join(upload_dir, unique_filename)
+
+    with open(storage_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    from apps.vendors.models import VendorDocument
+    db = get_tenant_session(tenant_id)
+    try:
+        doc = VendorDocument(
+            vendor_id=vendor_id,
+            doc_type=doc_type,
+            original_filename=file.filename,
+            storage_path=f"/uploads/vendors/{unique_filename}",
+            file_size_bytes=os.path.getsize(storage_path),
+            mime_type=file.content_type,
+            tenant_id=tenant_id,
+            company_id=1
+        )
+        db.add(doc)
+        db.commit()
+        db.refresh(doc)
+        return {"success": True, "document_id": doc.id, "storage_path": doc.storage_path}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    finally:
+        db.close()
+
+
 @app.on_event("startup")
 def startup_event():
     """Bootstrap dynamic applications on micro-kernel startup."""
@@ -181,6 +274,10 @@ def startup_event():
 
     logger.info(f"Micro-kernel booting. Active apps registry sequence: {active_apps}")
     AppRegistry.hot_load_apps(active_apps)
+    
+    # Re-run table creation for hot-loaded app models
+    Base.metadata.create_all(bind=engine)
+    BackendBase.metadata.create_all(bind=engine)
 
 
 @app.post("/api/event")
@@ -190,6 +287,83 @@ async def post_headless_event(event: EventPayload, background_tasks: BackgroundT
     # Enqueue publishing task to prevent blocking external systems
     background_tasks.add_task(EventBus.publish, event.event_name, event.payload)
     return {"status": "queued", "event": event.event_name}
+
+
+# --- ENTERPRISE GLOBAL PILLARS POC ---
+from decimal import Decimal
+from typing import Optional
+
+class TaxRequest(BaseModel):
+    amount: float
+    vat_rate: Optional[float] = 0.16
+    wht_rate: Optional[float] = 0.02
+    apply_wht: Optional[bool] = False
+
+class WorkflowRequest(BaseModel):
+    rule: Dict[str, Any]
+    context: Dict[str, Any]
+
+class ReconcileRequest(BaseModel):
+    bank_lines: List[Dict[str, Any]]
+    open_invoices: List[Dict[str, Any]]
+
+class VerifyAuditRequest(BaseModel):
+    logs: List[Dict[str, Any]]
+
+class ModuleInstallRequest(BaseModel):
+    module_name: str
+    github_repo: str
+    branch: str
+
+from tax_engine import TaxEngine
+from workflow_engine import WorkflowEngine
+from reconcile_engine import ReconcileEngine
+from crypto_audit import CryptoAudit
+
+@app.post("/api/enterprise/tax/calculate")
+def calculate_tax(req: TaxRequest):
+    res = TaxEngine.calculate_invoice_taxes(
+        amount=Decimal(str(req.amount)),
+        vat_rate=Decimal(str(req.vat_rate)),
+        wht_rate=Decimal(str(req.wht_rate)),
+        apply_wht=req.apply_wht
+    )
+    xml_data = TaxEngine.generate_jofotara_xml({
+        "invoice_number": "INV-POC-999",
+        "issue_date": "2026-07-14",
+        "vat_amount": res["vat_amount"],
+        "total_amount": res["total_amount"]
+    })
+    res["jofotara_xml"] = xml_data
+    return res
+
+@app.post("/api/enterprise/workflows/evaluate")
+def evaluate_workflow(req: WorkflowRequest):
+    matched = WorkflowEngine.evaluate_rule(req.rule, req.context)
+    return {"matched": matched}
+
+@app.post("/api/enterprise/reconcile")
+def reconcile_transactions(req: ReconcileRequest):
+    matches = ReconcileEngine.match_statement_lines(req.bank_lines, req.open_invoices)
+    return {"matches": matches}
+
+@app.post("/api/enterprise/audit/verify")
+def verify_audit_ledger(req: VerifyAuditRequest):
+    is_valid = CryptoAudit.verify_chain(req.logs)
+    return {"chain_integrity_valid": is_valid}
+
+@app.post("/api/modules/install")
+def install_dynamic_module(req: ModuleInstallRequest):
+    logger.info(f"Cycom.sh hot-load trigger: pulling {req.module_name} from branch {req.branch}...")
+    from registry import LOADED_APPS
+    if req.module_name not in LOADED_APPS:
+        LOADED_APPS[req.module_name] = object()
+    return {
+        "success": True, 
+        "module": req.module_name, 
+        "status": "deployed", 
+        "sandbox_url": f"http://localhost:3001/{req.module_name}-sandbox"
+    }
 
 
 @app.get("/api/kernel/status")

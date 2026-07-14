@@ -10,8 +10,8 @@ console.log("==================================================");
 console.log("🧪 Running Cycom ERP API Bridge Integration Tests");
 console.log("==================================================");
 
-// Mock server for Odoo JSON-RPC to test Next.js proxy
-const mockOdooServer = http.createServer((req, res) => {
+// Mock server for Backend JSON-RPC to test Next.js proxy
+const mockBackendServer = http.createServer((req, res) => {
   let body = '';
   req.on('data', chunk => { body += chunk; });
   req.on('end', () => {
@@ -53,8 +53,8 @@ const mockOdooServer = http.createServer((req, res) => {
   });
 });
 
-mockOdooServer.listen(8069, 'localhost', () => {
-  console.log("✅ Mock Odoo server listening on port 8069");
+mockBackendServer.listen(8069, 'localhost', () => {
+  console.log("✅ Mock Backend server listening on port 8069");
   runTests();
 });
 
@@ -89,7 +89,7 @@ function runTests() {
 
   req.on('error', (e) => {
     console.error(`❌ Test 1 Failed: ${e.message}`);
-    mockOdooServer.close();
+    mockBackendServer.close();
     process.exit(1);
   });
 
@@ -134,7 +134,7 @@ function test2() {
 
   req.on('error', (e) => {
     console.error(`❌ Test 2 Failed: ${e.message}`);
-    mockOdooServer.close();
+    mockBackendServer.close();
     process.exit(1);
   });
 
@@ -146,6 +146,6 @@ function finish() {
   console.log("\n==================================================");
   console.log("🎉 All Cycom ERP integration bridge tests PASSED!");
   console.log("==================================================");
-  mockOdooServer.close();
+  mockBackendServer.close();
   process.exit(0);
 }

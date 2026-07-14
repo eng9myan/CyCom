@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useCycomList, fmtCode, fmtDate, m2oName, type Many2One } from '@/lib/cycomModels';
 
-// --- Odoo raw types ---
+// --- Backend raw types ---
 type CycomOvertimeRaw = {
   id: number;
   employee_id: Many2One;
@@ -120,19 +120,19 @@ export default function PayrollDashboard() {
 
   const handleGeneratePayslip = (e: React.FormEvent) => {
     e.preventDefault();
-    // Payslip creation requires an Odoo write; local addition disabled after live data wiring.
+    // Payslip creation requires a backend write; local addition disabled after live data wiring.
   };
 
   const handleApproveOT = (_id: string) => {
-    // OT approval requires an Odoo write; local mutation disabled after live data wiring.
+    // OT approval requires a backend write; local mutation disabled after live data wiring.
   };
 
   const handleRejectOT = (_id: string) => {
-    // OT rejection requires an Odoo write; local mutation disabled after live data wiring.
+    // OT rejection requires a backend write; local mutation disabled after live data wiring.
   };
 
   const handleBulkApprovePayslips = () => {
-    // Bulk approval requires an Odoo write; local mutation disabled after live data wiring.
+    // Bulk approval requires a backend write; local mutation disabled after live data wiring.
   };
 
   // Excel csv export simulation

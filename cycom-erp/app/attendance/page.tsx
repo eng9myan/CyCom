@@ -107,7 +107,7 @@ export default function AttendanceDashboard() {
   const [corrReason, setCorrReason] = useState('');
   const [corrSuccess, setCorrSuccess] = useState(false);
 
-  // Syncing — triggers a live reload from Odoo
+  // Syncing — triggers a live reload from Backend
   const triggerSync = () => {
     setIsSyncing(true);
     setTimeout(() => {
@@ -120,7 +120,7 @@ export default function AttendanceDashboard() {
   const handleAddDevice = (e: React.FormEvent) => {
     e.preventDefault();
     if (!devName || !devIp) return;
-    // TODO: call Odoo create API to register device, then reload
+    // TODO: call Backend create API to register device, then reload
     setDevName('');
     setDevIp('');
     setDevLoc('');

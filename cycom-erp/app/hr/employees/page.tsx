@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Search, Filter, Plus, Shield, ShieldAlert,
-  MapPin, Phone, Mail, Award, CheckCircle, CreditCard, X
+  MapPin, Phone, Mail, Award, CheckCircle, CreditCard, X,
+  FileSpreadsheet
 } from 'lucide-react';
 import { searchRead } from '@/lib/cycom';
 
@@ -123,19 +125,24 @@ export default function EmployeeDirectory() {
           <h1 className="page-title text-white">Employee Directory</h1>
           <p className="page-subtitle">Search, view, and manage complete employee profiles, including Cycom bank fields, portal setup, and spouse details.</p>
         </div>
-        <button className="btn-primary flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Add Employee
-        </button>
+        <div className="flex gap-3">
+          <Link href="/hr/employees/import" className="btn-secondary flex items-center gap-2">
+            <FileSpreadsheet className="w-4 h-4 text-emerald-500" /> Import Employees
+          </Link>
+          <button className="btn-primary flex items-center gap-2">
+            <Plus className="w-4 h-4" /> Add Employee
+          </button>
+        </div>
       </div>
 
       {/* Search and Filters */}
       <div className="flex gap-4">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-3.5 text-slate-500" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
             placeholder="Search by name, employee code, department, or title..."
-            className="input-field pl-10 py-2.5"
+            className="input-field !pl-10 !py-2.5"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

@@ -14,5 +14,6 @@ class Company(Base):
     currency = Column(String, default="JOD", nullable=False)
     country_code = Column(String, default="JO", nullable=False)
     type = Column(String, default="commercial", nullable=False)  # retail | commercial | factory
+    parent_id = Column(Integer, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

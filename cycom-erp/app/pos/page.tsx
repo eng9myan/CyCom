@@ -25,21 +25,43 @@ interface Product {
 }
 
 const PRODUCTS: Product[] = [
-  { id: 'PRD-001', barcode: '6281000000101', name: 'Premium Olive Oil 1L', nameAr: 'زيت زيتون ممتاز', category: 'Oils & Vinegar', price: 7.50, taxRate: 0.16, stock: 340, image: '🫒' },
-  { id: 'PRD-002', barcode: '6281000000102', name: 'Cycom Tahini 400g', nameAr: 'طحينة الأنبتاوي', category: 'Pantry', price: 3.25, taxRate: 0.16, stock: 520, image: '🥜' },
-  { id: 'PRD-003', barcode: '6281000000103', name: 'Organic Honey 500g', nameAr: 'عسل عضوي', category: 'Pantry', price: 12.00, taxRate: 0.16, stock: 180, image: '🍯' },
-  { id: 'PRD-004', barcode: '6281000000104', name: 'Mixed Nuts 250g', nameAr: 'مكسرات مشكلة', category: 'Snacks', price: 5.50, taxRate: 0.16, stock: 410, image: '🥜' },
-  { id: 'PRD-005', barcode: '6281000000105', name: 'Fresh Milk 1L', nameAr: 'حليب طازج', category: 'Dairy', price: 1.20, taxRate: 0, stock: 890, image: '🥛' },
-  { id: 'PRD-006', barcode: '6281000000106', name: 'Za\'atar Blend 200g', nameAr: 'خلطة زعتر', category: 'Spices', price: 2.80, taxRate: 0.16, stock: 650, image: '🌿' },
-  { id: 'PRD-007', barcode: '6281000000107', name: 'Labneh 500g', nameAr: 'لبنة', category: 'Dairy', price: 2.50, taxRate: 0, stock: 720, image: '🫙' },
+  // Supermarket / Groceries
+  { id: 'PRD-001', barcode: '6281000000101', name: 'Premium Olive Oil 1L', nameAr: 'زيت زيتون ممتاز', category: 'Groceries', price: 7.50, taxRate: 0.16, stock: 340, image: '🫒' },
+  { id: 'PRD-002', barcode: '6281000000102', name: 'Cycom Tahini 400g', nameAr: 'طحينة الأنبتاوي', category: 'Groceries', price: 3.25, taxRate: 0.16, stock: 520, image: '🥜' },
+  { id: 'PRD-003', barcode: '6281000000103', name: 'Organic Honey 500g', nameAr: 'عسل عضوي', category: 'Groceries', price: 12.00, taxRate: 0.16, stock: 180, image: '🍯' },
+  { id: 'PRD-004', barcode: '6281000000104', name: 'Mixed Nuts 250g', nameAr: 'مكسرات مشكلة', category: 'Groceries', price: 5.50, taxRate: 0.16, stock: 410, image: '🥜' },
+  { id: 'PRD-005', barcode: '6281000000105', name: 'Fresh Milk 1L', nameAr: 'حليب طازج', category: 'Groceries', price: 1.20, taxRate: 0, stock: 890, image: '🥛' },
+  { id: 'PRD-006', barcode: '6281000000106', name: 'Za\'atar Blend 200g', nameAr: 'خلطة زعتر', category: 'Groceries', price: 2.80, taxRate: 0.16, stock: 650, image: '🌿' },
+  { id: 'PRD-007', barcode: '6281000000107', name: 'Labneh 500g', nameAr: 'لبنة', category: 'Groceries', price: 2.50, taxRate: 0, stock: 720, image: '🫙' },
   { id: 'PRD-008', barcode: '6281000000108', name: 'Arabic Coffee 250g', nameAr: 'قهوة عربية', category: 'Beverages', price: 8.00, taxRate: 0.16, stock: 300, image: '☕' },
   { id: 'PRD-009', barcode: '6281000000109', name: 'Olive Oil Soap (3pc)', nameAr: 'صابون زيت زيتون', category: 'Personal Care', price: 4.50, taxRate: 0.16, stock: 220, image: '🧼' },
-  { id: 'PRD-010', barcode: '6281000000110', name: 'Halloumi Cheese 250g', nameAr: 'جبنة حلوم', category: 'Dairy', price: 3.80, taxRate: 0, stock: 400, image: '🧀' },
+  { id: 'PRD-010', barcode: '6281000000110', name: 'Halloumi Cheese 250g', nameAr: 'جبنة حلوم', category: 'Groceries', price: 3.80, taxRate: 0, stock: 400, image: '🧀' },
   { id: 'PRD-011', barcode: '6281000000111', name: 'Maamoul Date Cookies 12pc', nameAr: 'معمول تمر', category: 'Bakery', price: 6.00, taxRate: 0.16, stock: 280, image: '🍪' },
   { id: 'PRD-012', barcode: '6281000000112', name: 'Sparkling Water 6×500ml', nameAr: 'مياه فوارة', category: 'Beverages', price: 3.00, taxRate: 0, stock: 960, image: '💧' },
+  
+  // Cafe Items
+  { id: 'PRD-CAF-01', barcode: '6282000000101', name: 'Espresso Single', nameAr: 'إسبريسو سينجل', category: 'Coffee', price: 1.80, taxRate: 0.16, stock: 999, image: '☕' },
+  { id: 'PRD-CAF-02', barcode: '6282000000102', name: 'Cappuccino Double', nameAr: 'كابتشينو دبل', category: 'Coffee', price: 2.50, taxRate: 0.16, stock: 999, image: '☕' },
+  { id: 'PRD-CAF-03', barcode: '6282000000103', name: 'Chocolate Chip Muffin', nameAr: 'مافن الشوكولاتة', category: 'Bakery & Sweets', price: 2.20, taxRate: 0.16, stock: 50, image: '🧁' },
+  { id: 'PRD-CAF-04', barcode: '6282000000104', name: 'Butter Croissant', nameAr: 'كرواسون زبدة', category: 'Bakery & Sweets', price: 1.90, taxRate: 0.16, stock: 80, image: '🥐' },
+  { id: 'PRD-CAF-05', barcode: '6282000000105', name: 'Iced Matcha Latte', nameAr: 'ماتشا مثلج', category: 'Cold Drinks', price: 3.50, taxRate: 0.16, stock: 200, image: '🍵' },
+  
+  // Restaurant Items
+  { id: 'PRD-RES-01', barcode: '6283000000101', name: 'Traditional Mansaf Feast', nameAr: 'وجبة منسف بلدي', category: 'Platters', price: 12.50, taxRate: 0.16, stock: 120, image: '🥘' },
+  { id: 'PRD-RES-02', barcode: '6283000000102', name: 'Mixed Grill Skewers', nameAr: 'مشاوي مشكلة', category: 'Platters', price: 9.80, taxRate: 0.16, stock: 150, image: '🍢' },
+  { id: 'PRD-RES-03', barcode: '6283000000103', name: 'Hummus & Falafel Plate', nameAr: 'صحن حمص وفلافل', category: 'Appetizers', price: 3.50, taxRate: 0.16, stock: 300, image: '🧆' },
+  { id: 'PRD-RES-04', barcode: '6283000000104', name: 'Tabbouleh Salad Fresh', nameAr: 'تبولة طازجة', category: 'Salads & Sides', price: 2.20, taxRate: 0.16, stock: 250, image: '🥗' },
+  
+  // Car Showroom / Merchandise
+  { id: 'PRD-CAR-01', barcode: '6284000000101', name: 'CyberCom Model S Coupe', nameAr: 'سايبركوم كوبيه إس', category: 'Vehicles', price: 42000.00, taxRate: 0.16, stock: 5, image: '🏎️' },
+  { id: 'PRD-CAR-02', barcode: '6284000000102', name: 'CyberCom SUV Touring EV', nameAr: 'سايبركوم دفع رباعي كهربائي', category: 'Vehicles', price: 58000.00, taxRate: 0.16, stock: 3, image: '🚙' },
+  { id: 'PRD-CAR-03', barcode: '6284000000103', name: 'CyberCom Hypercar Concept', nameAr: 'سيارة خارقة نموذجية', category: 'Vehicles', price: 120000.00, taxRate: 0.16, stock: 1, image: '🏎️' },
+  { id: 'PRD-CAR-04', barcode: '6284000000104', name: 'Scale Model CyberCom (1:18)', nameAr: 'مجسم سيارة صغير', category: 'Merchandise', price: 45.00, taxRate: 0.16, stock: 40, image: '🚗' },
+  { id: 'PRD-CAR-05', barcode: '6284000000105', name: 'CyberCom Racing Cap', nameAr: 'كاب سباق سايبركوم', category: 'Merchandise', price: 15.00, taxRate: 0.16, stock: 100, image: '🧢' }
 ];
 
-const CATEGORIES = ['All', ...new Set(PRODUCTS.map(p => p.category))];
+// Fallback empty categories array which will be overriden dynamically
+const CATEGORIES: string[] = [];
 
 // ── Order Line ──
 interface OrderLine {
@@ -92,7 +114,7 @@ const mapSession = (r: CyPosSession): PosOrder => ({
 });
 
 export default function PosDashboard() {
-  const { activeCompany } = useCompany();
+  const { activeCompany, activeBranch } = useCompany();
   
   // Session state
   const [sessionOpen, setSessionOpen] = useState(true);
@@ -144,9 +166,25 @@ export default function PosDashboard() {
   // Rounding
   const roundingStrategy = 0.05;
 
-  // ── Derived data ──
+  const storeName = activeBranch || (activeCompany.type === 'retail' && activeCompany.branches ? activeCompany.branches[0] : activeCompany.shortName);
+
+  // ── Derived data (Dynamic Terminal Filtering) ──
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter(p => {
+    let branchProducts = PRODUCTS;
+    const branchNameLower = (storeName || '').toLowerCase();
+    
+    if (branchNameLower.includes('café') || branchNameLower.includes('cafe')) {
+      branchProducts = PRODUCTS.filter(p => ['Coffee', 'Bakery & Sweets', 'Cold Drinks'].includes(p.category));
+    } else if (branchNameLower.includes('restaurant')) {
+      branchProducts = PRODUCTS.filter(p => ['Platters', 'Appetizers', 'Salads & Sides'].includes(p.category));
+    } else if (branchNameLower.includes('car') || branchNameLower.includes('showroom')) {
+      branchProducts = PRODUCTS.filter(p => ['Vehicles', 'Merchandise'].includes(p.category));
+    } else {
+      // Default / Supermarket
+      branchProducts = PRODUCTS.filter(p => ['Groceries', 'Beverages'].includes(p.category));
+    }
+
+    return branchProducts.filter(p => {
       const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
       const matchesSearch = searchQuery === '' || 
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -154,7 +192,24 @@ export default function PosDashboard() {
         p.nameAr.includes(searchQuery);
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, storeName]);
+
+  const CATEGORIES = useMemo(() => {
+    let branchProducts = PRODUCTS;
+    const branchNameLower = (storeName || '').toLowerCase();
+    
+    if (branchNameLower.includes('café') || branchNameLower.includes('cafe')) {
+      branchProducts = PRODUCTS.filter(p => ['Coffee', 'Bakery & Sweets', 'Cold Drinks'].includes(p.category));
+    } else if (branchNameLower.includes('restaurant')) {
+      branchProducts = PRODUCTS.filter(p => ['Platters', 'Appetizers', 'Salads & Sides'].includes(p.category));
+    } else if (branchNameLower.includes('car') || branchNameLower.includes('showroom')) {
+      branchProducts = PRODUCTS.filter(p => ['Vehicles', 'Merchandise'].includes(p.category));
+    } else {
+      branchProducts = PRODUCTS.filter(p => ['Groceries', 'Beverages'].includes(p.category));
+    }
+    
+    return ['All', ...new Set(branchProducts.map(p => p.category))];
+  }, [storeName]);
 
   const subtotal = orderLines.reduce((acc, line) => acc + (line.product.price * line.qty * (1 - line.discount / 100)), 0);
   const taxTotal = orderLines.reduce((acc, line) => acc + (line.product.price * line.qty * (1 - line.discount / 100) * line.product.taxRate), 0);
@@ -240,8 +295,6 @@ export default function PosDashboard() {
     setNewLocalOrders(prev => [{ id: `POS-${orderType === 'Advance Order' ? 'ADV' : 'PLG'}-${Math.floor(200 + Math.random() * 800)}`, customerName: orderCust, type: orderType, total: parseFloat(orderTotal), deposit: orderType === 'Advance Order' ? parseFloat(orderDeposit) || 0 : 0, deadlineDate: orderDeadline, status: 'Pending' }, ...prev]);
     setOrderCust(''); setOrderTotal(''); setOrderDeposit(''); setOrderDeadline('');
   };
-
-  const storeName = activeCompany.type === 'retail' && activeCompany.branches ? activeCompany.branches[0] : activeCompany.shortName;
 
   // ── POS Terminal View ──
   if (posView === 'terminal' && sessionOpen) {

@@ -4,7 +4,7 @@ import React from 'react';
 import { Percent, Clock, AlertTriangle, ShieldCheck, Settings, Plus } from 'lucide-react';
 import { useCycomList, fmtCode, fmtDate, m2oName, type Many2One } from '@/lib/cycomModels';
 
-// --- Odoo raw type ---
+// --- Backend raw type ---
 type CycomPayslipLineRaw = {
   id: number;
   employee_id: Many2One;

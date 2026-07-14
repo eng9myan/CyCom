@@ -94,7 +94,7 @@ export default function DiscussPage() {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Seed channels from live Odoo data
+  // Seed channels from live Backend data
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (!loading) setChannels(liveChannels); }, [loading]);
 

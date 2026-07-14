@@ -140,7 +140,7 @@ export default function DocumentsPage() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  // Seed files from live Odoo data
+  // Seed files from live Backend data
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (!loading) setFiles(liveDocs); }, [loading]);
 

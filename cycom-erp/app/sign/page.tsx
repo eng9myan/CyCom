@@ -17,10 +17,10 @@ export default function SignDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const templatesRes = await fetch('http://localhost:8000/api/sign/templates');
+        const templatesRes = await fetch('/api/sign/templates');
         const templatesData = await templatesRes.json();
 
-        const requestsRes = await fetch('http://localhost:8000/api/sign/requests');
+        const requestsRes = await fetch('/api/sign/requests');
         const requestsData = await requestsRes.json();
 
         const awaiting = requestsData.filter((r: any) => r.status === 'Sent' || r.status === 'Viewed').length;

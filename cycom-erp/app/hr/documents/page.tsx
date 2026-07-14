@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { FileText, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter } from 'lucide-react';
 import { useCycomList, m2oName, fmtDate, fmtCode, Many2One } from '@/lib/cycomModels';
 
-type OdooDocument = {
+type BackendDocument = {
   id: number;
   employee_id?: Many2One;
   name?: string;
@@ -42,7 +42,7 @@ function deriveDocStatus(daysLeft: number): string {
 export default function DocumentExpiry() {
   const [filterStatus, setFilterStatus] = useState<'All' | 'Critical' | 'Warning' | 'Active'>('All');
 
-  const { rows, loading } = useCycomList<OdooDocument, DocumentRow>(
+  const { rows, loading } = useCycomList<BackendDocument, DocumentRow>(
     'hr.document',
     [],
     ['employee_id', 'name', 'document_type', 'expiry_date', 'state'],
@@ -88,7 +88,7 @@ export default function DocumentExpiry() {
 
       {loading && (
         <div className="glass-card p-8 text-center text-slate-400 text-sm">
-          Loading documents from Odoo…
+          Loading documents from backend…
         </div>
       )}
 

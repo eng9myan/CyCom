@@ -4,7 +4,7 @@ import React from 'react';
 import { Clock, CheckCircle2, ShieldAlert, Award, FileSpreadsheet, Plus } from 'lucide-react';
 import { useCycomList, fmtCode, fmtDate, m2oName, type Many2One } from '@/lib/cycomModels';
 
-// --- Odoo raw type ---
+// --- Backend raw type ---
 type CycomOvertimeRaw = {
   id: number;
   employee_id: Many2One;

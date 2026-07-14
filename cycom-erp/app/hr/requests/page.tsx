@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, CheckCircle2, XCircle, Clock, Calendar, Plus, MessageSquare } from 'lucide-react';
 import { useCycomList, m2oName, fmtDate, fmtCode, Many2One } from '@/lib/cycomModels';
 
-type OdooLeave = {
+type BackendLeave = {
   id: number;
   employee_id?: Many2One;
   holiday_status_id?: Many2One;
@@ -32,7 +32,7 @@ function mapLeaveState(state?: string): 'Pending' | 'Approved' | 'Rejected' {
 }
 
 export default function EmployeeRequests() {
-  const { rows, loading } = useCycomList<OdooLeave, RequestRow>(
+  const { rows, loading } = useCycomList<BackendLeave, RequestRow>(
     'hr.leave',
     [['state', 'in', ['confirm', 'validate1', 'validate', 'refuse']]],
     ['employee_id', 'holiday_status_id', 'number_of_days', 'date_from', 'date_to', 'state'],
@@ -82,7 +82,7 @@ export default function EmployeeRequests() {
 
       {loading && (
         <div className="glass-card p-8 text-center text-slate-400 text-sm">
-          Loading requests from Odoo…
+          Loading requests from backend…
         </div>
       )}
 

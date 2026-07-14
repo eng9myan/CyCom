@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Shield, MapPin, Calendar, FileText, CheckCircle2, 
   AlertTriangle, RefreshCw, Clock, ArrowRight, UserCheck
 } from 'lucide-react';
+import { useCycomList, fmtCode, m2oName, type Many2One } from '@/lib/cycomModels';
 
 interface PortalLeave {
   id: string;
@@ -35,8 +36,52 @@ const INITIAL_PAYSLIPS: PortalPayslip[] = [
 ];
 
 export default function PortalDashboard() {
+  const { rows: liveLeaves, loading: leavesLoading } = useCycomList<any, PortalLeave>(
+    'hr.leave',
+    [],
+    ['leave_type', 'start_date', 'end_date', 'days', 'status'],
+    (r) => {
+      let status: 'Pending' | 'Approved' | 'Rejected' = 'Pending';
+      if (r.status === 'approved' || r.state === 'validate') status = 'Approved';
+      else if (r.status === 'rejected' || r.state === 'refuse') status = 'Rejected';
+      return {
+        id: fmtCode('LV', r.id, 3),
+        type: r.holiday_status_id ? m2oName(r.holiday_status_id) : (r.leave_type ? r.leave_type.toUpperCase() + ' Leave' : 'Leave'),
+        startDate: r.date_from ? r.date_from.split(' ')[0] : (r.start_date ? String(r.start_date) : '—'),
+        endDate: r.date_to ? r.date_to.split(' ')[0] : (r.end_date ? String(r.end_date) : '—'),
+        reason: r.name || 'Personal leave',
+        status
+      };
+    }
+  );
+
+  const { rows: livePayslips, loading: paysLoading } = useCycomList<any, PortalPayslip>(
+    'hr.payslip',
+    [],
+    ['period', 'gross', 'net', 'status'],
+    (r) => ({
+      id: fmtCode('PS', r.id, 4),
+      period: r.period || 'Monthly Payslip',
+      baseSalary: Number(r.gross ?? 0),
+      netSalary: Number(r.net ?? 0),
+      datePaid: r.date_to ? r.date_to.split(' ')[0] : (r.period ? `${r.period}-28` : '—')
+    })
+  );
+
   const [leaves, setLeaves] = useState<PortalLeave[]>(INITIAL_LEAVES);
   const [payslips, setPayslips] = useState<PortalPayslip[]>(INITIAL_PAYSLIPS);
+
+  useEffect(() => {
+    if (!leavesLoading && liveLeaves.length > 0) {
+      setLeaves(liveLeaves);
+    }
+  }, [liveLeaves, leavesLoading]);
+
+  useEffect(() => {
+    if (!paysLoading && livePayslips.length > 0) {
+      setPayslips(livePayslips);
+    }
+  }, [livePayslips, paysLoading]);
   
   // Leave form states
   const [leaveType, setLeaveType] = useState('Annual Leave');

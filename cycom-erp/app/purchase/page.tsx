@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Briefcase, AlertCircle, ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
+import { Briefcase, AlertCircle, ShoppingBag, Users } from 'lucide-react';
 import { useCycomList, fmtDate, fmtMoney, m2oName, type Many2One } from '@/lib/cycomModels';
 import { LoadingCard, ErrorCard, EmptyCard } from '@/components/CycomEmptyStates';
 
@@ -62,6 +63,11 @@ export default function PurchasePage() {
         <div>
           <h1 className="page-title text-white">Procurement Pipeline</h1>
           <p className="page-subtitle">RFQs, purchase orders, vendor performance — wired to the Cycom procurement stack.</p>
+        </div>
+        <div className="flex gap-3">
+          <Link href="/purchase/vendors" className="btn-primary flex items-center gap-2">
+            <Users className="w-4 h-4" /> Vendor Directory
+          </Link>
         </div>
       </div>
 

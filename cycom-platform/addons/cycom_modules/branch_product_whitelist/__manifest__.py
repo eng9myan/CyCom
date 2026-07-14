@@ -1,5 +1,5 @@
 {
-    "name": "Branch Product Whitelist for Internal Transfers-Ameen-Cycom",
+    "name": "Branch Product Whitelist for Internal Transfers-Cycom",
     "version": "19.0.1.0.0",
     "category": "Inventory",
     "depends": ["stock", "product", "stock_picking_catalog"],

@@ -50,6 +50,40 @@ export const COMPANIES: Company[] = [
     currency: 'JOD',
     color: '#10B981',
     icon: '🏭'
+  },
+  {
+    id: 'COM-004',
+    name: 'CyberCom Group (HQ)',
+    shortName: 'CyberCom',
+    type: 'retail',
+    currency: 'JOD',
+    branches: [
+      'Amman Showroom — Car Terminal',
+      'Amman Showroom — Café POS',
+      'Amman Showroom — Restaurant POS',
+      'Amman Showroom — Supermarket POS',
+      'Dubai Showroom — Car Terminal',
+      'Dubai Showroom — Café POS',
+      'Dubai Showroom — Restaurant POS',
+      'Dubai Showroom — Supermarket POS',
+      'Riyadh Showroom — Car Terminal',
+      'Riyadh Showroom — Café POS',
+      'Riyadh Showroom — Restaurant POS',
+      'Riyadh Showroom — Supermarket POS',
+      'Factory — CyberCom Car Factory',
+      'Distributor 01 — Germany HQ',
+      'Distributor 02 — USA East',
+      'Distributor 03 — UK Logistics',
+      'Distributor 04 — Japan Hub',
+      'Distributor 05 — Canada Warehouse',
+      'Distributor 06 — France Center',
+      'Distributor 07 — Australia Depot',
+      'Distributor 08 — China Hub',
+      'Distributor 09 — Saudi Logistics',
+      'Distributor 10 — Egypt Warehouse'
+    ],
+    color: '#8B5CF6',
+    icon: '🚗'
   }
 ];
 

@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { Award, ShieldCheck, Heart, Users, Search, Plus, TrendingUp } from 'lucide-react';
 import { useCycomList, m2oName, fmtCode, Many2One } from '@/lib/cycomModels';
 
-// TODO: verify model name — may be hr.insurance in some Odoo versions
-type OdooInsurance = {
+// TODO: verify model name — may be hr.insurance in some backend versions
+type BackendInsurance = {
   id: number;
   employee_id?: Many2One;
   name?: string;
@@ -28,7 +28,7 @@ type ContractRow = {
 };
 
 export default function HealthInsurance() {
-  const { rows, loading } = useCycomList<OdooInsurance, ContractRow>(
+  const { rows, loading } = useCycomList<BackendInsurance, ContractRow>(
     'hr.employee.insurance', // TODO: verify model name
     [],
     ['employee_id', 'name', 'policy_number', 'insurance_provider', 'date_start', 'date_end', 'state'],
@@ -59,7 +59,7 @@ export default function HealthInsurance() {
 
       {loading && (
         <div className="glass-card p-8 text-center text-slate-400 text-sm">
-          Loading insurance data from Odoo…
+          Loading insurance data from backend…
         </div>
       )}
 

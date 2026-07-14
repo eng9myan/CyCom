@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "c
 
 from db import Base, get_tenant_session, get_engine_for_tenant
 from app.models.company import Company
+from app.db.base import Base as BackendBase
 from apps.finance.models import Account, CarbonAccount
 from localization import FiscalLocalizationEngine
 
@@ -38,6 +39,7 @@ def bootstrap_vertical(payload: SetupPayload, request: Request):
     try:
         # Create all tables (Finance, ESG, etc.) on the target tenant shard
         Base.metadata.create_all(bind=tenant_engine)
+        BackendBase.metadata.create_all(bind=tenant_engine)
 
         # 1. Create the Company record
         company = Company(

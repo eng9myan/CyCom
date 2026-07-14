@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText, CheckCircle2, ArrowRight, AlertTriangle, RefreshCw,
-  HelpCircle, Trash2, ShieldAlert, CheckCircle, Calculator
+  HelpCircle, Trash2, ShieldAlert, CheckCircle, Calculator, FileSpreadsheet
 } from 'lucide-react';
 import { useCycomList, m2oName, fmtCode, Many2One } from '@/lib/cycomModels';
 
@@ -35,7 +36,7 @@ const INITIAL_BANK_LINES: BankStatementLine[] = [
   { id: 'STMT-TX-104', date: '2026-06-14', label: 'CASH SALE DEP COUNTER A', amount: 180, matchedEntryId: 'MOVE/2026/06/002' },
 ];
 
-type OdooMove = {
+type BackendMove = {
   id: number;
   name?: string;
   date?: string;
@@ -52,7 +53,7 @@ function resolveJournal(name: string): 'Bank' | 'Cash' | 'General' {
 }
 
 export default function AccountingDashboard() {
-  const { rows: liveEntries, loading } = useCycomList<OdooMove, JournalEntry>(
+  const { rows: liveEntries, loading } = useCycomList<BackendMove, JournalEntry>(
     'account.move',
     [['move_type', '=', 'entry']],
     ['name', 'date', 'journal_id', 'partner_id', 'amount_total', 'state'],
@@ -199,6 +200,12 @@ export default function AccountingDashboard() {
           <p className="page-subtitle">Reconcile bank accounts, track journal drafts, post vendor payments, and configure bulk ledger states.</p>
         </div>
         <div className="flex gap-3">
+          <Link href="/accounting/reconciliation" className="btn-primary flex items-center gap-2">
+            <RefreshCw className="w-4 h-4 text-indigo-400" /> AI Reconciler
+          </Link>
+          <Link href="/accounting/import" className="btn-secondary flex items-center gap-2">
+            <FileSpreadsheet className="w-4 h-4 text-emerald-500" /> Import Entries
+          </Link>
           <button
             onClick={handleAutoReconcile}
             className="btn-secondary flex items-center gap-2"
@@ -208,7 +215,7 @@ export default function AccountingDashboard() {
           <button
             onClick={handleBulkDraft}
             disabled={selectedIds.length === 0}
-            className="btn-primary flex items-center gap-2 disabled:opacity-50"
+            className="btn-secondary flex items-center gap-2 disabled:opacity-50"
           >
             <CheckCircle className="w-4 h-4" /> Set Selected to Draft ({selectedIds.length})
           </button>
@@ -217,7 +224,7 @@ export default function AccountingDashboard() {
 
       {loading && (
         <div className="glass-card p-8 text-center text-slate-400 text-sm">
-          Loading journal entries from Odoo…
+          Loading journal entries from backend…
         </div>
       )}
 

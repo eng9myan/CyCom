@@ -44,7 +44,7 @@ export default function OvertimeApprovalFlow() {
   if (loading) return <div style={{padding:'2rem',color:'#ccc'}}>Loading...</div>;
 
   const handleAction = (_id: string, _action: 'Approved' | 'Rejected') => {
-    // TODO: call Odoo write API to update state, then reload
+    // TODO: call Backend write API to update state, then reload
   };
 
   return (

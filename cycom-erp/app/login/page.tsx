@@ -57,12 +57,12 @@ export default function LoginPage() {
           <div>
             <label className="text-xs text-slate-400 block mb-1.5 font-bold uppercase tracking-wider">Email Address</label>
             <div className="relative">
-              <User className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-500" />
+              <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
               <input 
                 type="email" 
                 required
                 placeholder="name@cycom.jo" 
-                className="input-field pl-10 py-3"
+                className="input-field !pl-10 !py-3"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -72,19 +72,19 @@ export default function LoginPage() {
           <div>
             <label className="text-xs text-slate-400 block mb-1.5 font-bold uppercase tracking-wider">Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-500" />
+              <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
               <input 
                 type={showPassword ? 'text' : 'password'} 
                 required
                 placeholder="••••••••" 
-                className="input-field pl-10 pr-10 py-3"
+                className="input-field !pl-10 !pr-10 !py-3"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <button 
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-slate-500 hover:text-white"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white flex items-center justify-center"
               >
                 {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
               </button>
