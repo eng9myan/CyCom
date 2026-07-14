@@ -240,7 +240,7 @@ export default function CycomSidebar() {
           
           return (
             <Link
-              key={item.href}
+              key={`${item.href}-${item.label}`}
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all border ${
                 active
