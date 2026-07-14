@@ -23,6 +23,24 @@ def bootstrap():
     print("Initializing database schemas...")
     Base.metadata.create_all(bind=engine)
 
+    # Ensure audit_logs has hash and previous_hash columns
+    from sqlalchemy import text
+    db_mig = SessionLocal()
+    for sql in [
+        "ALTER TABLE audit_logs ADD COLUMN hash VARCHAR",
+        "ALTER TABLE audit_logs ADD COLUMN previous_hash VARCHAR",
+        "ALTER TABLE companies ADD COLUMN parent_id INTEGER",
+        "ALTER TABLE companies ADD COLUMN short_name VARCHAR",
+        "ALTER TABLE companies ADD COLUMN country_code VARCHAR",
+        "ALTER TABLE companies ADD COLUMN type VARCHAR"
+    ]:
+        try:
+            db_mig.execute(text(sql))
+            db_mig.commit()
+        except Exception:
+            db_mig.rollback()
+    db_mig.close()
+
     db = SessionLocal()
     try:
         # Check if default company exists

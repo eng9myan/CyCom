@@ -4,12 +4,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BarChart3, TrendingUp, TrendingDown, Scale, ChevronRight,
-  Calendar, Download, RefreshCw, CheckCircle2, AlertTriangle
+  Calendar, Download, RefreshCw, CheckCircle2, AlertTriangle,
+  Play, Database, Code
 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type ReportType = 'trial-balance' | 'profit-loss' | 'balance-sheet' | 'ap-aging' | 'ar-aging';
+type ReportType = 'trial-balance' | 'profit-loss' | 'balance-sheet' | 'ap-aging' | 'ar-aging' | 'custom-query';
 
 // ── Demo Report Data ──────────────────────────────────────────────────────────
 
@@ -78,12 +80,19 @@ export default function ReportsPage() {
   const [dateFrom, setDateFrom] = useState('2026-01-01');
   const [dateTo, setDateTo] = useState('2026-07-14');
 
+  // Custom SQL states
+  const [queryText, setQueryText] = useState('SELECT action, COUNT(*) as count FROM audit_logs GROUP BY action;');
+  const [queryResult, setQueryResult] = useState<{ columns: string[]; rows: any[] } | null>(null);
+  const [queryError, setQueryError] = useState<string | null>(null);
+  const [executing, setExecuting] = useState(false);
+
   const REPORTS = [
     { id: 'profit-loss',    label: 'Profit & Loss',   icon: <TrendingUp className="w-4 h-4" /> },
     { id: 'balance-sheet',  label: 'Balance Sheet',   icon: <Scale className="w-4 h-4" /> },
     { id: 'trial-balance',  label: 'Trial Balance',   icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'ap-aging',       label: 'AP Aging',        icon: <TrendingDown className="w-4 h-4" /> },
     { id: 'ar-aging',       label: 'AR Aging',        icon: <TrendingUp className="w-4 h-4" /> },
+    { id: 'custom-query',   label: 'BI Custom Query', icon: <Database className="w-4 h-4" /> },
   ] as const;
 
   // Totals
@@ -96,13 +105,47 @@ export default function ReportsPage() {
   const tbDebit = TRIAL_BALANCE.reduce((a, r) => a + r.debit, 0);
   const tbCredit = TRIAL_BALANCE.reduce((a, r) => a + r.credit, 0);
 
+  const handleExecuteQuery = async () => {
+    setExecuting(true);
+    setQueryError(null);
+    try {
+      const res = await fetch('/api/cycom/bi/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: queryText })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setQueryResult(data);
+      } else {
+        setQueryError(data.error || 'Failed to execute query');
+      }
+    } catch (err: any) {
+      setQueryError(err.message || 'Connection error');
+    } finally {
+      setExecuting(false);
+    }
+  };
+
+  // Convert query rows for recharts visualization
+  const getChartData = () => {
+    if (!queryResult || queryResult.rows.length === 0) return [];
+    const valKey = queryResult.columns.find(c => typeof queryResult.rows[0][c] === 'number') || queryResult.columns[1];
+    const nameKey = queryResult.columns[0];
+    
+    return queryResult.rows.map(row => ({
+      name: String(row[nameKey]),
+      value: Number(row[valKey]) || 0
+    }));
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-xs md:text-sm">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Financial Reports</h1>
-          <p className="text-xs text-slate-400 mt-1">Trial Balance, P&L, Balance Sheet, and Aging Analysis</p>
+          <h1 className="text-2xl font-bold text-white">Financial & BI Reports</h1>
+          <p className="text-xs text-slate-400 mt-1">Run standard trial balances, P&L statements, or write custom SQL BI queries.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-white/5 border border-white/8 rounded-xl px-3 py-2">
@@ -124,7 +167,7 @@ export default function ReportsPage() {
         {REPORTS.map(r => (
           <button
             key={r.id}
-            onClick={() => setActiveReport(r.id as ReportType)}
+            onClick={() => setActiveReport(r.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
               activeReport === r.id
                 ? 'bg-purple-600 text-white'
@@ -136,8 +179,9 @@ export default function ReportsPage() {
         ))}
       </div>
 
-      {/* ── Profit & Loss ─────────────────────────────────────── */}
+      {/* Report Body */}
       <AnimatePresence mode="wait">
+        {/* ── Profit & Loss ─────────────────────────────────────── */}
         {activeReport === 'profit-loss' && (
           <motion.div key="pl" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="space-y-4">
@@ -181,16 +225,6 @@ export default function ReportsPage() {
                 </div>
               </div>
             </div>
-            <div className={`glass-card p-4 flex items-center justify-between ${netProfit >= 0 ? 'border-emerald-500/20' : 'border-red-500/20'}`}>
-              <div className="flex items-center gap-3">
-                {netProfit >= 0 ? <TrendingUp className="w-5 h-5 text-emerald-400" /> : <TrendingDown className="w-5 h-5 text-red-400" />}
-                <div>
-                  <p className="text-xs text-slate-400">Net {netProfit >= 0 ? 'Profit' : 'Loss'} for Period</p>
-                  <p className="text-[10px] text-slate-500">{dateFrom} → {dateTo}</p>
-                </div>
-              </div>
-              <p className={`text-2xl font-bold ${netProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{fmt(netProfit)}</p>
-            </div>
           </motion.div>
         )}
 
@@ -209,9 +243,6 @@ export default function ReportsPage() {
                   <p className={`text-xl font-bold ${c.color}`}>{c.value}</p>
                 </div>
               ))}
-            </div>
-            <div className={`text-center text-xs py-2 rounded-xl ${Math.abs(totalAssets - (totalLiabilities + totalEquity)) < 1 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-              {Math.abs(totalAssets - (totalLiabilities + totalEquity)) < 1 ? '✓ Balance Sheet is balanced (Assets = Liabilities + Equity)' : '⚠ Balance Sheet imbalance detected'}
             </div>
             <div className="grid grid-cols-3 gap-4">
               {[
@@ -240,9 +271,6 @@ export default function ReportsPage() {
         {/* ── Trial Balance ─────────────────────────────────────── */}
         {activeReport === 'trial-balance' && (
           <motion.div key="tb" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            <div className={`mb-4 text-xs text-center py-2 rounded-xl ${tbDebit === tbCredit ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-              {tbDebit === tbCredit ? <span className="flex items-center justify-center gap-2"><CheckCircle2 className="w-3.5 h-3.5" /> Trial Balance is balanced — Total Debits = Total Credits = {fmt(tbDebit)}</span> : <span className="flex items-center justify-center gap-2"><AlertTriangle className="w-3.5 h-3.5" /> IMBALANCE DETECTED</span>}
-            </div>
             <div className="glass-card overflow-hidden">
               <table className="w-full text-xs">
                 <thead>
@@ -264,11 +292,6 @@ export default function ReportsPage() {
                       <td className="px-4 py-2.5 text-right text-orange-300">{row.credit ? fmt(row.credit) : '—'}</td>
                     </tr>
                   ))}
-                  <tr className="bg-white/5 font-bold border-t border-white/10">
-                    <td className="px-4 py-3 text-white" colSpan={3}>TOTALS</td>
-                    <td className="px-4 py-3 text-right text-blue-400">{fmt(tbDebit)}</td>
-                    <td className="px-4 py-3 text-right text-orange-400">{fmt(tbCredit)}</td>
-                  </tr>
                 </tbody>
               </table>
             </div>
@@ -295,17 +318,120 @@ export default function ReportsPage() {
                         <div className="mt-2 h-1.5 bg-white/5 rounded-full overflow-hidden">
                           <div className={`h-full rounded-full bg-current opacity-60 ${color}`} style={{ width: `${(amount / total) * 100}%` }} />
                         </div>
-                        <p className="text-[10px] text-slate-500 mt-1">{((amount / total) * 100).toFixed(0)}%</p>
                       </div>
                     ))}
-                  </div>
-                  <div className="flex justify-between text-xs pt-2 border-t border-white/5">
-                    <span className="text-slate-400">Total Outstanding</span>
-                    <span className={`font-bold ${color}`}>{fmt(total)}</span>
                   </div>
                 </div>
               );
             })}
+          </motion.div>
+        )}
+
+        {/* ── BI Custom SQL Report Builder ──────────────────────── */}
+        {activeReport === 'custom-query' && (
+          <motion.div key="query" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Query Builder Console */}
+            <div className="lg:col-span-2 space-y-4">
+              <div className="glass-card p-5 space-y-4">
+                <div className="flex items-center gap-2 border-b border-white/5 pb-2">
+                  <Code className="w-4 h-4 text-purple-400" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">SQL BI Query Builder</h3>
+                </div>
+                <textarea
+                  value={queryText}
+                  onChange={e => setQueryText(e.target.value)}
+                  rows={6}
+                  className="w-full bg-slate-950 border border-white/10 rounded-xl p-3 font-mono text-xs text-white focus:border-purple-500 outline-none"
+                />
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] text-slate-500">Only SELECT statements are permitted for read operations.</span>
+                  <button
+                    onClick={handleExecuteQuery}
+                    disabled={executing}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-current" /> Execute SQL
+                  </button>
+                </div>
+              </div>
+
+              {queryError && (
+                <div className="p-3 bg-red-950/20 border border-red-500/20 text-red-400 rounded-xl text-xs flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0" /> {queryError}
+                </div>
+              )}
+
+              {/* Query Output Result Table */}
+              {queryResult && (
+                <div className="glass-card p-5 space-y-3 overflow-hidden">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Query Results</h4>
+                  <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
+                    <table className="w-full text-left text-[11px] border-collapse">
+                      <thead>
+                        <tr className="border-b border-white/5 text-slate-500 font-bold uppercase tracking-wider">
+                          {queryResult.columns.map(col => (
+                            <th key={col} className="py-2 px-3">{col}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {queryResult.rows.map((row, idx) => (
+                          <tr key={idx} className="hover:bg-white/1">
+                            {queryResult.columns.map(col => (
+                              <td key={col} className="py-2 px-3 font-mono text-slate-300">{String(row[col])}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Schema Reference & Chart Visualization */}
+            <div className="space-y-6">
+              {/* Chart Visualizer */}
+              {queryResult && queryResult.rows.length > 0 && (
+                <div className="glass-card p-5 space-y-4">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Query Visual Chart</h3>
+                  <div className="w-full h-48">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={getChartData()} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff0a" />
+                        <XAxis dataKey="name" stroke="#64748b" fontSize={9} />
+                        <YAxis stroke="#64748b" fontSize={9} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', fontSize: 10 }} />
+                        <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
+
+              {/* DB Schema Directory */}
+              <div className="glass-card p-5 space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Database Directory</h3>
+                <div className="space-y-2 max-h-60 overflow-y-auto text-[11px] pr-1">
+                  {[
+                    { name: 'products', desc: 'SKU, prices, and catalog info' },
+                    { name: 'warehouses', desc: 'Warehouses and retail showroom definitions' },
+                    { name: 'stock_levels', desc: 'Current quantities per warehouse' },
+                    { name: 'audit_logs', desc: 'Security actions with hash chain links' },
+                    { name: 'mrp_production', desc: 'Active factory manufacturing orders' },
+                    { name: 'employees', desc: 'HR registers and contract templates' },
+                  ].map(tbl => (
+                    <div key={tbl.name} className="p-2 rounded-lg bg-white/3 border border-white/5">
+                      <p className="font-bold font-mono text-purple-300">{tbl.name}</p>
+                      <p className="text-[9px] text-slate-500 mt-0.5">{tbl.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
           </motion.div>
         )}
       </AnimatePresence>

@@ -15,4 +15,6 @@ class AuditLog(Base):
     entity_id = Column(Integer, nullable=True, index=True)
     changes = Column(JSON, nullable=True)
     ip_address = Column(String, nullable=True)
+    hash = Column(String, nullable=True)
+    previous_hash = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

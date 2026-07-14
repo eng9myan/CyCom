@@ -14,6 +14,7 @@ from app.models.crm import Lead, Opportunity
 from app.models.company import Company
 from app.models.config_param import ConfigParameter
 from app.models.payroll import Payslip, OvertimeClaim
+from app.models.audit_log import AuditLog
 from app.models.inventory import Warehouse, StockLevel, StockTransfer, StockMove
 from pydantic import BaseModel
 
@@ -68,6 +69,7 @@ MODEL_MAP = {
     "stock.move": StockMove,
     "stock.location": Warehouse,
     "product.product": Product,
+    "audit.log": AuditLog,
 }
 
 
@@ -230,6 +232,19 @@ def serialize_product(prod: Product, db: Session) -> dict:
     }
 
 
+def serialize_audit_log(log: AuditLog, db: Session) -> dict:
+    user = db.query(User).filter(User.id == log.user_id).first() if log.user_id else None
+    return {
+        "id": log.id,
+        "user_email": user.email if user else "system@cycom.com",
+        "action": log.action,
+        "model": log.entity_type,
+        "created_at": log.created_at.strftime("%Y-%m-%d %H:%M:%S") if log.created_at else "",
+        "current_hash": log.hash or "—",
+        "prev_hash": log.previous_hash or "—"
+    }
+
+
 def serialize_generic(obj, db: Session) -> dict:
     row = {}
     for col in obj.__table__.columns:
@@ -379,6 +394,8 @@ def rpc_call(
                 serialized.append(serialize_picking(r, db))
             elif model == "product.product":
                 serialized.append(serialize_product(r, db))
+            elif model == "audit.log":
+                serialized.append(serialize_audit_log(r, db))
             else:
                 serialized.append(serialize_generic(r, db))
         return serialized
