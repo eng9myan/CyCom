@@ -122,8 +122,13 @@ class EdgeSyncManager:
     def generate_downward_delta(db: Session, last_timestamp: datetime, tenant_id: int) -> List[Dict[str, Any]]:
         """Queries the cloud database for all records modified since the last sync time."""
         delta_payload = []
+        processed_classes = set()
 
         for model_name, model_class in MODEL_MAP.items():
+            if model_class in processed_classes:
+                continue
+            processed_classes.add(model_class)
+
             if not hasattr(model_class, "last_modified"):
                 continue
 
