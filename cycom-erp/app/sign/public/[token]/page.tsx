@@ -31,7 +31,7 @@ export default function PublicSignPage() {
   useEffect(() => {
     if (!token) return;
 
-    fetch(`http://localhost:8000/api/sign/requests/public/${token}`)
+    fetch(`/api/sign/requests/public/${token}`)
       .then(res => {
         if (!res.ok) throw new Error("Invalid or expired signature link.");
         return res.json();
@@ -118,7 +118,7 @@ export default function PublicSignPage() {
 
     setSigning(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/sign/requests/public/${token}/sign`, {
+      const res = await fetch(`/api/sign/requests/public/${token}/sign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
