@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.api.routers import sign, users, auth, rpc, finance, payroll, mrp
+from app.api.routers import sign, users, auth, rpc, finance, payroll, mrp, inventory
 from app.db.session import engine, Base
 from app.models import (
     attendance as attendance_models,
@@ -56,6 +56,7 @@ app.include_router(rpc.router, prefix="/api/rpc", tags=["RPC Proxy"])
 app.include_router(finance.router, prefix="/api/finance", tags=["Finance"])
 app.include_router(payroll.router, prefix="/api/payroll", tags=["Payroll"])
 app.include_router(mrp.router, prefix="/api/mrp", tags=["Manufacturing/PLM"])
+app.include_router(inventory.router, prefix="/api/inventory", tags=["Inventory"])
 
 @app.get("/")
 def read_root():

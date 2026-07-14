@@ -9,10 +9,12 @@ from app.core.dependencies import get_current_user
 from app.models.user import User, Role
 from app.models.hr import Employee, Department, Position
 from app.models.projects import Project, Task
+from app.models.product import Product
 from app.models.crm import Lead, Opportunity
 from app.models.company import Company
 from app.models.config_param import ConfigParameter
 from app.models.payroll import Payslip, OvertimeClaim
+from app.models.inventory import Warehouse, StockLevel, StockTransfer, StockMove
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -62,6 +64,10 @@ MODEL_MAP = {
     "mrp.work.order": WorkOrder,
     "mrp.eco": EngineeringChangeOrder,
     "mrp.work.center": WorkCenter,
+    "stock.picking": StockTransfer,
+    "stock.move": StockMove,
+    "stock.location": Warehouse,
+    "product.product": Product,
 }
 
 
@@ -192,6 +198,35 @@ def serialize_eco(eco: EngineeringChangeOrder, db: Session) -> dict:
         "stage_id": [1, eco.status],
         "user_id": [eco.approved_by_id or 0, approver_name],
         "create_date": eco.created_at.strftime("%Y-%m-%d %H:%M:%S") if eco.created_at else None,
+    }
+
+
+def serialize_picking(trans: StockTransfer, db: Session) -> dict:
+    source_wh = db.query(Warehouse).filter(Warehouse.id == trans.source_warehouse_id).first()
+    dest_wh = db.query(Warehouse).filter(Warehouse.id == trans.destination_warehouse_id).first()
+    return {
+        "id": trans.id,
+        "name": trans.reference,
+        "location_id": [trans.source_warehouse_id, source_wh.name if source_wh else "Unknown"],
+        "location_dest_id": [trans.destination_warehouse_id, dest_wh.name if dest_wh else "Unknown"],
+        "scheduled_date": trans.dispatched_at.strftime("%Y-%m-%d %H:%M:%S") if trans.dispatched_at else None,
+        "date_done": trans.received_at.strftime("%Y-%m-%d %H:%M:%S") if trans.received_at else None,
+        "state": trans.status.lower(),
+        "move_ids_without_package": [1]
+    }
+
+
+def serialize_product(prod: Product, db: Session) -> dict:
+    from sqlalchemy import func
+    total_qty = db.query(func.sum(StockLevel.quantity)).filter(StockLevel.product_id == prod.id).scalar() or 0.0
+    return {
+        "id": prod.id,
+        "name": prod.name,
+        "default_code": prod.sku,
+        "qty_available": float(total_qty),
+        "virtual_available": float(total_qty),
+        "uom_id": [1, prod.uom],
+        "categ_id": [prod.category_id or 1, "Standard"]
     }
 
 
@@ -340,6 +375,10 @@ def rpc_call(
                 serialized.append(serialize_overtime(r, db))
             elif model == "mrp.eco":
                 serialized.append(serialize_eco(r, db))
+            elif model == "stock.picking":
+                serialized.append(serialize_picking(r, db))
+            elif model == "product.product":
+                serialized.append(serialize_product(r, db))
             else:
                 serialized.append(serialize_generic(r, db))
         return serialized
