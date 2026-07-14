@@ -105,6 +105,19 @@ const MODULE_SIDEBARS: Record<string, ModuleConfig> = {
       { label: 'Timesheets Logs', href: '/project#timesheets', icon: Clock, dot: '#10B981' },
       { label: 'Create Task', href: '/project#create', icon: Plus, dot: '#F59E0B' }
     ]
+  },
+  accounting: {
+    title: 'Accounting & Finance',
+    icon: Calculator,
+    items: [
+      { label: 'Dashboard',           href: '/accounting',                  icon: BarChart2,   dot: '#A855F7' },
+      { label: 'Journal Entries',     href: '/accounting/journals',         icon: FileText,    dot: '#3B82F6' },
+      { label: 'Accounts Payable',    href: '/accounting/payables',         icon: DollarSign,  dot: '#F59E0B' },
+      { label: 'Accounts Receivable', href: '/accounting/receivables',      icon: TrendingUp,  dot: '#10B981' },
+      { label: 'Bank Reconciliation', href: '/accounting/reconciliation',   icon: Shield,      dot: '#00F0FF' },
+      { label: 'Financial Reports',   href: '/accounting/reports',          icon: BarChart2,   dot: '#EC4899' },
+      { label: 'Ledger Import',       href: '/accounting/import',           icon: FolderOpen,  dot: '#5DADE2' },
+    ]
   }
 };
 
