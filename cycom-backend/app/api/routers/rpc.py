@@ -16,6 +16,10 @@ from app.models.config_param import ConfigParameter
 from app.models.payroll import Payslip, OvertimeClaim
 from app.models.audit_log import AuditLog
 from app.models.inventory import Warehouse, StockLevel, StockTransfer, StockMove
+from app.models.mrp import (
+    BillOfMaterials, BillOfMaterialsLine, ManufacturingOrder,
+    WorkOrder, EngineeringChangeOrder, WorkCenter
+)
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -245,6 +249,25 @@ def serialize_audit_log(log: AuditLog, db: Session) -> dict:
     }
 
 
+def apply_column_rbac(model: str, record: dict, user: User, db: Session) -> dict:
+    if user.is_superuser:
+        return record
+    permissions = []
+    if user.role_id:
+        role = db.query(Role).filter(Role.id == user.role_id).first()
+        if role and role.permissions:
+            permissions = role.permissions
+            
+    if "finance.read" not in permissions and "finance.write" not in permissions:
+        if model == "product.product":
+            record.pop("cost_price", None)
+            record.pop("sale_price", None)
+        elif model == "hr.payslip":
+            record.pop("net_wage", None)
+            record.pop("net_salary", None)
+    return record
+
+
 def serialize_generic(obj, db: Session) -> dict:
     row = {}
     for col in obj.__table__.columns:
@@ -379,25 +402,26 @@ def rpc_call(
         serialized = []
         for r in records:
             if model == "hr.employee":
-                serialized.append(serialize_employee(r, db))
+                item = serialize_employee(r, db)
             elif model == "project.task":
-                serialized.append(serialize_task(r, db))
+                item = serialize_task(r, db)
             elif model == "crm.lead":
-                serialized.append(serialize_lead(r, db))
+                item = serialize_lead(r, db)
             elif model == "hr.payslip":
-                serialized.append(serialize_payslip(r, db))
+                item = serialize_payslip(r, db)
             elif model == "hr.attendance.overtime":
-                serialized.append(serialize_overtime(r, db))
+                item = serialize_overtime(r, db)
             elif model == "mrp.eco":
-                serialized.append(serialize_eco(r, db))
+                item = serialize_eco(r, db)
             elif model == "stock.picking":
-                serialized.append(serialize_picking(r, db))
+                item = serialize_picking(r, db)
             elif model == "product.product":
-                serialized.append(serialize_product(r, db))
+                item = serialize_product(r, db)
             elif model == "audit.log":
-                serialized.append(serialize_audit_log(r, db))
+                item = serialize_audit_log(r, db)
             else:
-                serialized.append(serialize_generic(r, db))
+                item = serialize_generic(r, db)
+            serialized.append(apply_column_rbac(model, item, current_user, db))
         return serialized
 
     elif method == "create":
